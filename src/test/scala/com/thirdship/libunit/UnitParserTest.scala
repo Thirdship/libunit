@@ -75,7 +75,7 @@ class UnitParserTest extends FlatSpec with Matchers {
 
 	it should "handle interesting fractions" in {
 		List(
-//			"((m)/s)",
+			"((m)/s)",
 			"(m/(s))",
 			"((m)/(s))"
 		).foreach(a => { val b = UnitParser(a); println(a + " --> " + b); b should be(Some((Meters()/Seconds()).getUnit)) })

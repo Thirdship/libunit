@@ -81,6 +81,9 @@ final class UnitParser {
 	}
 
 	def cleanString(str: String): String = {
+		if(str == null)
+			return ""
+
 		str.replaceAll("""[\s\t\n]+""", " ").trim
 	}
 
