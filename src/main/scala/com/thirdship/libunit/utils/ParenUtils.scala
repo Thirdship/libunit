@@ -4,6 +4,23 @@ package com.thirdship.libunit.utils
  * Created by jacobingalls on 12/27/15.
  */
 object ParenUtils {
+	def findMatchingParen(str: String, first_paren: Int): Option[Int] = {
+
+		var level = 0
+		for(i <- first_paren to str.length - 1){
+
+			if(str.charAt(i).equals('('))
+				level += 1
+			else if(str.charAt(i).equals(')')) {
+				level -= 1
+				if(level == 0)
+					return Some(i)
+			}
+		}
+
+		None
+	}
+
 	def cleanParenTypes(str: String): String = {
 		val onlyParens = str.replaceAll("""[\[\{]""","(").replaceAll("""[\]\}]""",")")
 

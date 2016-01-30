@@ -81,6 +81,9 @@ final class UnitParser {
 	}
 
 	def cleanString(str: String): String = {
+		if(str == null)
+			return ""
+
 		str.replaceAll("""[\s\t\n]+""", " ").trim
 	}
 
@@ -95,7 +98,7 @@ final class UnitParser {
 
 	def registerTSUnit(ts: TSUnit): UnitParser = {
 		logger.info("("+name+") Registering "+ts.getClass.getName+ "to UnitParser.")
-		classes += ((ts.getClass, (s: String) => ts.parse(s))); this
+		classes += ((ts.getClass, (s: String) => {implicit val currentUnitParser = this; ts.parse(s)})); this
 	}
 
 	def unregisterTSUnit(ts: TSUnit): UnitParser = {
