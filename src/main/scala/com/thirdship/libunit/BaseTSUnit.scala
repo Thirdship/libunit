@@ -50,7 +50,7 @@ class BaseTSUnit(val name: String) extends TSUnit{
 
 	override def getUnitName: String = name
 
-	override private[libunit] def parse(str: String): Option[_ <: TSUnit] =
+	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] =
 		if(!str.isEmpty && str.equalsIgnoreCase(name))
 			Some(new BaseTSUnit(name))
 		else

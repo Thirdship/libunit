@@ -95,7 +95,7 @@ abstract class ConvertableTSUnit(val name: String, val unitName: String, val bas
 	 */
 	protected def getTSUnit(str: String): TSUnit
 
-	override private[libunit] def parse(str: String): Option[_ <: TSUnit] = {
+	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
 		val syn = parseMap.get(str.i) //TODO case sensitive
 		if(syn.isDefined)
 			Some(getTSUnit(syn.get))

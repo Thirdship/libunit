@@ -57,7 +57,7 @@ class ScalarTSUnit(val value: Double = 1) extends BaseTSUnit("Scalar"){
 		case u: TSUnit =>	super.equalUnits(u)
 	}
 
-	override private[libunit] def parse(str: String): Option[_ <: TSUnit] = {
+	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
 		if (str.isEmpty || str.equalsIgnoreCase(name))
 			Some(new ScalarTSUnit())
 		else

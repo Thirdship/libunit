@@ -194,7 +194,7 @@ trait TSUnit {
 	 * @param str the string to parse
 	 * @return an option that may contain a TSUnit.
 	 */
-	private[libunit] def parse(str: String): Option[_ <: TSUnit]
+	private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit]
 }
 
 class UnitsException(str: String) extends Exception{

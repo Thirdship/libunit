@@ -2,6 +2,7 @@ package com.thirdship.libunit
 
 import java.util
 
+import com.thirdship.libunit.units.ScalarHelpers.Scalar
 import com.thirdship.libunit.units.ScalarTSUnit
 import com.thirdship.libunit.utils.ParenUtils
 
@@ -328,10 +329,14 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 			return numerator.head
 		}
 
-		removeExactDuplicates() match {
-			case u: ComputableTSUnit => u.simplifyConvertibleUnits()
-			case u: TSUnit => u
-		}
+//		val noDuplicates = removeExactDuplicates()
+//
+//		noDuplicates match {
+//			case u: ComputableTSUnit => u.simplifyConvertibleUnits()
+//			case u: TSUnit => u
+//		}
+
+		simplifyConvertibleUnits()
 	}
 
 	/**
@@ -440,18 +445,147 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 		new ComputableTSUnit(numerator, denominator, true, scalar)
 	}
 
-	override private[libunit] def parse(str: String): Option[_ <: TSUnit] = {
+	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
 		//replace all forms of braces with parenthesis.
 		val str_all_parens = ParenUtils.cleanParenTypes(str)
 
 		//remove duplicate parenthesis
 		val str_no_duplicate_parens = ParenUtils.removeDuplicates(str_all_parens)
 
+		val parsed = parseRecursive(str_no_duplicate_parens, currentUnitParser)
 
 
-		println(str_no_duplicate_parens)
+		parsed
+	}
 
 
-		None
+	private def parseRecursive(str: String, currentUnitParser: UnitParser): Option[_ <: TSUnit] = {
+		if(str.length <= 0) return None
+
+		//find first param
+
+		val first_paren = str.indexOf("(")
+//		val last_paren = str.indexOf(")")
+
+		val units: List[TSUnit] = if(first_paren >= 0) {
+
+			val before = str.substring(0, first_paren).trim
+			val matching_paren = ParenUtils.findMatchingParen(str, first_paren).getOrElse(str.length-1)
+
+			val selection = str.substring(first_paren + 1, matching_paren)
+			val rest = str.substring(matching_paren + 1, str.length).trim
+			if(before.endsWith("/")){
+
+				val before_unit = currentUnitParser.parse(before.substring(0, before.length-1))
+				val selection_unit = currentUnitParser.parse(selection)
+				val rest_unit = currentUnitParser.parse(rest)
+
+				//TODO handle (a b)^2 --> a a b b, a (b c)^-1 --> a/ b c
+
+				val rel = if(before_unit.isDefined){
+					Some(before_unit.get / selection_unit.getOrElse(new ScalarTSUnit()))
+				} else None
+
+				List(rel, rest_unit).flatten
+
+			}else if(rest.startsWith("/")){
+
+				val before_unit = currentUnitParser.parse(before)
+				val selection_unit = currentUnitParser.parse(selection)
+				val rest_unit = currentUnitParser.parse(rest.substring(1))
+
+				//TODO handle (a b)^2 --> a a b b, a (b c)^-1 --> a/ b c
+
+				val rel = if(selection_unit.isDefined){
+					Some(selection_unit.get / rest_unit.getOrElse(new ScalarTSUnit()))
+				} else None
+
+				List(before_unit, rel).flatten
+
+			} else {
+				val before_unit = currentUnitParser.parse(before)
+				val selection_unit = currentUnitParser.parse(selection)
+				val rest_unit = currentUnitParser.parse(rest)
+
+				//TODO handle (a b)^2 --> a a b b, a (b c)^-1 --> a/ b c
+
+				List(before_unit, selection_unit, rest_unit).flatten
+			}
+
+		} else {
+			// May contain * / ' ' or more than one concatenated.
+			val divisor = str.indexOf("/")
+
+			if(divisor >= 0){
+				val numerator = str.substring(0,divisor)
+				val denominator = str.substring(divisor+1, str.length)
+
+				val numerator_unit: Option[TSUnit] = currentUnitParser.parse(numerator)
+				val denominator_unit: Option[TSUnit] = currentUnitParser.parse(denominator)
+
+				if(numerator_unit.isDefined && denominator_unit.isDefined)
+					List(numerator_unit.get / denominator_unit.get)
+				else
+					List.empty
+			} else {
+				// We can assume that there are zero, one, or more units.
+
+				//TODO fix the case of mph, ftlbs ect...
+
+				val list = str.split( """[\*\s]""").toList.filter(s => s.nonEmpty)
+
+				// perform ^ operation, m^2^2s^2 --> m m m m s s
+				val power_applied: List[String] = list.flatMap(s => {
+					val groupings = """[a-zA-Z]+(\^\-*[0-9]+)+""".r.findAllIn(s).toList
+
+					if(groupings.isEmpty)
+						List(s)
+					else {
+						groupings.flatMap(g => {
+							val arr = g.split("""\^""").toList
+							val unit = arr.head
+							val power = arr.drop(1)
+								.map(n => try {
+									Integer.parseInt(n).toDouble
+								} catch {
+									case _: Exception => 0d
+								})
+								.foldRight(1d)((pow, out) =>
+									Math.pow(pow, out)
+								)
+								.toInt
+
+							var ret = List.empty[String]
+							for (i <- 1 to Math.abs(power))
+								ret = ret.::(unit)
+
+							if(power >= 0)
+								ret
+							else
+								ret.map(u => "1/"+u)
+						})
+					}
+				})
+
+				if(power_applied.length <= 1)
+					List.empty
+				else
+					power_applied.flatMap(currentUnitParser.parse)
+			}
+		}
+
+		if(units.nonEmpty) {
+			val out_unit = units.foldLeft[TSUnit](new ScalarTSUnit())( (out, in) => in match {
+				case i: ComputableTSUnit => i * out
+				case o: TSUnit => out * o
+			})
+
+//			if (str.trim.startsWith("/"))
+//				Some(out_unit.inverse)
+//			else
+			Some(out_unit)
+
+		} else
+			None
 	}
 }
