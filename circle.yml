@@ -2,7 +2,7 @@ machine:
   java:
     version: openjdk8
   scala:
-  	version: 2.11.7
+    version: 2.11.7
   environment:
     SBT_VERSION: 0.13.8
     SBT_OPTS: "-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled
