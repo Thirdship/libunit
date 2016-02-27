@@ -23,32 +23,31 @@ object TSUnitConversion {
     *           otherwise, returns a null conversion
     */
 
-  def searchConversions(start: TSUnit, end: TSUnit): ConversionEdge = {
+  def getConversions(start: TSUnit, end: TSUnit): ConversionEdge = {
     if(start == end)
       return new ConversionEdge(start, start, 1, 0)
-    allConversions.foreach(conversion => {
+    allConversions.foreach(conversion => { //TODO use filters
       if(conversion.start == start && conversion.end == end)
         return conversion
       else if(conversion.end == start && conversion.start == end)
-        return new ConversionEdge(start,end,1/conversion.factor,1+conversion.cost)
+        return conversion.commute
     })
-    null
+    null // TODO use optionals
   }
 
   /**
     * Returns a list of units adjacent to the the given unit in the unit-conversion graph
     *
     * @note "Adjacent" refers to whether or not a conversion exists between two given units
-    *
     * @param    center the unit about which adjacent units are found
     * @return   a list of adjacent units to center
     */
 
-  def searchNeighbors(center: TSUnit): List[TSUnit] = {
+  def getNeighbors(center: TSUnit): List[TSUnit] = {
     var neighbors = List.empty[TSUnit]
     //println(center + " is my center (SN)")
     allTSUnits.foreach(maybeNeighbor => {
-      if(searchConversions(center,maybeNeighbor) != null && center != maybeNeighbor){
+      if(getConversions(center,maybeNeighbor) != null && center != maybeNeighbor){
         neighbors :+= maybeNeighbor
         //println(maybeNeighbor + " is a neighbor of " + center + " (SN)")
       }
@@ -59,12 +58,12 @@ object TSUnitConversion {
   /**
     * Returns a value of approximate cost that is used to evaluate best paths
     *
-    * @param  current The unit start
-    * @param  goal    The unit goal
+    * @param  start The unit start
+    * @param  end     The unit goal
     * @return a value that is at most the actual cost converting form current to goal
     */
-  def heuristic(current: TSUnit, goal: TSUnit): Double = {
-    val piece: ConversionEdge = searchConversions(current,goal)
+  def heuristic(start: TSUnit, end: TSUnit): Double = {
+    val piece: ConversionEdge = getConversions(start,end)
     if(piece != null)
       piece.cost // returns cost if already calculated
     else
@@ -78,47 +77,44 @@ object TSUnitConversion {
     *
     * @param  cameFrom  A map with keys of units and values of the unit they "came from" during the A* algorithm search
     * @param  start     The starting unit from the search
-    * @param  goal      The ending unit form the search
+    * @param  end      The ending unit form the search
     * @return A conversion from start to goal, using the information from cameFrom
     */
-  def reconstructPath(cameFrom: Map[ TSUnit, TSUnit], start: TSUnit, goal: TSUnit): ConversionEdge = {
-    var totalPath = List.empty[TSUnit]
-    var node: TSUnit = goal.asInstanceOf[TSUnit]
-    while(node != null){
-      totalPath +:= node
-      node = cameFrom(node)
-    }
-    //println(totalPath)
+  def reconstructPath(cameFrom: Map[ TSUnit, TSUnit], start: TSUnit, end: TSUnit): ConversionEdge = {
+    var stepAfter: TSUnit = end.asInstanceOf[TSUnit]
+    var stepBefore: TSUnit = cameFrom(end)
     var shortcutFactor: Double = 1
     var shortcutCost: Double = 0
-    for (k <- 0 until totalPath.length-1){
-      val piece = searchConversions(totalPath(k),totalPath(k+1))
+    while(stepBefore != null){
+      val piece = getConversions(stepBefore,stepAfter)
       shortcutFactor *= piece.factor
       shortcutCost += piece.cost
+      stepAfter = stepBefore
+      stepBefore = cameFrom(stepBefore)
     }
-    val shortcut = new ConversionEdge(start,goal,shortcutFactor,shortcutCost)
+    val shortcut = new ConversionEdge(start,end,shortcutFactor,shortcutCost)
     allConversions :+= shortcut
     //println("Path reconstructed! " + shortcut)
     shortcut
   }
 
   /**
-    * A pathmaxx algorithm that maintains consistency in heuristic cost reporting.
-    * This ensures that the heuristic from current to goal reproted to the algorithm is always no more than
+    * A pathmax algorithm that maintains consistency in heuristic cost reporting.
+    * This ensures that the heuristic from current to goal reported to the algorithm is always no more than
     * the heuristic from a neighbor of current to the goal and the cost from converting from current to that neighbor.
     *
-    * @param  current the current unit being explored
-    * @param  goal    the goal unit at the end of the heuristic
+    * @param  start  the current unit being explored
+    * @param  end    the goal unit at the end of the heuristic
     * @return the consistent cost of converting from current to goal
     */
-  def heuristicPM(current: TSUnit, goal: TSUnit): Double = {
+  def heuristicPM(start: TSUnit, end: TSUnit): Double = {
     var neighborCost = List.empty[Double]
     var conversion: ConversionEdge = null
-    neighborCost :+= heuristic(current,goal)
+    neighborCost :+= heuristic(start,end)
     allTSUnits.foreach(unit => {
-      conversion = searchConversions(current,unit)
-      if(conversion != null && unit != current)
-        neighborCost :+= heuristic(unit,goal) - conversion.cost
+      conversion = getConversions(start,unit)
+      if(conversion != null && unit != start)
+        neighborCost :+= heuristic(unit,end) - conversion.cost
     })
     neighborCost.max
   }
@@ -138,64 +134,56 @@ object TSUnitConversion {
     * This is used to reconstruct the path taken by the algorithm.
     *
     * @param start  The start unit for the search, the one being converted from.
-    * @param goal   The goal unit for the search, the one being converted to.
+    * @param end   The goal unit for the search, the one being converted to.
     * @return A conversion from start to goal that is the most conversion-cost-efficient.
     */
-  def aStar(start: TSUnit, goal: TSUnit): ConversionEdge = {
+  def aStar(start: TSUnit, end: TSUnit): ConversionEdge = {
     //println("A* algorithm begun! " + start + " is the start and " + goal + " is the goal.")
+    if(!allTSUnits.contains(start)){
+      val startNotUnit = new ConversionEdge(new BaseTSUnit("start is"),new BaseTSUnit("not a unit!"),1,0)
+      return startNotUnit
+    }
+    if(!allTSUnits.contains(end)){
+      val endNotUnit = new ConversionEdge(new BaseTSUnit("end is"),new BaseTSUnit("not a unit!"),1,0)
+      return endNotUnit
+    }
     var closedSet = List.empty[TSUnit]
     var openSet = List.empty[TSUnit]
     openSet :+= start
     var cameFrom = Map.empty[TSUnit,TSUnit]
-    allTSUnits.foreach(unit => {
-      cameFrom += (unit -> null)
-    })
     // All the units populate cameFrom as keys, and are adjusted as the algorithm finds paths.
     var current: TSUnit = null
 
     var gScore = Map.empty[TSUnit,Double]
     var fScore = Map.empty[TSUnit,Double]
-    allTSUnits.foreach(unit => {
-      if(unit == start){
-        gScore += start -> 0
-        fScore += start -> heuristicPM(start,goal)
-        // If the specified unit is the start, then the cost from start to start is 0, and the cost from start to goal is the heuristic only.
-      }
-      else{
-        gScore += unit -> Double.PositiveInfinity
-        fScore += unit -> Double.PositiveInfinity
-        // By initializing every other unit with large scores, the algorithm does not investigate these until necessary.
-      }
-    })
+    gScore += start -> 0
+    fScore += start -> heuristicPM(start,end)
 
     while(openSet.nonEmpty){
-      current = openSet.reduce((x,y) =>{
-        if(fScore(x) < fScore(y))
-          x
-        else y
-      })
-      // current is set to be the unit in the openSet iwht the lowest f score
+      openSet.sortWith(fScore.getOrElse(_,Double.PositiveInfinity) < fScore.getOrElse(_,Double.PositiveInfinity))
+      current = openSet.head
+      // current is set to be the unit in the openSet with the lowest f score.
       //println(current + " is the current unit (A*)")
-      if(current == goal){
-        val shortcut = reconstructPath(cameFrom,start,goal)
+      if(current == end){
+        val shortcut = reconstructPath(cameFrom,start,end)
         return shortcut
       } // If the unit with the lowest f score is the goal, then the path has been found.
       //println(current + " is not the goal (A*)")
       openSet = openSet.filterNot(_ == current)
       closedSet :+= current
       // Otherwise, since the current unit is not the goal, it is removed from openSet and added to closedSet before proceeding.
-      val neighbors = searchNeighbors(current).filterNot(neighbor => closedSet.contains(neighbor))
+      val neighbors = getNeighbors(current).filterNot(neighbor => closedSet.contains(neighbor))
       // neighbors is a list of all units adjacent to current not already eliminated. We now look for a possible path to proceed forward on.
       neighbors.foreach(neighbor => {
         //println(neighbor + " is a neighbor of " + current + " (A*)")
-        val maybeGScore = gScore(current) + heuristicPM(current,neighbor)
+        val maybeGScore = gScore(current) + getConversions(current,neighbor).cost
         var notBetterPath = false
         // A flag to see if the path being tried is better than existing paths to the neighbor.
         if(!openSet.contains(neighbor)){
           //println("Adding " + neighbor + " to the open set (A*)")
           openSet :+= neighbor
         } // No existing paths are present.
-        else if(maybeGScore >= gScore(neighbor)){
+        else if(maybeGScore >= gScore.getOrElse(neighbor,Double.PositiveInfinity)){
           notBetterPath = true
         } // The path already found to get to neighbor is better, so move to the next neighbor.
         if(!notBetterPath){
@@ -208,7 +196,7 @@ object TSUnitConversion {
           gScore += (neighbor -> maybeGScore)
           // Set the g score of neighbor to have gone through this current unit.
           fScore -= neighbor
-          fScore += (neighbor -> (gScore(neighbor) + heuristicPM(neighbor,goal)))
+          fScore += (neighbor -> (gScore(neighbor) + heuristicPM(neighbor,end)))
           // Set the f score of neighbor to have gone through this current unit.
         }
       }) // Repeat over all neighbors of the current unit.
@@ -228,5 +216,11 @@ object TSUnitConversion {
   * @param factor The conversion factor from start to end.
   * @param cost   A measure of the precision cost form using this conversion from start to end.
   */
-case class ConversionEdge(start: TSUnit, end: TSUnit, factor: Double, cost: Double)
+case class ConversionEdge(start: TSUnit, end: TSUnit, factor: Double, cost: Double){
+
+  def commute: ConversionEdge = {
+    return new ConversionEdge(end,start,1/factor,cost+1)
+  }
+
+}
 

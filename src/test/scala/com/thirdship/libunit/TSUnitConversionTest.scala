@@ -23,11 +23,11 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
   val cst3 =   Random.nextDouble()
   TSUnitConversion.allTSUnits ++= List(alpha,beta,gamma,delta,epsilon)
 
-  "TSUnit" should "play well with maps" in {
+  "TSUnitConversion" should "play well with maps" in {
     Map(alpha -> fctr1)(alpha) should equal(fctr1)
   }
 
-  "ConversionEdge" should "make new edges" in {
+  it should "make new edges" in {
     val edgeA = new ConversionEdge(beta,alpha,fctr1,cst1)
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
@@ -50,55 +50,55 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     edgeC.cost should be(cst3)
   }
 
-  "searchConversions" should "find a cached edge" in {
+  it should "find a cached edge" in {
     val edgeA = new ConversionEdge(beta,alpha,fctr1,cst1)
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
 
-    TSUnitConversion.searchConversions(beta,alpha) should  be(edgeA)
-    TSUnitConversion.searchConversions(gamma,alpha) should be(edgeB)
-    TSUnitConversion.searchConversions(gamma,delta) should be(edgeC)
+    TSUnitConversion.getConversions(beta,alpha) should  be(edgeA)
+    TSUnitConversion.getConversions(gamma,alpha) should be(edgeB)
+    TSUnitConversion.getConversions(gamma,delta) should be(edgeC)
   }
 
-  "searchConversions" should "find a reflexive edge" in {
+  it should "find a reflexive edge" in {
     val edgeA = new ConversionEdge(beta,alpha,fctr1,cst1)
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
 
-    TSUnitConversion.searchConversions(alpha,alpha) should     be(new ConversionEdge(alpha,alpha,1,0))
-    TSUnitConversion.searchConversions(beta,beta) should       be(new ConversionEdge(beta,beta,1,0))
-    TSUnitConversion.searchConversions(gamma,gamma) should     be(new ConversionEdge(gamma,gamma,1,0))
-    TSUnitConversion.searchConversions(delta,delta) should     be(new ConversionEdge(delta,delta,1,0))
-    TSUnitConversion.searchConversions(epsilon,epsilon) should be(new ConversionEdge(epsilon,epsilon,1,0))
+    TSUnitConversion.getConversions(alpha,alpha) should     be(new ConversionEdge(alpha,alpha,1,0))
+    TSUnitConversion.getConversions(beta,beta) should       be(new ConversionEdge(beta,beta,1,0))
+    TSUnitConversion.getConversions(gamma,gamma) should     be(new ConversionEdge(gamma,gamma,1,0))
+    TSUnitConversion.getConversions(delta,delta) should     be(new ConversionEdge(delta,delta,1,0))
+    TSUnitConversion.getConversions(epsilon,epsilon) should be(new ConversionEdge(epsilon,epsilon,1,0))
   }
 
-  "searchConversions" should "find a commutative edge" in {
+  it should "find a commutative edge" in {
     val edgeA = new ConversionEdge(beta,alpha,fctr1,cst1)
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
 
-    TSUnitConversion.searchConversions(alpha,beta) should  be(new ConversionEdge(alpha,beta,1/fctr1,cst1+1))
-    TSUnitConversion.searchConversions(alpha,gamma) should be(new ConversionEdge(alpha,gamma,1/fctr2,cst2+1))
-    TSUnitConversion.searchConversions(delta,gamma) should be(new ConversionEdge(delta,gamma,1/fctr3,cst3+1))
+    TSUnitConversion.getConversions(alpha,beta) should  be(new ConversionEdge(alpha,beta,1/fctr1,cst1+1))
+    TSUnitConversion.getConversions(alpha,gamma) should be(new ConversionEdge(alpha,gamma,1/fctr2,cst2+1))
+    TSUnitConversion.getConversions(delta,gamma) should be(new ConversionEdge(delta,gamma,1/fctr3,cst3+1))
   }
 
-  "searchNeighbors" should "find neighbors" in {
+  it should "find neighbors" in {
     val edgeA = new ConversionEdge(beta,alpha,fctr1,cst1)
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
 
-    TSUnitConversion.searchNeighbors(alpha)   should be(List(beta,gamma))
-    TSUnitConversion.searchNeighbors(beta)    should be(List(alpha))
-    TSUnitConversion.searchNeighbors(gamma)   should be(List(alpha,delta))
-    TSUnitConversion.searchNeighbors(delta)   should be(List(gamma))
-    TSUnitConversion.searchNeighbors(epsilon) should be(List.empty[TSUnit])
+    TSUnitConversion.getNeighbors(alpha)   should be(List(beta,gamma))
+    TSUnitConversion.getNeighbors(beta)    should be(List(alpha))
+    TSUnitConversion.getNeighbors(gamma)   should be(List(alpha,delta))
+    TSUnitConversion.getNeighbors(delta)   should be(List(gamma))
+    TSUnitConversion.getNeighbors(epsilon) should be(List.empty[TSUnit])
   }
 
-  "heuristic" should "return  a real cost" in {
+  it should "return  a real cost" in {
     val edgeA = new ConversionEdge(beta,alpha,fctr1,cst1)
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
@@ -120,17 +120,17 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     TSUnitConversion.heuristic(epsilon,epsilon) should be(0)
   }
 
-  "reconstructPath" should "do its job" in {
+  it should "reconstruct a path" in {
     val edgeA = new ConversionEdge(beta,alpha,fctr1,cst1)
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
     val cameFrom: Map[TSUnit, TSUnit] = Map(alpha -> null,beta -> alpha,gamma -> alpha,delta -> gamma)
 
-    TSUnitConversion.reconstructPath(cameFrom,delta,alpha,delta) should be(new ConversionEdge(alpha,delta,(1/fctr2)*fctr3,cst2+1+cst3))
+    TSUnitConversion.reconstructPath(cameFrom,alpha,delta) should be(new ConversionEdge(alpha,delta,(1/fctr2)*fctr3,cst2+1+cst3))
   }
 
-  "aStar" should "search unit map and find conversions" in {
+  it should "search unit map and find conversions" in {
     val edgeA = new ConversionEdge(beta,alpha,fctr1,cst1)
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
