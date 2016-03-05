@@ -23,16 +23,16 @@ object TSUnitConversion {
     *           otherwise, returns a null conversion
     */
 
-  def getConversions(start: TSUnit, end: TSUnit): ConversionEdge = {
+  def getConversions(start: TSUnit, end: TSUnit): Option[ConversionEdge] = {
     if(start == end)
-      return new ConversionEdge(start, start, 1, 0)
-    allConversions.foreach(conversion => { //TODO use filters
-      if(conversion.start == start && conversion.end == end)
-        return conversion
-      else if(conversion.end == start && conversion.start == end)
-        return conversion.commute
-    })
-    null // TODO use optionals
+      return Some(new ConversionEdge(start, start, 1, 0)) // Reflexive edge
+    val equiv = allConversions.filter(a => (a.start == start) && (a.end == end))
+    if(equiv.nonEmpty)
+      return equiv.headOption // Cached edge
+    val invert = allConversions.filter(a => (a.end == start) && (a.start == end))
+    if(invert.nonEmpty)
+      return Some(invert.head.commute) // Commutative edge
+    None // Null edge
   }
 
   /**
@@ -47,7 +47,7 @@ object TSUnitConversion {
     var neighbors = List.empty[TSUnit]
     //println(center + " is my center (SN)")
     allTSUnits.foreach(maybeNeighbor => {
-      if(getConversions(center,maybeNeighbor) != null && center != maybeNeighbor){
+      if(getConversions(center, maybeNeighbor).isDefined && center != maybeNeighbor){
         neighbors :+= maybeNeighbor
         //println(maybeNeighbor + " is a neighbor of " + center + " (SN)")
       }
@@ -56,16 +56,18 @@ object TSUnitConversion {
   }
 
   /**
-    * Returns a value of approximate cost that is used to evaluate best paths
+    * Returns a value of approximate cost that is used to evaluate best paths.
+    *
+    * @note   The if-else structure is used for modularity, in order to add in different heuristics at a later time.
     *
     * @param  start The unit start
-    * @param  end     The unit goal
+    * @param  end   The unit goal
     * @return a value that is at most the actual cost converting form current to goal
     */
   def heuristic(start: TSUnit, end: TSUnit): Double = {
-    val piece: ConversionEdge = getConversions(start,end)
-    if(piece != null)
-      piece.cost // returns cost if already calculated
+    val piece: Option[ConversionEdge] = getConversions(start,end)
+    if(piece.isDefined)
+      piece.get.cost // returns cost if already calculated
     else
       0 //Dijkstra's Algorithm
   }
@@ -73,7 +75,7 @@ object TSUnitConversion {
   /**
     * Creates a new conversion from start to goal based on the cameFrom map. This is the last step of the A* algorithm.
     * Starting from the goal unit, cameFrom returns the unit previously found in the path A* constructed.
-    * Once cameFrom reaches the start node, a conversion is constructed form start to goal of the product of all the conversion factors in between, and the sum of all the costs in between.
+    * Once cameFrom reaches the start node, a conversion is constructed from start to end of the product of all the conversion factors, and the sum of all the costs.
     *
     * @param  cameFrom  A map with keys of units and values of the unit they "came from" during the A* algorithm search
     * @param  start     The starting unit from the search
@@ -82,15 +84,18 @@ object TSUnitConversion {
     */
   def reconstructPath(cameFrom: Map[ TSUnit, TSUnit], start: TSUnit, end: TSUnit): ConversionEdge = {
     var stepAfter: TSUnit = end.asInstanceOf[TSUnit]
-    var stepBefore: TSUnit = cameFrom(end)
+    val dummy: TSUnit = new BaseTSUnit("dummy")
+    var stepBefore: TSUnit = cameFrom.getOrElse(end,dummy)
     var shortcutFactor: Double = 1
     var shortcutCost: Double = 0
-    while(stepBefore != null){
+    while(stepBefore != dummy){
+      //println(stepAfter + " is the step after and " + stepBefore + " is the step before.")
       val piece = getConversions(stepBefore,stepAfter)
-      shortcutFactor *= piece.factor
-      shortcutCost += piece.cost
+      //println("Found a piece: " + piece)
+      shortcutFactor *= piece.get.factor
+      shortcutCost += piece.get.cost
       stepAfter = stepBefore
-      stepBefore = cameFrom(stepBefore)
+      stepBefore = cameFrom.getOrElse(stepBefore,dummy)
     }
     val shortcut = new ConversionEdge(start,end,shortcutFactor,shortcutCost)
     allConversions :+= shortcut
@@ -109,12 +114,12 @@ object TSUnitConversion {
     */
   def heuristicPM(start: TSUnit, end: TSUnit): Double = {
     var neighborCost = List.empty[Double]
-    var conversion: ConversionEdge = null
+    var conversion: Option[ConversionEdge] = None
     neighborCost :+= heuristic(start,end)
     allTSUnits.foreach(unit => {
       conversion = getConversions(start,unit)
-      if(conversion != null && unit != start)
-        neighborCost :+= heuristic(unit,end) - conversion.cost
+      if(conversion.isDefined && unit != start)
+        neighborCost :+= heuristic(unit,end) - conversion.get.cost
     })
     neighborCost.max
   }
@@ -176,7 +181,7 @@ object TSUnitConversion {
       // neighbors is a list of all units adjacent to current not already eliminated. We now look for a possible path to proceed forward on.
       neighbors.foreach(neighbor => {
         //println(neighbor + " is a neighbor of " + current + " (A*)")
-        val maybeGScore = gScore(current) + getConversions(current,neighbor).cost
+        val maybeGScore = gScore(current) + getConversions(current,neighbor).get.cost
         var notBetterPath = false
         // A flag to see if the path being tried is better than existing paths to the neighbor.
         if(!openSet.contains(neighbor)){
@@ -218,9 +223,12 @@ object TSUnitConversion {
   */
 case class ConversionEdge(start: TSUnit, end: TSUnit, factor: Double, cost: Double){
 
-  def commute: ConversionEdge = {
-    return new ConversionEdge(end,start,1/factor,cost+1)
-  }
+  /**
+    * A commuting method for ConversionEdge. This is used to get the inverse conversion between units without needing to store redundant ConversionEdges.
+    *
+    * @return A ConversionEdge with reversed endpoints, the inverse conversion factor, and cost increased by one.
+    */
+  def commute: ConversionEdge = new ConversionEdge(end,start,1/factor,cost+1)
 
 }
 

@@ -56,9 +56,9 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
 
-    TSUnitConversion.getConversions(beta,alpha) should  be(edgeA)
-    TSUnitConversion.getConversions(gamma,alpha) should be(edgeB)
-    TSUnitConversion.getConversions(gamma,delta) should be(edgeC)
+    TSUnitConversion.getConversions(beta,alpha) should  be(Some(edgeA))
+    TSUnitConversion.getConversions(gamma,alpha) should be(Some(edgeB))
+    TSUnitConversion.getConversions(gamma,delta) should be(Some(edgeC))
   }
 
   it should "find a reflexive edge" in {
@@ -67,11 +67,11 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
 
-    TSUnitConversion.getConversions(alpha,alpha) should     be(new ConversionEdge(alpha,alpha,1,0))
-    TSUnitConversion.getConversions(beta,beta) should       be(new ConversionEdge(beta,beta,1,0))
-    TSUnitConversion.getConversions(gamma,gamma) should     be(new ConversionEdge(gamma,gamma,1,0))
-    TSUnitConversion.getConversions(delta,delta) should     be(new ConversionEdge(delta,delta,1,0))
-    TSUnitConversion.getConversions(epsilon,epsilon) should be(new ConversionEdge(epsilon,epsilon,1,0))
+    TSUnitConversion.getConversions(alpha,alpha) should     be(Some(new ConversionEdge(alpha,alpha,1,0)))
+    TSUnitConversion.getConversions(beta,beta) should       be(Some(new ConversionEdge(beta,beta,1,0)))
+    TSUnitConversion.getConversions(gamma,gamma) should     be(Some(new ConversionEdge(gamma,gamma,1,0)))
+    TSUnitConversion.getConversions(delta,delta) should     be(Some(new ConversionEdge(delta,delta,1,0)))
+    TSUnitConversion.getConversions(epsilon,epsilon) should be(Some(new ConversionEdge(epsilon,epsilon,1,0)))
   }
 
   it should "find a commutative edge" in {
@@ -80,9 +80,9 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
 
-    TSUnitConversion.getConversions(alpha,beta) should  be(new ConversionEdge(alpha,beta,1/fctr1,cst1+1))
-    TSUnitConversion.getConversions(alpha,gamma) should be(new ConversionEdge(alpha,gamma,1/fctr2,cst2+1))
-    TSUnitConversion.getConversions(delta,gamma) should be(new ConversionEdge(delta,gamma,1/fctr3,cst3+1))
+    TSUnitConversion.getConversions(alpha,beta) should  be(Some(new ConversionEdge(alpha,beta,1/fctr1,cst1+1)))
+    TSUnitConversion.getConversions(alpha,gamma) should be(Some(new ConversionEdge(alpha,gamma,1/fctr2,cst2+1)))
+    TSUnitConversion.getConversions(delta,gamma) should be(Some(new ConversionEdge(delta,gamma,1/fctr3,cst3+1)))
   }
 
   it should "find neighbors" in {
@@ -125,9 +125,10 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     TSUnitConversion.allConversions ++= List(edgeA,edgeB,edgeC)
-    val cameFrom: Map[TSUnit, TSUnit] = Map(alpha -> null,beta -> alpha,gamma -> alpha,delta -> gamma)
+    val cameFrom: Map[TSUnit, TSUnit] = Map(beta -> alpha,gamma -> alpha,delta -> gamma)
 
     TSUnitConversion.reconstructPath(cameFrom,alpha,delta) should be(new ConversionEdge(alpha,delta,(1/fctr2)*fctr3,cst2+1+cst3))
+    TSUnitConversion.allConversions = TSUnitConversion.allConversions.filterNot(a => (a.start == alpha) && (a.end == delta))
   }
 
   it should "search unit map and find conversions" in {
@@ -138,8 +139,10 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
 
     //println("Instantiation passed!")
     TSUnitConversion.aStar(alpha,delta) should be(new ConversionEdge(alpha,delta,(1/fctr2)*fctr3,cst2+1+cst3))
+    TSUnitConversion.allConversions = TSUnitConversion.allConversions.filterNot(a => (a.start == alpha) && (a.end == delta))
     //println("Searching path passed!")
     TSUnitConversion.aStar(alpha,beta) should be(new ConversionEdge(alpha,beta,1/fctr1,cst1+1))
+    TSUnitConversion.allConversions = TSUnitConversion.allConversions.filterNot(a => (a.start == alpha) && (a.end == beta))
     //println("Commutative path passed!")
     TSUnitConversion.aStar(epsilon,alpha) should be(new ConversionEdge(new BaseTSUnit("Failed A*"),new BaseTSUnit("Failed A*"),1,0))
     //println("Null path passed!")
