@@ -20,24 +20,24 @@ trait TSUnit {
 	final private[libunit] lazy val unitTag = getClass.getSimpleName + "#" + getUnitName
 
 	/**
-	 * If convertable, it creates a conversion function to convert this to that, then applies the requested value
+	 * If convertible, it creates a conversion function to convert this to that, then applies the requested value
 	 *
 	 * @param that the destination TSUnit to convert to
 	 * @param value the value to convert
 	 * @return this->that(value)
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
 	final def convert(that: TSUnit, value: Double): Double =convert(that)(value)
 
 	/**
-	 * If convertable, it creates a conversion function to convert this to that
+	 * If convertible, it creates a conversion function to convert this to that
 	 *
 	 * @see com.thirdship.libunit.TSUnit#conversionFunction
 	 *
 	 * @param that the destination TSUnit to convert to
 	 * @return a function to convert this to that
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
 	final def convert(that: TSUnit): (Double) => Double =  if(isConvertible(that)) {
@@ -56,17 +56,17 @@ trait TSUnit {
 	 * 		* Assume that "meters" and "kilometers" are units that are properly defined
 	 *
 	 * @note
-	 * 		This code will only be called when this.isConvertable(unit) == true
+	 * 		This code will only be called when this.isConvertible(unit) == true
 	 *  	Make sure all function are pure and free of side effect.
 	 *
 	 * @param unit the unit to convert to.
 	 * @return a function that maps this.unit to unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	protected def conversionFunction(unit: TSUnit): (Double) => Double
+	protected def conversionFunction(unit: TSUnit): (Double) => Double = (a: Double) => a*TSUnitConversion.aStar(this,unit).factor
 
 	/**
-	 * Checks to see of the current unit is convertable into the requested unit
+	 * Checks to see of the current unit is convertible into the requested unit
 	 *
 	 * @example
 	 * 		"meters".isConvertible("kilometers") == true
@@ -118,7 +118,7 @@ trait TSUnit {
 	 * 		* Assume that m, s, and Scalar are TSUnits.
 	 * 		* Please note that the right hand column is a visual representation on what the TSUnit would represent
 	 *
-	 * @param that the unit to devide this by
+	 * @param that the unit to divide this by
 	 * @return this / that as a new TSUnit
 	 */
 	def /(that: TSUnit): TSUnit = new ComputableTSUnit(List(this), List(that)).simplifyType
@@ -161,7 +161,7 @@ trait TSUnit {
 	 *       Some TSUnits will have different units to represent the same data, but here they should return a common value.
 	 *
 	 * @note
-	 *        This is used primarily as a way to determine if units are convertable into each other.
+	 *        This is used primarily as a way to determine if units are convertible into each other.
 	 *
 	 * @example
 	 *  	Say that I want to represent time. I might choose to work with time in seconds. (This decision is arbitrary)
@@ -206,5 +206,5 @@ class InvalidConversion(str: String) extends UnitsException(str){}
 class UnableToConvertUnitsException(source: TSUnit, target: TSUnit) extends InvalidConversion(source+" was unable to be converted into "+target){}
 
 class InvalidConversionState(source: TSUnit, target: TSUnit) extends UnableToConvertUnitsException(source, target){
-	override def getMessage: String = source + " was unable to be converted into " + target + " but, passed convertable check."
+	override def getMessage: String = source + " was unable to be converted into " + target + ", but passed convertible check."
 }

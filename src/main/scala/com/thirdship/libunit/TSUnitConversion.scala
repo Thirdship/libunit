@@ -31,7 +31,7 @@ object TSUnitConversion {
       return equiv.headOption // Cached edge
     val invert = allConversions.filter(a => (a.end == start) && (a.start == end))
     if(invert.nonEmpty)
-      return Some(invert.head.commute) // Commutative edge
+      return Some(invert.head.inverted) // Commutative edge
     None // Null edge
   }
 
@@ -59,7 +59,6 @@ object TSUnitConversion {
     * Returns a value of approximate cost that is used to evaluate best paths.
     *
     * @note   The if-else structure is used for modularity, in order to add in different heuristics at a later time.
-    *
     * @param  start The unit start
     * @param  end   The unit goal
     * @return a value that is at most the actual cost converting form current to goal
@@ -228,7 +227,7 @@ case class ConversionEdge(start: TSUnit, end: TSUnit, factor: Double, cost: Doub
     *
     * @return A ConversionEdge with reversed endpoints, the inverse conversion factor, and cost increased by one.
     */
-  def commute: ConversionEdge = new ConversionEdge(end,start,1/factor,cost+1)
+  def inverted: ConversionEdge = new ConversionEdge(end,start,1/factor,cost+1)
 
 }
 
