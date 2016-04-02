@@ -7,10 +7,7 @@ package com.thirdship.libunit
   *       Each conversion also has a cost associated with the conversion, referring to the loss of precision when doing the conversion.
   *
   */
-object TSUnitConversion {
-
-  var allConversions = List.empty[ConversionEdge]
-  var allTSUnits = List.empty[TSUnit]
+case class AStarSolver(var allTSUnits: List[TSUnit], var allConversions: List[ConversionEdge]) {
 
   /**
     * Returns a conversion, if it exists, between the given units.
@@ -141,7 +138,7 @@ object TSUnitConversion {
     * @param end   The goal unit for the search, the one being converted to.
     * @return A conversion from start to goal that is the most conversion-cost-efficient.
     */
-  def aStar(start: TSUnit, end: TSUnit): ConversionEdge = {
+  def solve(start: TSUnit, end: TSUnit): ConversionEdge = {
     //println("A* algorithm begun! " + start + " is the start and " + goal + " is the goal.")
     if(!allTSUnits.contains(start)){
       val startNotUnit = new ConversionEdge(new BaseTSUnit("start is"),new BaseTSUnit("not a unit!"),1,0)

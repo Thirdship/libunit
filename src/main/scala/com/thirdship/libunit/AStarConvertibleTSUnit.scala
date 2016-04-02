@@ -2,8 +2,6 @@ package com.thirdship.libunit
 
 import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
-import com.thirdship.libunit.units.LengthTSUnit
-import com.thirdship.libunit.TSUnitConversion._
 
 /**
   * Provides an interface that would allow a TSUnit to convert to another TSUnit without changing classes.
@@ -16,7 +14,9 @@ import com.thirdship.libunit.TSUnitConversion._
   * @param name The name of the type unit, rather, what it represents. For example: Length, Time etc...
   * @param unitName The name of the unit itself. This would be m, km, s ect.
   */
-abstract class AStarConvertibleTSUnit(val name: String, val unitName: String) extends TSUnit {
+abstract class AStarConvertibleTSUnit(val name: String, val unitName: String, val baseUnit: String) extends TSUnit {
+
+  val aStar: AStarSolver
 
   /**
     * A map of unitName synonyms and the standard unitName
@@ -25,13 +25,13 @@ abstract class AStarConvertibleTSUnit(val name: String, val unitName: String) ex
 
   override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
     case u: AStarConvertibleTSUnit => generateConversionFunction(u)
-    case u: AStarComputableTSUnit => u.conversionFunction(this)
+    case u: ComputableTSUnit => u.conversionFunction(this)
     case _ => throw new InvalidConversionState(this, unit)
   }
 
   override def isConvertible(unit: TSUnit): Boolean = unit match {
     case u: AStarConvertibleTSUnit => unitName.equals(unitName)
-    case u: AStarComputableTSUnit => u.isConvertible(this)
+    case u: ComputableTSUnit => u.isConvertible(this)
     case _ => false
   }
 
@@ -40,7 +40,7 @@ abstract class AStarConvertibleTSUnit(val name: String, val unitName: String) ex
     * @param unit the unit to convert to
     * @return the function
     */
-  private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double = (a: Double) => a*aStar(this,unit).factor
+  private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double = (a: Double) => a * aStar.solve(this,unit).factor
 
   override def toString = unitName
 
@@ -79,4 +79,22 @@ abstract class AStarConvertibleTSUnit(val name: String, val unitName: String) ex
     else
       None
   }
+
+  protected def generateParseMap(map: Map[List[FuzzyString], String]): Map[ExactString, String] = {
+    if(aStar == null)
+      return Map.empty
+
+    val autoGen = units.map(k => (k, k.baseString)).toMap
+
+    val defined = map.flatMap(e => e._1.flatMap {
+      case fs: WordString => fs.asExactStringList
+      case fs: ExactString => List(fs)
+    }.map(fs => (fs, e._2)))
+
+    autoGen.++:(defined)
+  }
+
+  override def getUnitName = baseUnit
+
+  val units: List[ExactString]
 }

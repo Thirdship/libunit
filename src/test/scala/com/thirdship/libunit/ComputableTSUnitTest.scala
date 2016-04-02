@@ -78,6 +78,11 @@ class ComputableTSUnitTest extends FlatSpec with Matchers {
 		val km = Kilometers()
 		val s = Seconds()
 
+
+		val a = min.convertTo(s)
+		println(a)
+		a.getValue should be(60.0)
+
 		val ks = (m/s).convertTo(km/s)
 		println(ks)
 		ks.getValue should be(.001)

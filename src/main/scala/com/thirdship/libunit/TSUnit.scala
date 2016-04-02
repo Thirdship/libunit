@@ -63,7 +63,7 @@ trait TSUnit {
 	 * @return a function that maps this.unit to unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	protected def conversionFunction(unit: TSUnit): (Double) => Double = (a: Double) => a*TSUnitConversion.aStar(this,unit).factor
+	protected def conversionFunction(unit: TSUnit): (Double) => Double
 
 	/**
 	 * Checks to see of the current unit is convertible into the requested unit
