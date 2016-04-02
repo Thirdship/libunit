@@ -3,7 +3,19 @@ package com.thirdship.libunit
 import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
 import com.thirdship.libunit.units.LengthTSUnit
+import com.thirdship.libunit.TSUnitConversion._
 
+/**
+  * Provides an interface that would allow a TSUnit to convert to another TSUnit without changing classes.
+  *
+  * The idea behind this is to allow a ridged typing system on what a unit represents, not necessarily the scale. This
+  * decision was made as the upkeep behind it would be massive, not necessarily between Meters and KiloMeters, but
+  * between MetersOverSeconds, MetersSquaredOverMinutes, ect... Instead, we allow units to be the same type and specify
+  * their scaling.
+  *
+  * @param name The name of the type unit, rather, what it represents. For example: Length, Time etc...
+  * @param unitName The name of the unit itself. This would be m, km, s ect.
+  */
 abstract class AStarConvertibleTSUnit(val name: String, val unitName: String) extends TSUnit {
 
   /**
@@ -23,10 +35,12 @@ abstract class AStarConvertibleTSUnit(val name: String, val unitName: String) ex
     case _ => false
   }
 
-  private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double = {
-    val conversion = TSUnitConversion.aStar(this,unit)
-    (a: Double) => a*conversion.factor
-  }
+  /**
+    * Creates a function that converts from this to a given AStarConvertibleTSUnit
+    * @param unit the unit to convert to
+    * @return the function
+    */
+  private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double = (a: Double) => a*aStar(this,unit).factor
 
   override def toString = unitName
 
@@ -64,16 +78,5 @@ abstract class AStarConvertibleTSUnit(val name: String, val unitName: String) ex
       Some(getTSUnit(syn.get))
     else
       None
-  }
-
-  protected def generateParseMap(map: Map[List[FuzzyString], String]): Map[ExactString, String] = {
-    val autoGen = conversionMap.keys.map(k => (k, k.baseString)).toMap //TODO make A* friendly
-
-    val defined = map.flatMap(e => e._1.flatMap {
-      case fs: WordString => fs.asExactStringList
-      case fs: ExactString => List(fs)
-    }.map(fs => (fs, e._2)))
-
-    autoGen.++:(defined)
   }
 }

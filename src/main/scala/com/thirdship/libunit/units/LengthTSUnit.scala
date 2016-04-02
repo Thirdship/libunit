@@ -14,7 +14,7 @@ object LengthHelpers{
 }
 
 /**
- * A Convertable unit that measures the length of something.
+ * A convertible unit that measures the length of something.
  *
  * @example
  * 		new LengthTSUnit("m") would measure meters
