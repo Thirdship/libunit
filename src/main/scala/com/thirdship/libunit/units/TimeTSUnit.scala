@@ -6,8 +6,8 @@ import com.thirdship.libunit._
 import com.thirdship.libunit.utils.Helpers._
 
 object TimeHelpers{
-	object Seconds { def apply(value: Double = 1) = UnitValuePair(value, new TimeTSUnit("s" )) }
-	object Minutes { def apply(value: Double = 1) = UnitValuePair(value, new TimeTSUnit("min")) }
+	object Seconds { def apply(value: Double = 1) = TSUnitValuePair(value, new TimeTSUnit("s" )) }
+	object Minutes { def apply(value: Double = 1) = TSUnitValuePair(value, new TimeTSUnit("min")) }
 
 	val units: List[ExactString] = List(
 		"s".i,

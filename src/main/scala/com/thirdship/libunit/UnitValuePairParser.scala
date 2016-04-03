@@ -41,7 +41,7 @@ object UnitValuePairParser {
 
 	def apply(str: String) = parse(str)
 
-	def parse(str: String): Option[UnitValuePair] ={
+	def parse(str: String): Option[TSUnitValuePair] ={
 		//Trim and uniform text
 		val tokens = reg.matcher(str.replaceAll("\\s"," ").trim)
 
@@ -70,7 +70,7 @@ object UnitValuePairParser {
 					.replaceAll(",", "")
 					.toDouble
 
-				Some( UnitValuePair(num, unitOption.get) )
+				Some( TSUnitValuePair(num, unitOption.get) )
 			}
 			else {
 				val sign = if(scalar.group("sign") != null)
@@ -107,7 +107,7 @@ object UnitValuePairParser {
 				if(value.isDefined) {
 					val num = value.get
 
-					Some( UnitValuePair(num, unitOption.get) )
+					Some( TSUnitValuePair(num, unitOption.get) )
 				}
 				else
 					None

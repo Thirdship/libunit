@@ -3,7 +3,7 @@ package com.thirdship.libunit
 import com.thirdship.libunit.units.{ScalarTSUnit, LengthTSUnit}
 import org.scalatest.{Matchers, FlatSpec}
 
-class UnitValuePairTest extends FlatSpec with Matchers {
+class TSUnitValuePairTest extends FlatSpec with Matchers {
 
 	implicit class MeasurableString(str: String) {
 		def unit: TSUnit = new BaseTSUnit(str)
@@ -11,8 +11,8 @@ class UnitValuePairTest extends FlatSpec with Matchers {
 	}
 
 	"A UnitValuePair" should "provide basic arithmetic operations" in {
-		val m = new UnitValuePair(10, "m".unit)
-		val s = new UnitValuePair(10, "s".unit)
+		val m = new TSUnitValuePair(10, "m".unit)
+		val s = new TSUnitValuePair(10, "s".unit)
 
 		println(m)
 		println(m * m)
@@ -26,8 +26,8 @@ class UnitValuePairTest extends FlatSpec with Matchers {
 	}
 
 	it should "provide arithmetic operations to length units" in {
-		val m  = new UnitValuePair(10, "m".lengthUnit)
-		val km = new UnitValuePair(10, "km".lengthUnit)
+		val m  = new TSUnitValuePair(10, "m".lengthUnit)
+		val km = new TSUnitValuePair(10, "km".lengthUnit)
 
 		println("Working with m")
 		println(m)
@@ -59,7 +59,7 @@ class UnitValuePairTest extends FlatSpec with Matchers {
 	}
 
 	it should "work with scalars" in {
-		val s = new UnitValuePair(10,new ScalarTSUnit(10))
+		val s = new TSUnitValuePair(10,new ScalarTSUnit(10))
 		val s2 =  s * s
 		s.getValue should be(100)
 		s2.getValue should be(100*100)
@@ -67,8 +67,8 @@ class UnitValuePairTest extends FlatSpec with Matchers {
 
 
 	it should "provide arithmetic operations to computable units" in {
-		val m = new UnitValuePair(10, "m".unit)
-		val s = new UnitValuePair(10, "s".unit)
+		val m = new TSUnitValuePair(10, "m".unit)
+		val s = new TSUnitValuePair(10, "s".unit)
 		val m_per_s = m /s
 
 		println(m_per_s * m_per_s)

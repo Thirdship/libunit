@@ -1,7 +1,7 @@
 package com.thirdship.libunit.units
 
 import com.thirdship.libunit.utils.{ExactString, FuzzyString}
-import com.thirdship.libunit.{TSUnit, UnitValuePair, Conversion, ConvertableTSUnit}
+import com.thirdship.libunit.{TSUnit, TSUnitValuePair, Conversion, ConvertableTSUnit}
 
 import com.thirdship.libunit.utils.Helpers._
 
@@ -9,8 +9,8 @@ import com.thirdship.libunit.utils.Helpers._
  * Define an assortment of helpers that can create appropriate UnitValuePairs dealing with Lengths.
  */
 object LengthHelpers{
-	object Meters     { def apply(value: Double = 1) = UnitValuePair(value, new LengthTSUnit("m" )) }
-	object Kilometers { def apply(value: Double = 1) = UnitValuePair(value, new LengthTSUnit("km")) }
+	object Meters     { def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("m" )) }
+	object Kilometers { def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("km")) }
 }
 
 /**
@@ -19,7 +19,6 @@ object LengthHelpers{
  * @example
  * 		new LengthTSUnit("m") would measure meters
  * 		new LengthTSUnit("km") would measure kilometers
- *
  * @param unit the name of the unit
  */
 class LengthTSUnit(unit: String = "m") extends ConvertableTSUnit("Length", unit, "m"){

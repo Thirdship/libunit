@@ -5,7 +5,7 @@ import com.thirdship.libunit.units.ScalarTSUnit
 import com.thirdship.libunit.units.TimeHelpers.Seconds
 import org.scalatest.{Matchers, FlatSpec}
 
-class UnitValuePairParserTest extends FlatSpec with Matchers {
+class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 
 	"A UnitParser" should "have units" in {
 		UnitParser().classes.isEmpty should equal(false)
@@ -119,7 +119,7 @@ class UnitValuePairParserTest extends FlatSpec with Matchers {
 			println(s"'$string' should be $value")
 			scalar shouldBe defined
 			scalar.get.getValue should be(value)
-			scalar.get shouldEqual UnitValuePair(value, new ScalarTSUnit())
+			scalar.get shouldEqual TSUnitValuePair(value, new ScalarTSUnit())
 		})
 
 		val testBadStrings = List(
