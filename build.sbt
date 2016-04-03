@@ -1,6 +1,6 @@
 name := "libunit"
 
-version := "1.0.3"
+version := "1.0.4-SNAPSHOT"
 
 organization := "com.thirdship"
 
