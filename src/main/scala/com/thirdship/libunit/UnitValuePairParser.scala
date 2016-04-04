@@ -35,7 +35,7 @@ object UnitValuePairParser {
 	      |  )
 	      |)
 	      |(?:                              # units indicating what the number means
-	      |  \s* (?<unit>[a-zA-Z'\/"\(\)\{\}\[\]\s\*]+)
+	      |  \s* (?<unit>.+)
 	      |)?
 	      |""".stripMargin)
 
