@@ -7,7 +7,7 @@ package com.thirdship.libunit
   *       Each conversion also has a cost associated with the conversion, referring to the loss of precision when doing the conversion.
   *
   */
-case class AStarSolver(var allTSUnits: List[String], var allConversions: List[ConversionEdge]) {
+case class AStarSolver(var allTSUnits: List[String], var allConversions: List[ConversionEdge[String, Double, Double]]) {
 
   /**
     * Returns a conversion, if it exists, between the given units.
@@ -20,9 +20,9 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     *           otherwise, returns a null conversion
     */
 
-  def getConversions(start: String, end: String): Option[ConversionEdge] = {
+  def getConversions(start: String, end: String): Option[ConversionEdge[String, Double, Double]] = {
     if(start == end)
-      return Some(new ConversionEdge(start, start, 1, 0)) // Reflexive edge
+      return Some(new ScalarConversionEdge(start, start, 1)) // Reflexive edge
     val equiv = allConversions.filter(a => (a.start == start) && (a.end == end))
     if(equiv.nonEmpty)
       return equiv.headOption // Cached edge
@@ -61,7 +61,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     * @return a value that is at most the actual cost converting form current to goal
     */
   def heuristic(start: String, end: String): Double = {
-    val piece: Option[ConversionEdge] = getConversions(start,end)
+    val piece= getConversions(start,end)
     if(piece.isDefined)
       piece.get.cost // returns cost if already calculated
     else
@@ -78,22 +78,32 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     * @param  end      The ending unit form the search
     * @return A conversion from start to goal, using the information from cameFrom
     */
-  def reconstructPath(cameFrom: Map[ String, String], start: String, end: String): ConversionEdge = {
+  def reconstructPath(cameFrom: Map[ String, String], start: String, end: String): ConversionEdge[String, Double, Double] = {
     var stepAfter = end
     val dummy = "dummy"
     var stepBefore = cameFrom.getOrElse(end,dummy)
-    var shortcutFactor: Double = 1
+
+    var shortcutConversionTo = List.empty[( Double) => Double]
+    var shortcutConversionFrom = List.empty[( Double) => Double]
+
     var shortcutCost: Double = 0
     while(stepBefore != dummy){
       //println(stepAfter + " is the step after and " + stepBefore + " is the step before.")
       val piece = getConversions(stepBefore,stepAfter)
       //println("Found a piece: " + piece)
-      shortcutFactor *= piece.get.factor
+
+      shortcutConversionTo = shortcutConversionTo.::(piece.get.conversion.to)
+      shortcutConversionFrom = shortcutConversionTo.::(piece.get.conversion.from)
+
       shortcutCost += piece.get.cost
       stepAfter = stepBefore
       stepBefore = cameFrom.getOrElse(stepBefore,dummy)
     }
-    val shortcut = new ConversionEdge(start,end,shortcutFactor,shortcutCost)
+
+    val conversion = new Conversion(shortcutConversionTo.foldLeft((a: Double) => a)((chain, fun) => chain.compose(fun)),
+      shortcutConversionTo.foldRight((a: Double) => a)((fun,chain) => chain.compose(fun)))
+
+    val shortcut = new ConversionEdge(start,end,conversion,shortcutCost)
     allConversions :+= shortcut
     //println("Path reconstructed! " + shortcut)
     shortcut
@@ -110,7 +120,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     */
   def heuristicPM(start: String, end: String): Double = {
     var neighborCost = List.empty[Double]
-    var conversion: Option[ConversionEdge] = None
+    var conversion: Option[ConversionEdge[String, Double, Double]] = None
     neighborCost :+= heuristic(start,end)
     allTSUnits.foreach(unit => {
       conversion = getConversions(start,unit)
@@ -138,16 +148,16 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     * @param end   The goal unit for the search, the one being converted to.
     * @return A conversion from start to goal that is the most conversion-cost-efficient.
     */
-  def solve(start: String, end: String): ConversionEdge = {
+  def solve(start: String, end: String): ConversionEdge[String, Double, Double] = {
     //println("A* algorithm begun! " + start + " is the start and " + goal + " is the goal.")
     if(!allTSUnits.contains(start)){
       //TODO replace with exceptions or None
-      val startNotUnit = new ConversionEdge("start is","not a unit!",1,0)
+      val startNotUnit = new ScalarConversionEdge("start is","not a unit!",1)
       return startNotUnit
     }
     if(!allTSUnits.contains(end)){
       //TODO replace with exceptions or None
-      val endNotUnit = new ConversionEdge("end is","not a unit!",1,0)
+      val endNotUnit = new ScalarConversionEdge("end is","not a unit!",1)
       return endNotUnit
     }
     var closedSet = List.empty[String]
@@ -204,8 +214,9 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
         }
       }) // Repeat over all neighbors of the current unit.
     } // Repeat over possible current units until no more units exist in openSet
+
     // TODO replace with exception or None
-    val failure: ConversionEdge = new ConversionEdge("Failed A*","Failed A*",1,0)
+    val failure = new ScalarConversionEdge("Failed A*","Failed A*",1)
     failure
     // The goal unit was never found, or otherwise the algorithm failed.
   }

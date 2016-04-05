@@ -70,10 +70,10 @@ abstract class ConvertibleTSUnit(val unitName: String,
 			return (a: Double) => a
 
 		val standardizedBaseUnit = data.parseMap.get(unitName.i).get
-		val toBaseUnit = data.conversionMap.get(standardizedBaseUnit).get.toBaseUnit
+		val toBaseUnit = data.conversionMap.get(standardizedBaseUnit).get.to
 
 		val standardizedFromUnit = data.parseMap.get(unit.unitName.i).get
-		val fromBaseUnit = data.conversionMap.get(standardizedFromUnit).get.fromBaseUnit
+		val fromBaseUnit = data.conversionMap.get(standardizedFromUnit).get.from
 
 		(a: Double) => fromBaseUnit(toBaseUnit(a))
 	}

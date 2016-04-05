@@ -21,13 +21,13 @@ object TimeHelpers{
 
 	)
 
-	private val edges: List[ConversionEdge] = List(
-    	ConversionEdge(baseUnit,	baseUnit,	1,			0),
-		ConversionEdge("min", 		baseUnit,	60,			0),
-		ConversionEdge("h",	 		"min",		60,			0),
-		ConversionEdge("d", 		"h",		24,			0),
-		ConversionEdge("y", 		"d",		365.2422,	1),
-		ConversionEdge(baseUnit, 	"jiffy",	3e-24,		0)
+	private val edges = List(
+    	new ScalarConversionEdge(baseUnit,	baseUnit,	1),
+		new ScalarConversionEdge("min", 	baseUnit,	60),
+		new ScalarConversionEdge("h",	 	"min",		60),
+		new ScalarConversionEdge("d", 		"h",		24),
+		new ScalarConversionEdge("y", 		"d",		365.2422,	1),
+		new ScalarConversionEdge(baseUnit, 	"jiffy",	3e-24,		1)
 	)
 
 	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Time", compressedParseMap, edges)
