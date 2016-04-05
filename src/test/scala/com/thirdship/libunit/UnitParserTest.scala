@@ -85,4 +85,14 @@ class UnitParserTest extends FlatSpec with Matchers {
 	}
 
 
+	it should "be consistent with scalar strings" in {
+		val a = UnitParser("m 2")
+		println(a)
+		println(UnitParser("meter 2"))
+		println(UnitParser("meters 2"))
+		println(UnitParser("m 21"))
+		println(UnitParser("meter 21"))
+		println(UnitParser("meters 21"))
+	}
+
 }

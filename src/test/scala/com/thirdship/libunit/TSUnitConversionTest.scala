@@ -10,11 +10,11 @@ import scala.util.Random
   */
 class TSUnitConversionTest extends FlatSpec with Matchers {
 
-  val alpha = new BaseTSUnit("alpha")
-  val beta = new BaseTSUnit("beta")
-  val gamma = new BaseTSUnit("gamma")
-  val delta = new BaseTSUnit("delta")
-  val epsilon = new BaseTSUnit("epsilon")
+  val alpha = "alpha"
+  val beta = "beta"
+  val gamma = "gamma"
+  val delta = "delta"
+  val epsilon = "epsilon"
   val fctr1 =  Random.nextDouble()
   val cst1 =   Random.nextDouble()
   val fctr2 =  Random.nextDouble()
@@ -128,7 +128,7 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     val edgeB = new ConversionEdge(gamma,alpha,fctr2,cst2)
     val edgeC = new ConversionEdge(gamma,delta,fctr3,cst3)
     val astar = AStarSolver(allUnits, List(edgeA, edgeB, edgeC))
-    val cameFrom: Map[TSUnit, TSUnit] = Map(beta -> alpha,gamma -> alpha,delta -> gamma)
+    val cameFrom: Map[String, String] = Map(beta -> alpha,gamma -> alpha,delta -> gamma)
 
     astar.reconstructPath(cameFrom,alpha,delta) should be(new ConversionEdge(alpha,delta,(1/fctr2)*fctr3,cst2+1+cst3))
     astar.allConversions = astar.allConversions.filterNot(a => (a.start == alpha) && (a.end == delta))
@@ -147,7 +147,8 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     astar.solve(alpha,beta) should be(new ConversionEdge(alpha,beta,1/fctr1,cst1+1))
     astar.allConversions = astar.allConversions.filterNot(a => (a.start == alpha) && (a.end == beta))
     //println("Commutative path passed!")
-    astar.solve(epsilon,alpha) should be(new ConversionEdge(new BaseTSUnit("Failed A*"),new BaseTSUnit("Failed A*"),1,0))
+    // TODO test for None or through exceptions
+    astar.solve(epsilon,alpha) should be(new ConversionEdge("Failed A*","Failed A*",1,0))
     //println("Null path passed!")
     astar.solve(gamma,gamma) should be(new ConversionEdge(gamma,gamma,1,0))
     //println("Reflexive path passed!")

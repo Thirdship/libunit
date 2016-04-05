@@ -1,5 +1,6 @@
 package com.thirdship.libunit.utils
 
+import com.thirdship.libunit.ScalarConversion
 import org.atteo.evo.inflector.English
 
 import scala.language.implicitConversions
@@ -12,6 +13,24 @@ object Helpers {
 		def w: WordString = new WordString(s)
 
 		def exact(ignoreCase: Boolean): ExactString = new ExactString(s, ignoreCase)
+	}
+
+	/**
+	  * Adds the ability to convert a double to a scalar conversion
+	  *
+	  * @param d the double amount to apply to the conversion
+	  */
+	implicit class scalarDouble(d: Double) {
+		def asScalarFn = new ScalarConversion(d)
+	}
+
+	/**
+	  * Adds the ability to convert a integer to a scalar conversion
+	  *
+	  * @param i the integer amount to apply to the conversion
+	  */
+	implicit class scalarInt(i: Int) {
+		def asScalarFn = new ScalarConversion(i)
 	}
 }
 
