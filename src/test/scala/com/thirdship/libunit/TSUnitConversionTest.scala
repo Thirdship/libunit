@@ -214,12 +214,19 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     // kn -> p
     val knp = astar.solve("kn", "p").conversion
     knp.to(1) should be(5001)
+    knp.from(5001) should be(1)
 
     // kn -> kp
-    val knkp = astar.solve("kn", "kp").conversion
-    knkp.to(1) should be(5.001)
+    val knkp = astar.solve("kn", "kp")
+    knkp.conversion.to(1) should be(5.001)
+    knkp.conversion.from(5.001) should be(1)
+    knkp.cost === 2.0
 
-
+    // kp -> kn
+    val kpkn = astar.solve("kp", "kn")
+    kpkn.conversion.to(5.001) should be(1)
+    kpkn.conversion.from(1) should be(5.001)
+    kpkn.cost === 3.0
 
   }
 
