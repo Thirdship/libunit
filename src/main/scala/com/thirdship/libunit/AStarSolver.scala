@@ -106,6 +106,10 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     var currentUnit = end
     list = list.::(currentUnit)
 
+    if(cameFrom.get(currentUnit).isEmpty){
+      return List(getConversions(end, end).get)
+    }
+
     while(cameFrom.get(currentUnit).isDefined){
       currentUnit = cameFrom.get(currentUnit).get
       list = list.::(currentUnit)
