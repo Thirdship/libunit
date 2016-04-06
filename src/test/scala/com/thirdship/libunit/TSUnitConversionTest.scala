@@ -181,4 +181,46 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     //println("Reflexive path passed!")
   }
 
+  it should "properly handle nonlinear conversions" in {
+    val units = List(
+      "n", "kn",
+      "p", "kp"
+    )
+
+    val wonkyConversion = new Conversion((a :Double) => (5 * a) + 1, (a: Double) => (a -1) / 5)
+    val edges = List(
+      new ConversionEdge("n", "p", wonkyConversion, 1),
+      new ScalarConversionEdge("n","kn",.001),
+      new ScalarConversionEdge("p","kp", .001)
+    )
+
+    val astar = AStarSolver(units, edges)
+
+    // n -> p
+    val np = astar.solve("n", "p").conversion
+    np.to(10) should be(wonkyConversion.to(10))
+    np.to(0) should be(wonkyConversion.to(0))
+    np.to(-10) should be(wonkyConversion.to(-10))
+    np.from(10) should be(wonkyConversion.from(10))
+    np.from(0) should be(wonkyConversion.from(0))
+    np.from(-10) should be(wonkyConversion.from(-10))
+
+    // kn -> n
+    val knn = astar.solve("kn", "n").conversion
+    knn.to(1) should be(1000)
+    knn.to(.001) should be(1)
+    knn.to(0) should be(0)
+
+    // kn -> p
+    val knp = astar.solve("kn", "p").conversion
+    knp.to(1) should be(5001)
+
+    // kn -> kp
+    val knkp = astar.solve("kn", "kp").conversion
+    knkp.to(1) should be(5.001)
+
+
+
+  }
+
 }

@@ -79,34 +79,43 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     * @return A conversion from start to goal, using the information from cameFrom
     */
   def reconstructPath(cameFrom: Map[ String, String], start: String, end: String): ConversionEdge[String, Double, Double] = {
-    var stepAfter = end
-    val dummy = "dummy"
-    var stepBefore = cameFrom.getOrElse(end,dummy)
+    val path = reconstructConversionEdgePathList(cameFrom, end)
+    println("Converting "+start+":"+end + " by: " + path.map( ce => {
+      ce.start + ":" + ce.end + " at cost " + ce.cost
+    }).mkString(" -->> "))
 
-    var shortcutConversionTo = List.empty[( Double) => Double]
-    var shortcutConversionFrom = List.empty[( Double) => Double]
+    val conversionTo = path.map(ce => ce.conversion.to).foldLeft((a: Double) => a)((chain, func) => func.compose(chain))
+    val conversionFrom = path.map(ce => ce.conversion.from).foldLeft((a: Double) => a)((chain, func) => chain.compose(func))
+    val cost = path.map( ce => ce.cost).sum
+    val conversion = new Conversion(conversionTo,  conversionFrom)
 
-    var shortcutCost: Double = 0
-    while(stepBefore != dummy){
-      //println(stepAfter + " is the step after and " + stepBefore + " is the step before.")
-      val piece = getConversions(stepBefore,stepAfter)
-      //println("Found a piece: " + piece)
+    // Save result
+    val shortcut = new ConversionEdge(start,end,conversion,cost)
+    allConversions :+= shortcut
+    shortcut
+  }
 
-      shortcutConversionTo = shortcutConversionTo.::(piece.get.conversion.to)
-      shortcutConversionFrom = shortcutConversionTo.::(piece.get.conversion.from)
+	/**
+      * Create a list of conversions that the code traveled to in order to create the end conversion
+      * @param  cameFrom  A map with keys of units and values of the unit they "came from" during the A* algorithm search
+      * @param  end      The ending unit form the search
+      * @return A list of conversion edges that when listed in order describe the path of conversion from start to end
+	  */
+  private def reconstructConversionEdgePathList(cameFrom: Map[ String, String], end: String): List[ConversionEdge[String, Double, Double]] = {
+    var list = List.empty[String]
+    var currentUnit = end
+    list = list.::(currentUnit)
 
-      shortcutCost += piece.get.cost
-      stepAfter = stepBefore
-      stepBefore = cameFrom.getOrElse(stepBefore,dummy)
+    while(cameFrom.get(currentUnit).isDefined){
+      currentUnit = cameFrom.get(currentUnit).get
+      list = list.::(currentUnit)
     }
 
-    val conversion = new Conversion(shortcutConversionTo.foldLeft((a: Double) => a)((chain, fun) => chain.compose(fun)),
-      shortcutConversionTo.foldRight((a: Double) => a)((fun,chain) => chain.compose(fun)))
+    val conversions = list.sliding(2,1).flatMap(path => {
+      getConversions(path.head, path(1))
+    }).toList
 
-    val shortcut = new ConversionEdge(start,end,conversion,shortcutCost)
-    allConversions :+= shortcut
-    //println("Path reconstructed! " + shortcut)
-    shortcut
+    conversions
   }
 
   /**
