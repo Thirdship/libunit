@@ -96,6 +96,19 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 */
 	def -(that: TSUnitValuePair) = new TSUnitValuePair(value - that.convertTo(this).value, unit)
 
+	def apply(func: (Double) => Double): TSUnitValuePair = new TSUnitValuePair(func(value), unit)
+	def apply(func: (Double, Double) => Double, x: Double): TSUnitValuePair = new TSUnitValuePair(func(value,x), unit)
+
+	def +(x: Double) = apply((a,b) => a + b, x)
+	def -(x: Double) = apply((a,b) => a - b, x)
+	def /(x: Double) = apply((a,b) => a / b, x)
+	def *(x: Double) = apply((a,b) => a * b, x)
+
+	def +(x: Int) = apply((a,b) => a + b, x.toDouble)
+	def -(x: Int) = apply((a,b) => a - b, x.toDouble)
+	def /(x: Int) = apply((a,b) => a / b, x.toDouble)
+	def *(x: Int) = apply((a,b) => a * b, x.toDouble)
+
 	/**
 	 * Finds the inverse of this
 	 *
@@ -132,7 +145,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	def convertTo(that: TSUnitValuePair): TSUnitValuePair = convertTo(that.unit)
+	def convertTo(that: TSUnitValuePair): TSUnitValuePair = convertTo(that.getUnit)
 
 	/**
 	  * Checks if the current UnitValuePair is convertable to the unit provided
@@ -164,5 +177,5 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	/**
 	  * @return  a new TSUnitValuePair from this that is converted to the default units of the stored unit
 	  */
-	def convertToDefaultUnits(): TSUnitValuePair = convertTo(unit.defaultUnit())
+	def convertToDefaultUnits(): TSUnitValuePair = convertTo(unit.defaultUnit())  * getValue
 }

@@ -43,9 +43,9 @@ object UnitValuePairParser {
 
 	def parseToDefaultUnit(str: String): Option[TSUnitValuePair] = {
 		val parsed = parse(str)
-		if(parsed.isDefined)
+		if(parsed.isDefined) {
 			Option(parsed.get.convertToDefaultUnits())
-		else
+		} else
 			None
 	}
 

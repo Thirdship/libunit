@@ -135,4 +135,14 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 		})
 	}
 
+	it should "parse to default when asked" in {
+		UnitValuePairParser.parseToDefaultUnit("1 Kilometer").get should be(Meters(1000))
+		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Second").get should be(Meters(1000)/Seconds())
+
+		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Seconds").get should be(Meters(1000)/Seconds())
+		UnitValuePairParser.parseToDefaultUnit("5 Kilometer / Seconds").get should be(Meters(5000)/Seconds())
+		UnitValuePairParser.parseToDefaultUnit("0.5 Kilometer / Seconds").get should be(Meters(500)/Seconds())
+
+	}
+
 }
