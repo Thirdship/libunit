@@ -19,6 +19,8 @@ class UnitParserTest extends FlatSpec with Matchers {
 		).foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.LengthTSUnit"))
 
 
+		println(UnitParser.parseAsList("s"))
+
 		List(
 			"s",
 			"min",
@@ -26,7 +28,7 @@ class UnitParserTest extends FlatSpec with Matchers {
 			"years",
 			"yr",
 			"y"
-		).foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.TimeTSUnit"))
+		).foreach(s => {println(s); UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.TimeTSUnit")})
 
 		List("", " ", "		", "scalar").foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.ScalarTSUnit"))
 
