@@ -195,6 +195,13 @@ trait TSUnit {
 	 * @return an option that may contain a TSUnit.
 	 */
 	private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit]
+
+	/**
+	  * The name that would be used to characterize the set of units
+	  *
+	  * For example for LengthTS units, "m" for List("meter","kilometer", "km", ...)
+	  */
+	def defaultUnit(): TSUnit
 }
 
 class UnitsException(str: String) extends Exception{

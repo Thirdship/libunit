@@ -588,4 +588,11 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 		} else
 			None
 	}
+
+
+	override def defaultUnit(): TSUnit = {
+		val n = numerator.map(u => u.defaultUnit())
+		val d = denominator.map(u => u.defaultUnit())
+		new ComputableTSUnit(n,d,simplified)
+	}
 }

@@ -43,6 +43,8 @@ class ConvertibleTSUnitData(val baseUnit: String, val humanReadableName: String,
 abstract class ConvertibleTSUnit(val unitName: String,
 								 private val data: ConvertibleTSUnitData) extends TSUnit {
 
+	override def defaultUnit(): TSUnit = getTSUnit(data.baseUnit)
+
 	override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
 		case u: ConvertibleTSUnit => generateConversionFunction(u)
 		case u: ComputableTSUnit => u.conversionFunction(this)

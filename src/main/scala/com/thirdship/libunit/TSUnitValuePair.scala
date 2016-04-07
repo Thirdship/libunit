@@ -13,8 +13,8 @@ import com.thirdship.libunit.units.ScalarTSUnit
  * 		1m would be UnitValuePair(1,"m")<br>
  * 		.05 m/s would be UnitValuePair(.05, "m/s")<br>
  * 		* assume that "m", "s", and "m/s" are TSUnits
- * @see [[com.thirdship.libunit.TSUnit]]
- * @param value the value to apply to the unit
+  * @see [[com.thirdship.libunit.TSUnit]]
+  * @param value the value to apply to the unit
  * @param unit the dimension of the value
  */
 final case class TSUnitValuePair(private val value: Double, private val unit: TSUnit) {
@@ -43,7 +43,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * 		"1 (m)" * "1 (s)".inverse = "1 (m / s)"<br>
 	 * 		"1 (m)" * "1 (m)".inverse = "1 (Scalar)"<br>
 	 * 		*assume correct parsing of data into UnitValuePairs where "Value (Unit)"
-	 * @param that is number that would multiply this
+	  * @param that is number that would multiply this
 	 * @return this * that
 	 */
 	def *(that: TSUnitValuePair) = new TSUnitValuePair(value * that.value, unit * that.unit).simplify
@@ -57,7 +57,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 *		"1 (m)" / "1 (s)".inverse = "1 (m s)"<br>
 	 *		"1 (m)" / "1 (m)".inverse = "1 (m m)"<br>
 	 *		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
-	 * @param that is number that would multiply this
+	  * @param that is number that would multiply this
 	 * @return this / that
 	 */
 	def /(that: TSUnitValuePair) = new TSUnitValuePair(value / that.value, unit / that.unit).simplify
@@ -66,13 +66,13 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * Adds this and that
 	 *
 	 * @note that must be convertable to this
-	 * @example
+	  * @example
 	 * 		"1 (m)" + "2 (m)" = "3 (m)"<br>
 	 * 		"2 (m)" + "3 (s)" = UnableToConvertUnitsException as "m" is not convertable to "s"<br>
 	 * 		"1 (m)" + "1 (km)" = "1001 (m)"<br>
 	 * 		"1 (km)" + "1 (m)" = "1.001 (km)"<br>
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
-	 * @param that is the number to add to this
+	  * @param that is the number to add to this
 	 * @return this + that, in the same units as this
 	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
@@ -83,13 +83,13 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * Subtracts that from this
 	 *
 	 * @note that must be convertable to this
-	 * @example
+	  * @example
 	 * 		"1 (m)" - "2 (m)" = "-1 (m)"<br>
 	 * 		"2 (m)" - "3 (s)" = UnableToConvertUnitsException as "m" is not convertable to "s"<br>
 	 * 		"1 (m)" - "1 (km)" = "-999 (m)"<br>
 	 * 		"1 (km)" - "1 (m)" = "-.999 (km)"<br>
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
-	 * @param that the UnitValuePair to subtract from this
+	  * @param that the UnitValuePair to subtract from this
 	 * @return this - that, in the same unit as this
 	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
@@ -103,7 +103,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 *		"5 (m)".inverse = "1/5 (1 / m)"
 	 * 		"2 (m)".inverse.inverse = "2 (m)"
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
-	 * @return 1/this
+	  * @return 1/this
 	 */
 	def inverse = new TSUnitValuePair(1/value, unit.inverse)
 
@@ -114,7 +114,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * 		"1 (km)".convertTo("m") = "1000 (m)"
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
 	 * @param thatUnit the unit to convert this to
-	 * @return this converted to match thatUnit
+	 * @return a new TSUnitValuePair from this that is converted to match thatUnit
 	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
@@ -128,7 +128,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * @example
 	 * 		"1 (km)".convertTo("2 (m)") = "1000 (m)"
 	 * @param that the UnitValuePair to convert to
-	 * @return this converted to match that's unit
+	 * @return a new TSUnitValuePair from this that is converted to match that's unit
 	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
@@ -160,4 +160,9 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 		case u: ScalarTSUnit => if(u.value == 1) this else new TSUnitValuePair(value * u.value, new ScalarTSUnit())
 		case u: TSUnit => this
 	}
+
+	/**
+	  * @return  a new TSUnitValuePair from this that is converted to the default units of the stored unit
+	  */
+	def convertToDefaultUnits(): TSUnitValuePair = convertTo(unit.defaultUnit())
 }
