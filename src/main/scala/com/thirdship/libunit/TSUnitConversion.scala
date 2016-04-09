@@ -7,10 +7,7 @@ package com.thirdship.libunit
   *       Each conversion also has a cost associated with the conversion, referring to the loss of precision when doing the conversion.
   *
   */
-object TSUnitConversion {
-
-  var allConversions = List.empty[ConversionEdge]
-  var allTSUnits = List.empty[TSUnit]
+case class AStarSolver(var allTSUnits: List[TSUnit], var allConversions: List[ConversionEdge]) {
 
   /**
     * Returns a conversion, if it exists, between the given units.
@@ -31,7 +28,7 @@ object TSUnitConversion {
       return equiv.headOption // Cached edge
     val invert = allConversions.filter(a => (a.end == start) && (a.start == end))
     if(invert.nonEmpty)
-      return Some(invert.head.commute) // Commutative edge
+      return Some(invert.head.inverted) // Commutative edge
     None // Null edge
   }
 
@@ -59,7 +56,6 @@ object TSUnitConversion {
     * Returns a value of approximate cost that is used to evaluate best paths.
     *
     * @note   The if-else structure is used for modularity, in order to add in different heuristics at a later time.
-    *
     * @param  start The unit start
     * @param  end   The unit goal
     * @return a value that is at most the actual cost converting form current to goal
@@ -142,7 +138,7 @@ object TSUnitConversion {
     * @param end   The goal unit for the search, the one being converted to.
     * @return A conversion from start to goal that is the most conversion-cost-efficient.
     */
-  def aStar(start: TSUnit, end: TSUnit): ConversionEdge = {
+  def solve(start: TSUnit, end: TSUnit): ConversionEdge = {
     //println("A* algorithm begun! " + start + " is the start and " + goal + " is the goal.")
     if(!allTSUnits.contains(start)){
       val startNotUnit = new ConversionEdge(new BaseTSUnit("start is"),new BaseTSUnit("not a unit!"),1,0)
@@ -228,7 +224,7 @@ case class ConversionEdge(start: TSUnit, end: TSUnit, factor: Double, cost: Doub
     *
     * @return A ConversionEdge with reversed endpoints, the inverse conversion factor, and cost increased by one.
     */
-  def commute: ConversionEdge = new ConversionEdge(end,start,1/factor,cost+1)
+  def inverted: ConversionEdge = new ConversionEdge(end,start,1/factor,cost+1)
 
 }
 

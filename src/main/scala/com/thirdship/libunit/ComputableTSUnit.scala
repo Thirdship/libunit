@@ -291,11 +291,11 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 	 * @note We define simpler to mean that it requires less information to fully define the unit.
 	 *
 	 * @example <ul>
-	 * 		<li>m km s / km s min --> m / min</li>
-	 * 		<li>m/m --> 1 Scalar</li>
-	 * 		<li>km/m --> 1000 Scalar. The scalar should be removed by the user.
-	 * 			<br>([[com.thirdship.libunit.UnitValuePair]] does this automatically)</li>
-	 *	</ul>
+	 *          <li>m km s / km s min --> m / min</li>
+	 *          <li>m/m --> 1 Scalar</li>
+	 *          <li>km/m --> 1000 Scalar. The scalar should be removed by the user.
+	 *          <br>([[com.thirdship.libunit.TSUnitValuePair]] does this automatically)</li>
+	 *          </ul>
 	 */
 	private[libunit] def simplifyType: TSUnit = {
 

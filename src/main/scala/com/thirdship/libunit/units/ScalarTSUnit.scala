@@ -7,7 +7,7 @@ import com.thirdship.libunit._
  */
 object ScalarHelpers {
 	object Scalar {
-		def apply(value: Double) = UnitValuePair(value, new ScalarTSUnit)
+		def apply(value: Double) = TSUnitValuePair(value, new ScalarTSUnit)
 	}
 }
 

@@ -2,6 +2,7 @@ package com.thirdship.libunit
 
 import java.lang.reflect.Modifier
 
+import com.thirdship.libunit.units.ScalarHelpers.Scalar
 import com.thirdship.libunit.units.ScalarTSUnit
 import com.thirdship.util.NameGenerator
 import com.typesafe.scalalogging.Logger
@@ -10,56 +11,32 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 
 object UnitParser{
-	private  val reflections = new Reflections("")
-	private val logger = Logger(LoggerFactory.getLogger(this.getClass))
+	private lazy val logger = Logger(LoggerFactory.getLogger(this.getClass))
+	private var unitParser: UnitParser = new UnitParser(List("com.thirdship",""))
 
-	private lazy val unitParser: UnitParser = init(new UnitParser())
-
+	/**
+	  * @return the current unitParser
+	  */
 	def apply() = unitParser
+
+	/**
+	  * Sets the global unit parser to the one passed
+ *
+	  * @param unitParser the new global unit parser
+	  * @return the unit parser passed
+	  */
+	def apply(unitParser: UnitParser): UnitParser = { this.unitParser = unitParser; this.unitParser }
+
+	/**
+	  * Parse the given string
+ *
+	  * @param str the string to parse for units
+	  * @return the Some(unit that was found) or None
+	  */
 	def apply(str: String) = unitParser.parse(str)
 
 	def parse(str: String) = unitParser.parse(str)
 	def parseAsList(str: String) = unitParser.parseAsList(str)
-
-	private def init(unitParser: UnitParser): UnitParser = {
-		logger.info("Initializing static UnitParser: "+unitParser.name)
-
-		val classes = reflections.getSubTypesOf(classOf[TSUnit])
-			.asScala
-			.filter(c => !Modifier.isAbstract(c.getModifiers))
-			.flatMap(clazz => {
-			logger.info("("+unitParser.name+") Found "+clazz)
-			try {
-				val constructor = clazz.getConstructors.head
-				logger.trace("("+unitParser.name+") Attempting to instantiate: "+clazz+" with "+ constructor.getParameters.mkString(", "))
-				val args: Array[_ <: Object] = constructor.getParameterTypes
-					.map(t => {
-						if(classOf[String].equals(t))
-							""
-						else if(classOf[Int].equals(t))
-							0
-						else if(classOf[Double].equals(t))
-							0.0d
-						else if(classOf[Float].equals(t))
-							0.0f
-						else if(classOf[Boolean].equals(t))
-							false
-						else if(classOf[List[_]].equals(t))
-							List.empty[Object]
-						else if(classOf[ScalarTSUnit].equals(t))
-							new ScalarTSUnit()
-						else
-							null
-					}.asInstanceOf[Object])
-
-				Some(constructor.newInstance(args: _*).asInstanceOf[TSUnit])
-			} catch {
-				case e: Exception => logger.error("("+unitParser.name+") Unable to instantiate: "+clazz, e); None
-			}
-		}).toList
-
-		unitParser.registerTSUnit(classes)
-	}
 }
 
 final class UnitParser {
@@ -68,16 +45,80 @@ final class UnitParser {
 
 	private val logger = Logger(LoggerFactory.getLogger(this.getClass))
 
-	private[libunit] var classes = Map.empty[Class[_ <: TSUnit], (String) => Option[_ <: TSUnit]]
+	private[libunit] var classes =  Map.empty[Class[_ <: TSUnit], (String) => Option[_ <: TSUnit]]
+
+	def this(searchPaths: List[String]) = {
+		this()
+		this.classes = getClassesForSearchPaths(searchPaths)
+	}
+
+	private def getClassesForSearchPaths(searchPaths: List[String]): Map[Class[_ <: TSUnit], (String) => Option[_ <: TSUnit]] ={
+		val reflections = searchPaths.map(new Reflections(_))
+
+		logger.info("Initializing static UnitParser: "+name)
+
+		val classes = reflections.flatMap(_.getSubTypesOf(classOf[TSUnit])
+			.asScala
+			.filter(c => !Modifier.isAbstract(c.getModifiers)))
+
+		logger.info("("+name+") Attempting to instantiate: "+classes)
+
+		val instances = classes.flatMap(clazz => {
+			logger.info("("+name+") Found "+clazz)
+			instantiateTSUnitClass(clazz)
+		})
+
+		logger.info("("+name+") Registering: "+instances.map(_.getClass.getCanonicalName))
+
+		instances.map(ts => {
+			(ts.getClass, (s: String) => {implicit val currentUnitParser = this; ts.parse(s)})
+		}).toMap
+	}
+
+	private def instantiateTSUnitClass(clazz: Class[_ <: TSUnit]): Option[TSUnit] = {
+		try {
+			val constructor = clazz.getConstructors.head
+			logger.trace("("+name+") Attempting to instantiate: "+clazz+" with "+ constructor.getParameters.mkString(", "))
+			val args: Array[_ <: Object] = constructor.getParameterTypes
+				.map(t => {
+					if(classOf[String].equals(t))
+						""
+					else if(classOf[Int].equals(t))
+						0
+					else if(classOf[Double].equals(t))
+						0.0d
+					else if(classOf[Float].equals(t))
+						0.0f
+					else if(classOf[Boolean].equals(t))
+						false
+					else if(classOf[List[_]].equals(t))
+						List.empty[Object]
+					else if(classOf[ScalarTSUnit].equals(t))
+						new ScalarTSUnit()
+					else
+						null
+				}.asInstanceOf[Object])
+
+			Some(constructor.newInstance(args: _*).asInstanceOf[TSUnit])
+		} catch {
+			case e: Exception => logger.error("("+name+") Unable to instantiate: "+clazz, e); None
+		}
+	}
 
 	def parse(str: String): Option[_ <: TSUnit] = {
-		val s = cleanString(str)
-		classes.map(c => c._2.apply(s)).flatMap(tso => tso).headOption
+		parseAsList(str).headOption
 	}
 
 	def parseAsList(str: String): List[_ <: TSUnit] = {
 		val s = cleanString(str)
-		classes.map(c => c._2.apply(s)).flatMap(tso => tso).toList
+		classes.map(c => c._2.apply(s)).flatMap(tso => {
+			if(tso.isEmpty)
+				None
+			else if(!tso.get.isInstanceOf[ComputableTSUnit] && "[0-9]".r.findAllMatchIn(s).nonEmpty)
+				None
+			else
+				tso
+		}).toList
 	}
 
 	def cleanString(str: String): String = {
@@ -85,25 +126,6 @@ final class UnitParser {
 			return ""
 
 		str.replaceAll("""[\s\t\n]+""", " ").trim
-	}
-
-
-	/*
-	TSUnit registration
-	 */
-
-	def registerTSUnit(tsList: List[TSUnit]): UnitParser = {
-		tsList foreach registerTSUnit; this
-	}
-
-	def registerTSUnit(ts: TSUnit): UnitParser = {
-		logger.info("("+name+") Registering "+ts.getClass.getName+ "to UnitParser.")
-		classes += ((ts.getClass, (s: String) => {implicit val currentUnitParser = this; ts.parse(s)})); this
-	}
-
-	def unregisterTSUnit(ts: TSUnit): UnitParser = {
-		logger.info("("+name+") Unregistered "+ts.getClass.getName+ "from UnitParser.")
-		classes -= ts.getClass; this
 	}
 
 }
