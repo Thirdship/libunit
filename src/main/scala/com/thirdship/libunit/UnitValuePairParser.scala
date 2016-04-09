@@ -41,6 +41,14 @@ object UnitValuePairParser {
 
 	def apply(str: String) = parse(str)
 
+	def parseToDefaultUnit(str: String): Option[TSUnitValuePair] = {
+		val parsed = parse(str)
+		if(parsed.isDefined) {
+			Option(parsed.get.convertToDefaultUnits())
+		} else
+			None
+	}
+
 	def parse(str: String): Option[TSUnitValuePair] ={
 		//Trim and uniform text
 		val tokens = reg.matcher(str.replaceAll("\\s"," ").trim)

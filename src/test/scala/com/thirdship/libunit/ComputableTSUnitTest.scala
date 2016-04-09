@@ -110,4 +110,11 @@ class ComputableTSUnitTest extends FlatSpec with Matchers {
 		println(kmm)
 		kmm.getValue should be(60e-3 +- 1e-10)
 	}
+
+	it should "understand the concept of default units" in {
+		(Kilometers()/Minutes()).convertToDefaultUnits().getValue should be(16.66666666666666 +- 1e-10)
+		(Kilometers()/Seconds()).convertToDefaultUnits().getValue should be(1000)
+		(Meters()/Seconds()).convertToDefaultUnits().getValue should be(1)
+		(Meters()/Minutes()).convertToDefaultUnits().getValue should be(0.01666666666666666 +- 1e-10)
+	}
 }

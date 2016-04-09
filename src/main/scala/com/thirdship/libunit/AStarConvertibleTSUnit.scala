@@ -4,6 +4,36 @@ import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
 
 /**
+  * Holds the data of a AStarConvertibleTSUnit, used to make sure that there is a single source of information for the system
+  *
+  * @param baseUnit The unit all ConvertableTSUnits of this name can convert to and from.
+  * @param humanReadableName The name of the type unit, rather, what it represents. For example: Length, Time etc...
+  */
+class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: String,
+                                 val compressedParseMap: Map[ExactString, List[FuzzyString]],
+                                 val conversionEdges: List[ConversionEdge[String, Double, Double]]){
+
+  /**
+    * A map of unitName synonyms and the standard unitName
+    */
+  lazy val parseMap: Map[ExactString, String] = generateParseMap(compressedParseMap)
+
+  // Store outside the object, that way state is preserved.
+  lazy val  aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
+
+  private def generateParseMap(compressedParseMap: Map[ExactString, List[FuzzyString]]): Map[ExactString, String] = {
+    val autoGen = compressedParseMap.keys.map(k => (k, k.baseString)).toMap
+
+    val defined = compressedParseMap.map(e => (e._1.baseString, e._2)).flatMap(e => e._2.flatMap {
+      case fs: WordString => fs.asExactStringList
+      case fs: ExactString => List(fs)
+    }.map(fs => (fs, e._1)))
+
+    autoGen.++:(defined)
+  }
+}
+
+/**
   * Provides an interface that would allow a TSUnit to convert to another TSUnit without changing classes.
   *
   * The idea behind this is to allow a ridged typing system on what a unit represents, not necessarily the scale. This
@@ -11,17 +41,11 @@ import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
   * between MetersOverSeconds, MetersSquaredOverMinutes, ect... Instead, we allow units to be the same type and specify
   * their scaling.
   *
-  * @param name The name of the type unit, rather, what it represents. For example: Length, Time etc...
   * @param unitName The name of the unit itself. This would be m, km, s ect.
   */
-abstract class AStarConvertibleTSUnit(val name: String, val unitName: String, val baseUnit: String) extends TSUnit {
+abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConvertibleTSUnitData) extends TSUnit {
 
-  val aStar: AStarSolver
-
-  /**
-    * A map of unitName synonyms and the standard unitName
-    */
-  val parseMap: Map[ExactString, String]
+  override def defaultUnit(): TSUnit = getTSUnit(data.baseUnit)
 
   override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
     case u: AStarConvertibleTSUnit => generateConversionFunction(u)
@@ -40,12 +64,13 @@ abstract class AStarConvertibleTSUnit(val name: String, val unitName: String, va
     * @param unit the unit to convert to
     * @return the function
     */
-  private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double = (a: Double) => a * aStar.solve(this,unit).factor
+  private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double =
+    data.aStar.solve(this.unitName, unit.unitName).conversion.to
 
   override def toString = unitName
 
   def equalUnits(unit: TSUnit): Boolean = unit match {
-    case u: AStarConvertibleTSUnit => name.equals(u.name) && unitName.equals(u.unitName)
+    case u: AStarConvertibleTSUnit => data.humanReadableName.equals(u.data.humanReadableName) && unitName.equals(u.unitName)
     case _ => false
   }
 
@@ -73,28 +98,12 @@ abstract class AStarConvertibleTSUnit(val name: String, val unitName: String, va
   protected def getTSUnit(str: String): TSUnit
 
   override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
-    val syn = parseMap.get(str.i) //TODO case sensitive
+    val syn = data.parseMap.get(str.i) //TODO case sensitive
     if(syn.isDefined)
       Some(getTSUnit(syn.get))
     else
       None
   }
 
-  protected def generateParseMap(map: Map[List[FuzzyString], String]): Map[ExactString, String] = {
-    if(aStar == null)
-      return Map.empty
-
-    val autoGen = units.map(k => (k, k.baseString)).toMap
-
-    val defined = map.flatMap(e => e._1.flatMap {
-      case fs: WordString => fs.asExactStringList
-      case fs: ExactString => List(fs)
-    }.map(fs => (fs, e._2)))
-
-    autoGen.++:(defined)
-  }
-
-  override def getUnitName = baseUnit
-
-  val units: List[ExactString]
+  override def getUnitName = data.baseUnit
 }
