@@ -40,7 +40,7 @@ import com.thirdship.libunit.utils.ParenUtils
  *
  *     val c = new ComputableTSUnit(List(km), List(s))
  *     a.equals(c)			// false
- *     a.isConvertable(c)	// true
+ *     a.isConvertible(c)	// true
  *     println(c.unitTag)	// "ComputableTSUnit#(LengthTSUnit#m)/(TimeTSUnit#s)"
  * }}}
  *
@@ -235,7 +235,7 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 	 *
 	 * {{{list.sortBy(_.unitTag).groupBy(_.unitTag)}}}
 	 *
-	 * @note unitTags being equal should mean that they are convertable.
+	 * @note unitTags being equal should mean that they are convertible.
 	 *       However, this may not be the case if an error is made in a TSUnit.
 	 *
 	 * @param list a list of TSUnits to use
@@ -344,12 +344,15 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 	 * @return true if the two ComputableTSUnits are the same.
 	 */
 	private def equateUnitLists(u:ComputableTSUnit): Boolean = {
-
-		// TODO, prove that this works for all numerators. I feel like there is a bug here.
-		val a = numerator.filterNot(u.numerator.contains)
-		val b = denominator.filterNot(u.denominator.contains)
-
-		a.isEmpty && b.isEmpty
+    /*
+     First, we check to see if the lengths of the numerator and denominator lists are the same between this and u. If they aren't, the units cannot be the same.
+     */
+    if((numerator.length != u.numerator.length) || (denominator.length != u.denominator.length))
+      return false
+    /*
+     In order for the ComputableTSUnits to be equal, the this list cannot contain elements not in u and vice versa, for both numerators and denominators
+     */
+    numerator.diff(u.numerator).isEmpty && u.numerator.diff(numerator).isEmpty && denominator.diff(u.denominator).isEmpty && u.denominator.diff(denominator).isEmpty
 	}
 
 	/**
