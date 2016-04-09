@@ -11,11 +11,13 @@ class TemperatureTSUnitTest extends FlatSpec with Matchers {
 		val k = Kelvin()
 		val f = Fahrenheit()
 
-		c.convertTo(k.getUnit).getValue === 272.150
-		k.convertTo(c.getUnit).getValue === -272.150
+		Celsius(0).convertTo(k.getUnit).getValue should be( 273.150)
 
-		c.convertTo(f.getUnit).getValue === 33.8
-		f.convertTo(c.getUnit).getValue === -17.22
+		c.convertTo(k.getUnit).getValue should be( 274.150)
+		k.convertTo(c.getUnit).getValue should be( -272.150)
+
+		c.convertTo(f.getUnit).getValue should be(33.8)
+		f.convertTo(c.getUnit).getValue should be(-17.222 +- .001)
 	}
 
 	it should "be able to convert from a string" in {

@@ -20,8 +20,8 @@ object TemperatureHelpers{
 
 	private val edges = List(
 		new ScalarConversionEdge(baseUnit,	baseUnit,	1),
-		new ConversionEdge("f", 			baseUnit,	new Conversion[Double, Double](f => (f - 32.0) * (5.0/9.0), c=> (c * 9.0)/5.0 + 32), 1),
-		new ConversionEdge("k", 			baseUnit,	new Conversion[Double, Double](k => k + 272.150, c=> c -272.150), 1)
+		new ConversionEdge(baseUnit, 		"f",	new Conversion[Double, Double](c=> (c * 9.0)/5.0 + 32, f => (f - 32.0) * (5.0/9.0)), 1),
+		new ConversionEdge(baseUnit, 		"k",	new Conversion[Double, Double](k => k + 273.150, c=> c -273.150), 1)
 	)
 
 	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Temperature", compressedParseMap, edges)
