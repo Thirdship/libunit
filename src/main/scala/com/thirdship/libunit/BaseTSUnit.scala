@@ -20,7 +20,7 @@ class BaseTSUnit(val name: String) extends TSUnit{
 
 	override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
 		/*
-			If the unit is a BaseTSUnit, and because we know that the two units are convertable, the units must be the same.
+			If the unit is a BaseTSUnit, and because we know that the two units are convertible, the units must be the same.
 			Thus, we must return a no-op.
 		*/
 		case u: BaseTSUnit => (a: Double) => a
