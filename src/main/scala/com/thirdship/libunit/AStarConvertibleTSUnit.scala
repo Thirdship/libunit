@@ -11,7 +11,7 @@ import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
   */
 class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: String,
                                  val compressedParseMap: Map[ExactString, List[FuzzyString]],
-                                 val conversionEdges: List[ConversionEdge]){
+                                 val conversionEdges: List[ConversionEdge[String, Double, Double]]){
 
   /**
     * A map of unitName synonyms and the standard unitName
@@ -45,6 +45,8 @@ class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: St
   */
 abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConvertibleTSUnitData) extends TSUnit {
 
+  override def defaultUnit(): TSUnit = getTSUnit(data.baseUnit)
+
   override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
     case u: AStarConvertibleTSUnit => generateConversionFunction(u)
     case u: ComputableTSUnit => u.conversionFunction(this)
@@ -62,9 +64,8 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
     * @param unit the unit to convert to
     * @return the function
     */
-  private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double = (a: Double) => {
-    a * data.aStar.solve(this.unitName, unit.unitName).factor
-  }
+  private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double =
+    data.aStar.solve(this.unitName, unit.unitName).conversion.to
 
   override def toString = unitName
 

@@ -16,6 +16,8 @@ package com.thirdship.libunit
  */
 class BaseTSUnit(val name: String) extends TSUnit{
 
+	override def defaultUnit(): TSUnit = new BaseTSUnit(name)
+
 	override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
 		/*
 			If the unit is a BaseTSUnit, and because we know that the two units are convertable, the units must be the same.

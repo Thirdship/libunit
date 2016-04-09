@@ -27,4 +27,10 @@ class LengthTSUnitTest extends FlatSpec with Matchers {
 		UnitParser("meters").get should be(Meters().getUnit)
 	}
 
+	it should "have a default unit" in {
+		Meters().getUnit.defaultUnit() ===  Meters().getUnit
+		Kilometers().getUnit.defaultUnit() == Meters().getUnit
+		Kilometers().getUnit.defaultUnit() == Kilometers().getUnit
+	}
+
 }

@@ -43,6 +43,8 @@ class ConvertibleTSUnitData(val baseUnit: String, val humanReadableName: String,
 abstract class ConvertibleTSUnit(val unitName: String,
 								 private val data: ConvertibleTSUnitData) extends TSUnit {
 
+	override def defaultUnit(): TSUnit = getTSUnit(data.baseUnit)
+
 	override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
 		case u: ConvertibleTSUnit => generateConversionFunction(u)
 		case u: ComputableTSUnit => u.conversionFunction(this)
@@ -70,10 +72,10 @@ abstract class ConvertibleTSUnit(val unitName: String,
 			return (a: Double) => a
 
 		val standardizedBaseUnit = data.parseMap.get(unitName.i).get
-		val toBaseUnit = data.conversionMap.get(standardizedBaseUnit).get.toBaseUnit
+		val toBaseUnit = data.conversionMap.get(standardizedBaseUnit).get.to
 
 		val standardizedFromUnit = data.parseMap.get(unit.unitName.i).get
-		val fromBaseUnit = data.conversionMap.get(standardizedFromUnit).get.fromBaseUnit
+		val fromBaseUnit = data.conversionMap.get(standardizedFromUnit).get.from
 
 		(a: Double) => fromBaseUnit(toBaseUnit(a))
 	}
