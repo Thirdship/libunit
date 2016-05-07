@@ -34,7 +34,7 @@ object Helpers {
 	}
 }
 
-class ExactString(str: String, ignoreCase: Boolean = true) extends FuzzyString(str) {
+class ExactString(val str: String, val ignoreCase: Boolean = true) extends FuzzyString(str) {
 	override def checkEquality(str: String): Boolean = if(ignoreCase)
 		str.equalsIgnoreCase(baseString)
 	else

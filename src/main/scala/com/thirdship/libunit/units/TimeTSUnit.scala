@@ -2,6 +2,7 @@ package com.thirdship.libunit.units
 
 import com.thirdship.libunit.utils.{ExactString, FuzzyString}
 import com.thirdship.libunit._
+import com.thirdship.libunit.units.MetricTSUnit
 
 import com.thirdship.libunit.utils.Helpers._
 
@@ -18,7 +19,6 @@ object TimeHelpers{
 		"d".i 		-> List("day".w),
 		"y".i 		-> List("yr".w, "year".w),
 		"jiffy".i 	-> List()
-
 	)
 
 	private val edges = List(
