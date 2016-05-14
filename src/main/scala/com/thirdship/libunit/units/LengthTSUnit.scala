@@ -17,29 +17,25 @@ object LengthHelpers{
 
 	private val baseUnit = "m"
 
-	private val conversionMap: Map[String, Conversion[Double, Double]] = Map(
-		baseUnit -> 1.asScalarFn,
-		"km" -> 1000.asScalarFn,
+	private val baseParseList = List("meter".w)
 
-		// Feet -> Meter
-		"ft"   -> (12/39.370).asScalarFn,
-
-		// Inch -> Meter
-		"in"   -> (1/39.370).asScalarFn,
-
-		// Mile -> Meter
-		"mil"  -> 1609.344.asScalarFn
-	)
+	val metricUnits: MetricTSUnit = new MetricTSUnit(baseUnit, baseParseList)
 
 	private val compressedParseMap = Map(
-		"m".i 	-> List("meter".w),
-		"km".i 	-> List("kilometer".w),
+		"m".i 	-> baseParseList,
 		"ft".i 	-> List("feet".i, "foot".i, "'".e),
 		"in".i 	-> List("inch".w, "\"".e),
 		"mil".i -> List("mile".w)
-	)
+	).++(metricUnits.compressedParseMap)
 
-	private[units]  val data = new ConvertibleTSUnitData(baseUnit, "Length", conversionMap, compressedParseMap)
+	private val edges = List(
+		new ScalarConversionEdge("in",	baseUnit,	0.0254,	1),
+		new ScalarConversionEdge("ft",	"in",	12,	0.1),
+		new ScalarConversionEdge("mil",	"ft", 5280,	0.1)
+	).++(metricUnits.edges)
+
+	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit,	"Length",	compressedParseMap,	edges)
+
 }
 
 /**
@@ -50,7 +46,7 @@ object LengthHelpers{
  * 		new LengthTSUnit("km") would measure kilometers
   * @param unit the name of the unit
  */
-class LengthTSUnit(unit: String = "m") extends ConvertibleTSUnit(unit, LengthHelpers.data){
+class LengthTSUnit(unit: String = "m") extends AStarConvertibleTSUnit(unit, LengthHelpers.data){
 	override protected def getTSUnit(str: String): TSUnit = {
 		new LengthTSUnit(str)
 	}
