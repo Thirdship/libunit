@@ -28,8 +28,8 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
     new ScalarConversionEdge(baseUnit, 	"jiffy",	3e-24,		1)
   )
 
-  "A MetricTSUnit" should "construct properly" in {
-    """new MetricTSUnit(baseUnit,baseParseList)""" should compile
+  "A MetricPrefixes" should "construct properly" in {
+    """new MetricPrefixes(baseUnit,baseParseList)""" should compile
   }
 
   it should "augment compressedParseMap" in {
