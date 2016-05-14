@@ -4,10 +4,10 @@ import com.thirdship.libunit.utils.{ExactString, FuzzyString, WordString}
 import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit._
 
-class MetricTSUnit(unit: String, parseList: List[FuzzyString]) {
+class MetricPrefixes(unit: String, parseList: List[FuzzyString]) {
 
   lazy val compressedParseMap: Map[ExactString, List[FuzzyString]] = {
-    MetricTSUnit.newUnits.map(prefix => {
+    MetricPrefixes.newUnits.map(prefix => {
 
       // TODO Use MixedString once ATH-241 is resolved
       val keyUnit = if (prefix._1.ignoreCase) (prefix._1.baseString + unit).i else (prefix._1.baseString + unit).e
@@ -23,12 +23,12 @@ class MetricTSUnit(unit: String, parseList: List[FuzzyString]) {
   }
 
   val edges: List[ScalarConversionEdge[String]] =
-    MetricTSUnit.newUnits.map( prefix => {
+    MetricPrefixes.newUnits.map(prefix => {
       new ScalarConversionEdge(unit, prefix._1.baseString + unit, prefix._2._1, 0.1)
     }).toList
 }
 
-object MetricTSUnit {
+object MetricPrefixes {
   val newUnits = Map(
     "E".i -> (1e-18, "exa"),
     "P".e -> (1e-15, "peta"),

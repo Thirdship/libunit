@@ -13,7 +13,7 @@ object TimeHelpers{
 
 	private val baseParseList = List("sec".i, "second".w)
 
-	val metricUnits: MetricTSUnit = new MetricTSUnit(baseUnit, baseParseList)
+	val metricUnits: MetricPrefixes = new MetricPrefixes(baseUnit, baseParseList)
 
 	private val compressedParseMap = Map(
       baseUnit.i 	-> baseParseList,

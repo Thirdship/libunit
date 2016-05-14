@@ -4,7 +4,7 @@ import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit.{AStarConvertibleTSUnitData, ScalarConversionEdge}
 import org.scalatest.{FlatSpec, Matchers}
 
-class MetricTSUnitTest extends FlatSpec with Matchers {
+class MetricPrefixesTest extends FlatSpec with Matchers {
 
   private val baseUnit = "s"
 
@@ -33,7 +33,7 @@ class MetricTSUnitTest extends FlatSpec with Matchers {
   }
 
   it should "augment compressedParseMap" in {
-    val lore: MetricTSUnit = new MetricTSUnit(baseUnit,baseParseList)
+    val lore: MetricPrefixes = new MetricPrefixes(baseUnit,baseParseList)
     compressedParseMap ++= lore.compressedParseMap
 
     println(compressedParseMap.keys.map(_.baseString))
@@ -73,7 +73,7 @@ class MetricTSUnitTest extends FlatSpec with Matchers {
   }
 
   it should "augment edges" in {
-    val lore: MetricTSUnit = new MetricTSUnit(baseUnit,baseParseList)
+    val lore: MetricPrefixes = new MetricPrefixes(baseUnit,baseParseList)
     compressedParseMap ++= lore.compressedParseMap
     edges ++= lore.edges
     val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Time", compressedParseMap, edges)

@@ -19,7 +19,7 @@ object LengthHelpers{
 
 	private val baseParseList = List("meter".w)
 
-	val metricUnits: MetricTSUnit = new MetricTSUnit(baseUnit, baseParseList)
+	val metricUnits: MetricPrefixes = new MetricPrefixes(baseUnit, baseParseList)
 
 	private val compressedParseMap = Map(
 		"m".i 	-> baseParseList,
