@@ -11,30 +11,28 @@ import com.thirdship.libunit.utils.Helpers._
 object LengthHelpers{
 	object Meters     	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("m" )) }
 	object Kilometers 	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("km")) }
+	object Millimeters 	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("mm")) }
+	object Microns		 	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("um")) }
 
 	object Feet     	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("ft" )) }
 	object Inches 		{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("in")) }
 
 	private val baseUnit = "m"
 
-	private val baseParseList = List("meter".w)
-
-	val metricUnits: MetricPrefixes = new MetricPrefixes(baseUnit, baseParseList)
-
 	private val compressedParseMap = Map(
-		"m".i 	-> baseParseList,
+		"m".i 	-> List("meter".w),
 		"ft".i 	-> List("feet".i, "foot".i, "'".e),
 		"in".i 	-> List("inch".w, "\"".e),
 		"mil".i -> List("mile".w)
-	).++(metricUnits.compressedParseMap)
+	)
 
 	private val edges = List(
-		new ScalarConversionEdge("in",	baseUnit,	0.0254,	1),
+		new ScalarConversionEdge("in",	baseUnit,	254/10000,	1),
 		new ScalarConversionEdge("ft",	"in",	12,	0.1),
 		new ScalarConversionEdge("mil",	"ft", 5280,	0.1)
-	).++(metricUnits.edges)
+	)
 
-	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit,	"Length",	compressedParseMap,	edges)
+	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit,	"Length",	compressedParseMap,	edges).createMetricUnits(List(baseUnit))
 
 }
 

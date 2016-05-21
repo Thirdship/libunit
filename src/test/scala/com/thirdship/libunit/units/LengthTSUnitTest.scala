@@ -21,10 +21,19 @@ class LengthTSUnitTest extends FlatSpec with Matchers {
 		Meters(1).getUnit should be(Meters(1).getUnit)
 	}
 
-	it should "be able to convert from a string" in {
+	it should "be able to convert from a string outside metric units" in {
 		UnitParser("m").get should be(Meters().getUnit)
 		UnitParser("meter").get should be(Meters().getUnit)
 		UnitParser("meters").get should be(Meters().getUnit)
+	}
+
+	it should "be able to convert form a string inside metric units" in {
+		UnitParser("kilometers").get should be(Kilometers().getUnit)
+		UnitParser("kiloms").get should be(Kilometers().getUnit)
+		UnitParser("kmeters").get should be(Kilometers().getUnit)
+		UnitParser("km").get should be(Kilometers().getUnit)
+		//TODO edge case "kms"
+		//UnitParser("kms").get should be(Kilometers().getUnit)
 	}
 
 	it should "have a default unit" in {
