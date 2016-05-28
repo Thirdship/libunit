@@ -17,17 +17,17 @@ object LengthHelpers{
 	object Feet     	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("ft" )) }
 	object Inches 		{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("in")) }
 
-	private val baseUnit = "m"
+	private val baseUnit = "m".i
 
 	private val compressedParseMap = Map(
-		"m".i 	-> List("meter".w),
+		baseUnit 	-> List("meter".w),
 		"ft".i 	-> List("feet".i, "foot".i, "'".e),
 		"in".i 	-> List("inch".w, "\"".e),
 		"mil".i -> List("mile".w)
 	)
 
 	private val edges = List(
-		new ScalarConversionEdge("in",	baseUnit,	254/10000,	1),
+		new ScalarConversionEdge("in",	baseUnit.baseString,	254/10000,	1),
 		new ScalarConversionEdge("ft",	"in",	12,	0.1),
 		new ScalarConversionEdge("mil",	"ft", 5280,	0.1)
 	)

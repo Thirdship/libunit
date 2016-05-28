@@ -4,18 +4,18 @@ import com.thirdship.libunit.utils.{ExactString, FuzzyString, WordString}
 import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit._
 
-class MetricPrefixes(unit: String, parseList: List[FuzzyString]) {
+class MetricPrefixes(unit: ExactString, parseList: List[FuzzyString]) {
 
   lazy val compressedParseMap: Map[ExactString, List[FuzzyString]] = {
     MetricPrefixes.newUnits.map(prefix => {
 
       // TODO Use MixedString once ATH-241 is resolved
-      val keyUnit = if (prefix._1.ignoreCase) (prefix._1.baseString + unit).i else (prefix._1.baseString + unit).e
+      val keyUnit = if (prefix._1.ignoreCase && unit.ignoreCase) (prefix._1.baseString + unit.baseString).i else (prefix._1.baseString + unit.baseString).e
       //println(keyUnit.baseString)
 
       val valueUnits = parseList.flatMap(suffix => {
         List((prefix._1.baseString + suffix.baseString).w, (prefix._2._2 + suffix.baseString).w)
-      }).::((prefix._2._2 + unit).w)
+      }).::((prefix._2._2 + unit.baseString).w)
       //println(valueUnits.map(_.baseString))
 
       keyUnit -> valueUnits
@@ -24,7 +24,7 @@ class MetricPrefixes(unit: String, parseList: List[FuzzyString]) {
 
   val edges: List[ScalarConversionEdge[String]] =
     MetricPrefixes.newUnits.map(prefix => {
-      new ScalarConversionEdge(unit, prefix._1.baseString + unit, prefix._2._1, 0.1)
+      new ScalarConversionEdge(unit.baseString, prefix._1.baseString + unit.baseString, prefix._2._1, 0.1)
     }).toList
 }
 

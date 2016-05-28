@@ -10,7 +10,7 @@ import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
   * @param baseUnit The unit all ConvertableTSUnits of this name can convert to and from.
   * @param humanReadableName The name of the type unit, rather, what it represents. For example: Length, Time etc...
   */
-class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: String,
+class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableName: String,
                                  var compressedParseMap: Map[ExactString, List[FuzzyString]],
                                  var conversionEdges: List[ConversionEdge[String, Double, Double]]){
 
@@ -22,14 +22,10 @@ class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: St
   // Store outside the object, that way state is preserved.
   lazy val  aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
 
-  def createMetricUnits(units: List[String]) = {
+  def createMetricUnits(units: List[ExactString]) = {
     var metricUnits: MetricPrefixes = new MetricPrefixes("", List.empty[FuzzyString])
     units.foreach(unitSuffix => {
-      if (compressedParseMap.isDefinedAt(unitSuffix.i)) {
-        metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix.i))
-      } else {
-        metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix.e))
-      }
+      metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
       compressedParseMap ++= metricUnits.compressedParseMap
       conversionEdges ++= metricUnits.edges
     })
@@ -60,7 +56,7 @@ class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: St
   */
 abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConvertibleTSUnitData) extends TSUnit {
 
-  override def defaultUnit(): TSUnit = getTSUnit(data.baseUnit)
+  override def defaultUnit(): TSUnit = getTSUnit(data.baseUnit.baseString)
 
   override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
     case u: AStarConvertibleTSUnit => generateConversionFunction(u)
@@ -123,5 +119,5 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
       None
   }
 
-  override def getUnitName = data.baseUnit
+  override def getUnitName = data.baseUnit.baseString
 }
