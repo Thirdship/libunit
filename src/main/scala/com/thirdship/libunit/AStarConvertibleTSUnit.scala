@@ -23,7 +23,7 @@ class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableNam
   lazy val  aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
 
   def createMetricUnits(units: List[ExactString]) = {
-    var metricUnits: MetricPrefixes = new MetricPrefixes("", List.empty[FuzzyString])
+    var metricUnits: MetricPrefixes = new MetricPrefixes("".e, List.empty[FuzzyString])
     units.foreach(unitSuffix => {
       metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
       compressedParseMap ++= metricUnits.compressedParseMap

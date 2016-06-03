@@ -6,10 +6,10 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class MetricPrefixesTest extends FlatSpec with Matchers {
 
-  private val baseUnit = "s"
+  private val baseUnit = "s".i
 
   var compressedParseMap = Map(
-    baseUnit.i 	-> List("sec".i, "second".w),
+    baseUnit 	-> List("sec".i, "second".w),
     "min".i   	-> List("minute".w),
     "h".i 		  -> List("hr".w, "hour".w),
     "d".i 		  -> List("day".w),
@@ -18,15 +18,15 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
   )
 
   var edges = List(
-    new ScalarConversionEdge("min", 	  baseUnit,	60,       0.1),
+    new ScalarConversionEdge("min", 	  baseUnit.baseString,	60,       0.1),
     new ScalarConversionEdge("h",	 	    "min",		60,       0.1),
     new ScalarConversionEdge("d", 		  "h",		  24,       0.1),
     new ScalarConversionEdge("y", 		  "d",		  365.2422,	1),
-    new ScalarConversionEdge(baseUnit, 	"jiffy",	3e-24,  	1)
+    new ScalarConversionEdge(baseUnit.baseString, 	"jiffy",	3e-24,  	1)
   )
 
   "A MetricPrefixes" should "construct properly" in {
-    """new MetricPrefixes(baseUnit,compressedParseMap(baseUnit.i))""" should compile
+    """new MetricPrefixes(baseUnit,compressedParseMap(baseUnit))""" should compile
   }
 
   it should "augment compressedParseMap" in {
@@ -57,22 +57,22 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
 
     println(data.conversionEdges)
 
-    data.aStar.getConversions(baseUnit, "Es")  should be (Option(new ScalarConversionEdge[String](baseUnit, "Es",  1e-18, 0.1)))
-    data.aStar.getConversions(baseUnit, "Ps")  should be (Option(new ScalarConversionEdge[String](baseUnit, "Ps",  1e-15, 0.1)))
-    data.aStar.getConversions(baseUnit, "Ts")  should be (Option(new ScalarConversionEdge[String](baseUnit, "Ts",  1e-12, 0.1)))
-    data.aStar.getConversions(baseUnit, "Gs")  should be (Option(new ScalarConversionEdge[String](baseUnit, "Gs",  1e-9,  0.1)))
-    data.aStar.getConversions(baseUnit, "Ms")  should be (Option(new ScalarConversionEdge[String](baseUnit, "Ms",  1e-6,  0.1)))
-    data.aStar.getConversions(baseUnit, "ks")  should be (Option(new ScalarConversionEdge[String](baseUnit, "ks",  1e-3,  0.1)))
-    data.aStar.getConversions(baseUnit, "hs")  should be (Option(new ScalarConversionEdge[String](baseUnit, "hs",  1e-2,  0.1)))
-    data.aStar.getConversions(baseUnit, "das") should be (Option(new ScalarConversionEdge[String](baseUnit, "das", 1e-1,  0.1)))
-    data.aStar.getConversions(baseUnit, "ds")  should be (Option(new ScalarConversionEdge[String](baseUnit, "ds",  1e1,   0.1)))
-    data.aStar.getConversions(baseUnit, "cs")  should be (Option(new ScalarConversionEdge[String](baseUnit, "cs",  1e2,   0.1)))
-    data.aStar.getConversions(baseUnit, "ms")  should be (Option(new ScalarConversionEdge[String](baseUnit, "ms",  1e3,   0.1)))
-    data.aStar.getConversions(baseUnit, "us")  should be (Option(new ScalarConversionEdge[String](baseUnit, "us",  1e6,   0.1)))
-    data.aStar.getConversions(baseUnit, "ns")  should be (Option(new ScalarConversionEdge[String](baseUnit, "ns",  1e9,   0.1)))
-    data.aStar.getConversions(baseUnit, "ps")  should be (Option(new ScalarConversionEdge[String](baseUnit, "ps",  1e12,  0.1)))
-    data.aStar.getConversions(baseUnit, "fs")  should be (Option(new ScalarConversionEdge[String](baseUnit, "fs",  1e15,  0.1)))
-    data.aStar.getConversions(baseUnit, "as")  should be (Option(new ScalarConversionEdge[String](baseUnit, "as",  1e18,  0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "Es")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Es",  1e-18, 0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "Ps")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Ps",  1e-15, 0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "Ts")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Ts",  1e-12, 0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "Gs")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Gs",  1e-9,  0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "Ms")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Ms",  1e-6,  0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "ks")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "ks",  1e-3,  0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "hs")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "hs",  1e-2,  0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "das") should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "das", 1e-1,  0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "ds")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "ds",  1e1,   0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "cs")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "cs",  1e2,   0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "ms")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "ms",  1e3,   0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "us")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "us",  1e6,   0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "ns")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "ns",  1e9,   0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "ps")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "ps",  1e12,  0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "fs")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "fs",  1e15,  0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "as")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "as",  1e18,  0.1)))
   }
 
   it should "convert between metric and non-metric units" in {
