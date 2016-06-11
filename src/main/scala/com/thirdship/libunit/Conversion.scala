@@ -27,8 +27,7 @@ case class Conversion[M,N](to:   (M) => N = (a: M) => a.asInstanceOf[N], from: (
  *     s.toBaseUnit(10) 	//100
  *     s.fromBaseUnit(100) 	//10
  * }}}
- *
- * @param scalar the Double to scale by
+	* @param scalar the Double to scale by
  */
 class ScalarConversion(scalar: Double = 1) extends Conversion[Double,Double]( (a:Double) => a * scalar, (a:Double) => a / scalar)
 
@@ -53,6 +52,13 @@ case class ConversionEdge[T, M, N](start: T, end: T, conversion: Conversion[M ,N
 	  * @return A ConversionEdge with reversed endpoints, the inverse conversion factor, and cost increased by one.
 	  */
 	def inverted: ConversionEdge[T, N, M] = new ConversionEdge(end,start,conversion.inverted(),cost+1)
+
+	override def equals(o: Any): Boolean = o match {
+		case edge: ConversionEdge[T, M, N] => {
+			edge.start == start && edge.end == end && edge.cost == cost
+		}
+		case _: AnyRef => false
+	}
 }
 
 /**

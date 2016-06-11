@@ -1,5 +1,6 @@
 package com.thirdship.libunit
 
+import com.thirdship.libunit.units.MetricPrefixes
 import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
 
@@ -9,9 +10,9 @@ import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
   * @param baseUnit The unit all ConvertableTSUnits of this name can convert to and from.
   * @param humanReadableName The name of the type unit, rather, what it represents. For example: Length, Time etc...
   */
-class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: String,
-                                 val compressedParseMap: Map[ExactString, List[FuzzyString]],
-                                 val conversionEdges: List[ConversionEdge[String, Double, Double]]){
+class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableName: String,
+                                 var compressedParseMap: Map[ExactString, List[FuzzyString]],
+                                 var conversionEdges: List[ConversionEdge[String, Double, Double]]){
 
   /**
     * A map of unitName synonyms and the standard unitName
@@ -20,6 +21,16 @@ class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: St
 
   // Store outside the object, that way state is preserved.
   lazy val  aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
+
+  def createMetricUnits(units: List[ExactString]) = {
+    var metricUnits: MetricPrefixes = new MetricPrefixes("".e, List.empty[FuzzyString])
+    units.foreach(unitSuffix => {
+      metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
+      compressedParseMap ++= metricUnits.compressedParseMap
+      conversionEdges ++= metricUnits.edges
+    })
+    this
+  }
 
   private def generateParseMap(compressedParseMap: Map[ExactString, List[FuzzyString]]): Map[ExactString, String] = {
     val autoGen = compressedParseMap.keys.map(k => (k, k.baseString)).toMap
@@ -45,7 +56,7 @@ class AStarConvertibleTSUnitData(val baseUnit: String, val humanReadableName: St
   */
 abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConvertibleTSUnitData) extends TSUnit {
 
-  override def defaultUnit(): TSUnit = getTSUnit(data.baseUnit)
+  override def defaultUnit(): TSUnit = getTSUnit(data.baseUnit.baseString)
 
   override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
     case u: AStarConvertibleTSUnit => generateConversionFunction(u)
@@ -61,6 +72,7 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
 
   /**
     * Creates a function that converts from this to a given AStarConvertibleTSUnit
+    *
     * @param unit the unit to convert to
     * @return the function
     */
@@ -77,6 +89,7 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
   // Implicits
   /**
     * Adds the ability to convert a double to a scalar conversion
+    *
     * @param d the double amount to apply to the conversion
     */
   implicit class scalarDouble(d: Double) {
@@ -85,6 +98,7 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
 
   /**
     * Adds the ability to convert a integer to a scalar conversion
+    *
     * @param i the integer amount to apply to the conversion
     */
   implicit class scalarInt(i: Int) {
@@ -105,5 +119,5 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
       None
   }
 
-  override def getUnitName = data.baseUnit
+  override def getUnitName = data.baseUnit.baseString
 }

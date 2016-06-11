@@ -11,35 +11,29 @@ import com.thirdship.libunit.utils.Helpers._
 object LengthHelpers{
 	object Meters     	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("m" )) }
 	object Kilometers 	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("km")) }
+	object Millimeters 	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("mm")) }
+	object Microns		 	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("um")) }
 
 	object Feet     	{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("ft" )) }
 	object Inches 		{ def apply(value: Double = 1) = TSUnitValuePair(value, new LengthTSUnit("in")) }
 
-	private val baseUnit = "m"
-
-	private val conversionMap: Map[String, Conversion[Double, Double]] = Map(
-		baseUnit -> 1.asScalarFn,
-		"km" -> 1000.asScalarFn,
-
-		// Feet -> Meter
-		"ft"   -> (12/39.370).asScalarFn,
-
-		// Inch -> Meter
-		"in"   -> (1/39.370).asScalarFn,
-
-		// Mile -> Meter
-		"mil"  -> 1609.344.asScalarFn
-	)
+	private val baseUnit = "m".i
 
 	private val compressedParseMap = Map(
-		"m".i 	-> List("meter".w),
-		"km".i 	-> List("kilometer".w),
+		baseUnit 	-> List("meter".w),
 		"ft".i 	-> List("feet".i, "foot".i, "'".e),
 		"in".i 	-> List("inch".w, "\"".e),
 		"mil".i -> List("mile".w)
 	)
 
-	private[units]  val data = new ConvertibleTSUnitData(baseUnit, "Length", conversionMap, compressedParseMap)
+	private val edges = List(
+		new ScalarConversionEdge("in",	baseUnit.baseString,	254/10000,	1),
+		new ScalarConversionEdge("ft",	"in",	12,	0.1),
+		new ScalarConversionEdge("mil",	"ft", 5280,	0.1)
+	)
+
+	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit,	"Length",	compressedParseMap,	edges).createMetricUnits(List(baseUnit))
+
 }
 
 /**
@@ -50,7 +44,7 @@ object LengthHelpers{
  * 		new LengthTSUnit("km") would measure kilometers
   * @param unit the name of the unit
  */
-class LengthTSUnit(unit: String = "m") extends ConvertibleTSUnit(unit, LengthHelpers.data){
+class LengthTSUnit(unit: String = "m") extends AStarConvertibleTSUnit(unit, LengthHelpers.data){
 	override protected def getTSUnit(str: String): TSUnit = {
 		new LengthTSUnit(str)
 	}
