@@ -13,9 +13,13 @@ class MetricPrefixes(unit: ExactString, parseList: List[FuzzyString]) {
       val keyUnit = if (prefix._1.ignoreCase && unit.ignoreCase) (prefix._1.baseString + unit.baseString).i else (prefix._1.baseString + unit.baseString).e
       //println(keyUnit.baseString)
 
-      val valueUnits = parseList.flatMap(suffix => {
-        List((prefix._1.baseString + suffix.baseString).w, (prefix._2._2 + suffix.baseString).w)
-      }).::((prefix._2._2 + unit.baseString).w)
+      val suffixUnits = parseList.flatMap(suffix => {
+        val firstUnit = (prefix._1.baseString + suffix.baseString).w
+        val altUnits = prefix._2._2.map( str => (str + suffix.baseString).w)
+        altUnits :+ firstUnit
+      })
+      val baseUnits = prefix._2._2.map( str => ( str + unit.baseString).w)
+      val valueUnits: List[FuzzyString] = suffixUnits ++ baseUnits
       //println(valueUnits.map(_.baseString))
 
       keyUnit -> valueUnits
@@ -30,22 +34,22 @@ class MetricPrefixes(unit: ExactString, parseList: List[FuzzyString]) {
 
 object MetricPrefixes {
   val newUnits = Map(
-    "E".i -> (1e-18, "exa"),
-    "P".e -> (1e-15, "peta"),
-    "T".i -> (1e-12, "tera"),
-    "G".i -> (1e-9, "giga"),
-    "M".e -> (1e-6, "mega"),
-    "k".i -> (1e-3, "kilo"),
-    "h".i -> (1e-2, "hecto"),
-    "da".i -> (1e-1, "deca"),
-    "d".i -> (1e1, "deci"),
-    "c".i -> (1e2, "centi"),
-    "m".e -> (1e3, "milli"),
-    "u".i -> (1e6, "micro"),
-    "n".i -> (1e9, "nano"),
-    "p".e -> (1e12, "pico"),
-    "f".i -> (1e15, "femto"),
-    "a".i -> (1e18, "atto")
+    "E".i -> (1e-18, List("exa")),
+    "P".e -> (1e-15, List("peta")),
+    "T".i -> (1e-12, List("tera")),
+    "G".i -> (1e-9, List("giga")),
+    "M".e -> (1e-6, List("mega")),
+    "k".i -> (1e-3, List("kilo")),
+    "h".i -> (1e-2, List("hecto")),
+    "da".i -> (1e-1, List("deca")),
+    "d".i -> (1e1, List("deci")),
+    "c".i -> (1e2, List("centi")),
+    "m".e -> (1e3, List("milli")),
+    "u".i -> (1e6, List("μ", "micro")),
+    "n".i -> (1e9, List("nano")),
+    "p".e -> (1e12, List("pico")),
+    "f".i -> (1e15, List("femto")),
+    "a".i -> (1e18, List("atto"))
   )
 
 

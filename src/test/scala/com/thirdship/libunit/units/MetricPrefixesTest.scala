@@ -45,7 +45,7 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
     data.compressedParseMap.apply("ds".i).map(_.baseString).toSet  should be (Set("dsec","dsecond","decis","decisec","decisecond"))
     data.compressedParseMap.apply("cs".i).map(_.baseString).toSet  should be (Set("csec","csecond","centis","centisec","centisecond"))
     data.compressedParseMap.apply("ms".e).map(_.baseString).toSet  should be (Set("msec","msecond","millis","millisec","millisecond"))
-    data.compressedParseMap.apply("us".i).map(_.baseString).toSet  should be (Set("usec","usecond","micros","microsec","microsecond"))
+    data.compressedParseMap.apply("us".i).map(_.baseString).toSet  should be (Set("usec","usecond","μs","μsec","μsecond","micros","microsec","microsecond"))
     data.compressedParseMap.apply("ns".i).map(_.baseString).toSet  should be (Set("nsec","nsecond","nanos","nanosec","nanosecond"))
     data.compressedParseMap.apply("ps".e).map(_.baseString).toSet  should be (Set("psec","psecond","picos","picosec","picosecond"))
     data.compressedParseMap.apply("fs".i).map(_.baseString).toSet  should be (Set("fsec","fsecond","femtos","femtosec","femtosecond"))
