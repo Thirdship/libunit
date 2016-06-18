@@ -206,6 +206,12 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 		}
 	}
 
+	override def unitHashCode: Int = {
+		// If the we are not simplified, we cannot guarantee our algorithms can work. Thus, we must simplify first.
+		if(!simplified) simplifyType.unitHashCode
+		else numerator.map(_.hashCode).sum + denominator.map(_.hashCode).sum
+	}
+
 	// simply swap the numerator with the denominator and invert the scalar.
 	override def inverse = new ComputableTSUnit(denominator, numerator, simplified, new ScalarTSUnit(1 / scalar.value))
 
