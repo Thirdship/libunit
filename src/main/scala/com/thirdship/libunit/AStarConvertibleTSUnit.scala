@@ -1,6 +1,7 @@
 package com.thirdship.libunit
 
 import com.thirdship.libunit.units.MetricPrefixes
+import com.thirdship.libunit.units.BinaryPrefixes
 import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
 
@@ -28,6 +29,16 @@ class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableNam
       metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
       compressedParseMap ++= metricUnits.compressedParseMap
       conversionEdges ++= metricUnits.edges
+    })
+    this
+  }
+
+  def createBinaryUnits(units: List[ExactString]) = {
+    var binaryUnits: BinaryPrefixes = new BinaryPrefixes("".e, List.empty[FuzzyString])
+    units.foreach(unitSuffix => {
+      binaryUnits = new BinaryPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
+      compressedParseMap ++= binaryUnits.compressedParseMap
+      conversionEdges ++= binaryUnits.edges
     })
     this
   }
