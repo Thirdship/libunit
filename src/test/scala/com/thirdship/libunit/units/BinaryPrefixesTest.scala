@@ -9,9 +9,9 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 	private val baseUnit = "B".e
 
 	var compressedParseMap = Map(
-		baseUnit 	-> List("byte".i),
-		"b".e       -> List("bit".i),
-		"nibble".i  -> List("nybble".i, "nyble".i, "half-byte".i)
+		baseUnit 	-> List("byte".w),
+		"b".e       -> List("bit".w),
+		"nibble".i  -> List("nybble".w, "nyble".w, "half-byte".w)
 	)
 
 	var edges = List(
@@ -24,7 +24,7 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 	}
 
 	it should "augment compressedParseMap" in {
-		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges).createMetricUnits(List(baseUnit, "b".e)).createBinaryUnits(List(baseUnit, "b".e))
+		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges).createBinaryUnits(List(baseUnit, "b".e))
 
 		println(data.compressedParseMap.keys.map(_.baseString))
 
@@ -48,30 +48,43 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 	}
 
 	it should "augment edges" in {
-		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges).createMetricUnits(List(baseUnit, "b".e)).createBinaryUnits(List(baseUnit, "b".e))
+		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges).createBinaryUnits(List(baseUnit, "b".e))
 
 		println(data.conversionEdges)
 
-		data.aStar.getConversions(baseUnit.baseString, "YiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "YiB", Math.pow(2, 80), 0.1)))
-		data.aStar.getConversions(baseUnit.baseString, "ZiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "ZiB", Math.pow(2, 70), 0.1)))
-		data.aStar.getConversions(baseUnit.baseString, "EiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "EiB", Math.pow(2, 60), 0.1)))
-		data.aStar.getConversions(baseUnit.baseString, "PiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "PiB", Math.pow(2, 50), 0.1)))
-		data.aStar.getConversions(baseUnit.baseString, "TiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "TiB", Math.pow(2, 40), 0.1)))
-		data.aStar.getConversions(baseUnit.baseString, "GiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "GiB", Math.pow(2, 30), 0.1)))
-		data.aStar.getConversions(baseUnit.baseString, "MiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "MiB", Math.pow(2, 20), 0.1)))
-		data.aStar.getConversions(baseUnit.baseString, "KiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "KiB", Math.pow(2, 10), 0.1)))
+		data.aStar.getConversions(baseUnit.baseString, "YiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "YiB", Math.pow(2,-80), 1)))
+		data.aStar.getConversions(baseUnit.baseString, "ZiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "ZiB", Math.pow(2,-70), 1)))
+		data.aStar.getConversions(baseUnit.baseString, "EiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "EiB", Math.pow(2,-60), 1)))
+		data.aStar.getConversions(baseUnit.baseString, "PiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "PiB", Math.pow(2,-50), 1)))
+		data.aStar.getConversions(baseUnit.baseString, "TiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "TiB", Math.pow(2,-40), 1)))
+		data.aStar.getConversions(baseUnit.baseString, "GiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "GiB", Math.pow(2,-30), 1)))
+		data.aStar.getConversions(baseUnit.baseString, "MiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "MiB", Math.pow(2,-20), 1)))
+		data.aStar.getConversions(baseUnit.baseString, "KiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "KiB", Math.pow(2,-10), 1)))
 
-		data.aStar.getConversions("b", "Yib")  should be (Option(new ScalarConversionEdge[String]("b", "Yib", Math.pow(2, 80), 0.1)))
-		data.aStar.getConversions("b", "Zib")  should be (Option(new ScalarConversionEdge[String]("b", "Zib", Math.pow(2, 70), 0.1)))
-		data.aStar.getConversions("b", "Eib")  should be (Option(new ScalarConversionEdge[String]("b", "Eib", Math.pow(2, 60), 0.1)))
-		data.aStar.getConversions("b", "Pib")  should be (Option(new ScalarConversionEdge[String]("b", "Pib", Math.pow(2, 50), 0.1)))
-		data.aStar.getConversions("b", "Tib")  should be (Option(new ScalarConversionEdge[String]("b", "Tib", Math.pow(2, 40), 0.1)))
-		data.aStar.getConversions("b", "Gib")  should be (Option(new ScalarConversionEdge[String]("b", "Gib", Math.pow(2, 30), 0.1)))
-		data.aStar.getConversions("b", "Mib")  should be (Option(new ScalarConversionEdge[String]("b", "Mib", Math.pow(2, 20), 0.1)))
-		data.aStar.getConversions("b", "Kib")  should be (Option(new ScalarConversionEdge[String]("b", "Kib", Math.pow(2, 10), 0.1)))
+		data.aStar.getConversions("b", "Yib")  should be (Option(new ScalarConversionEdge[String]("b", "Yib", Math.pow(2,-80), 1)))
+		data.aStar.getConversions("b", "Zib")  should be (Option(new ScalarConversionEdge[String]("b", "Zib", Math.pow(2,-70), 1)))
+		data.aStar.getConversions("b", "Eib")  should be (Option(new ScalarConversionEdge[String]("b", "Eib", Math.pow(2,-60), 1)))
+		data.aStar.getConversions("b", "Pib")  should be (Option(new ScalarConversionEdge[String]("b", "Pib", Math.pow(2,-50), 1)))
+		data.aStar.getConversions("b", "Tib")  should be (Option(new ScalarConversionEdge[String]("b", "Tib", Math.pow(2,-40), 1)))
+		data.aStar.getConversions("b", "Gib")  should be (Option(new ScalarConversionEdge[String]("b", "Gib", Math.pow(2,-30), 1)))
+		data.aStar.getConversions("b", "Mib")  should be (Option(new ScalarConversionEdge[String]("b", "Mib", Math.pow(2,-20), 1)))
+		data.aStar.getConversions("b", "Kib")  should be (Option(new ScalarConversionEdge[String]("b", "Kib", Math.pow(2,-10), 1)))
 	}
 
-	// TODO Add conversion tests between binary and non-binary units once StorageTSUnit is created
+	it should "convert between binary and non-binary units" in {
+		val b = new TSUnitValuePair(1, new StorageTSUnit("b"))
+		val byte  = new TSUnitValuePair(1, new StorageTSUnit("B" ))
+		val kbyte = new TSUnitValuePair(1, new StorageTSUnit("kB"))
+		val mbyte = new TSUnitValuePair(1, new StorageTSUnit("MB"))
+		val kibyte = new TSUnitValuePair(1, new StorageTSUnit("KiB"))
+		val mibyte = new TSUnitValuePair(1, new StorageTSUnit("MiB"))
+
+		println(b + byte)
+		println(mbyte + kbyte)
+		println(kbyte - byte)
+		println(kibyte - mibyte)
+		println(byte + kibyte)
+	}
 
 	it should "compare binary units correctly" in {
 		List(
