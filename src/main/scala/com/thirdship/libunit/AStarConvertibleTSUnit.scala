@@ -25,22 +25,26 @@ class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableNam
 
   def createMetricUnits(units: List[ExactString]) = {
     var metricUnits: MetricPrefixes = new MetricPrefixes("".e, List.empty[FuzzyString])
+    var newParseMap = compressedParseMap
+    var newEdges = conversionEdges
     units.foreach(unitSuffix => {
       metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
-      compressedParseMap ++= metricUnits.compressedParseMap //TODO reverse mutation
-      conversionEdges ++= metricUnits.edges
+      newParseMap ++= metricUnits.compressedParseMap
+      newEdges ++= metricUnits.edges
     })
-    this
+    new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newParseMap, newEdges)
   }
 
   def createBinaryUnits(units: List[ExactString]) = {
     var binaryUnits: BinaryPrefixes = new BinaryPrefixes("".e, List.empty[FuzzyString])
+    var newParseMap = compressedParseMap
+    var newEdges = conversionEdges
     units.foreach(unitSuffix => {
       binaryUnits = new BinaryPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
-      compressedParseMap ++= binaryUnits.compressedParseMap
-      conversionEdges ++= binaryUnits.edges
+      newParseMap ++= binaryUnits.compressedParseMap
+      newEdges ++= binaryUnits.edges
     })
-    this
+    new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newParseMap, newEdges)
   }
 
   private def generateParseMap(compressedParseMap: Map[ExactString, List[FuzzyString]]): Map[ExactString, String] = {
