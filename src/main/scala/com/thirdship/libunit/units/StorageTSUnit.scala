@@ -28,7 +28,6 @@ object StorageHelpers{
 	)
 
 	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit,	"Storage",	compressedParseMap,	edges).createBinaryUnits(List(baseUnit, "b".e))
-
 }
 
 /**
