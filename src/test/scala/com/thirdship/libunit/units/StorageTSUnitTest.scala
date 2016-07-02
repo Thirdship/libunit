@@ -31,9 +31,10 @@ class StorageTSUnitTest extends FlatSpec with Matchers {
 	it should "be able to convert form a string inside binary units" in {
 		UnitParser("kilobytes").get should be(Kilobytes().getUnit)
 		// TODO Use MixedString
-		UnitParser("kB") shouldBe defined
+		// UnitParser("kB") shouldBe defined
 		// UnitParser("kB").get should be(Kilobytes().getUnit)
 		UnitParser("kiloB").get should be(Kilobytes().getUnit)
+		UnitParser("Kbyte").get should be(Kilobytes().getUnit)
 		UnitParser("KB") shouldBe defined
 		// UnitParser("KB").get should be(Kilobytes().getUnit)
 	}

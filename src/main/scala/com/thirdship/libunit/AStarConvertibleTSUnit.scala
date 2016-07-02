@@ -58,12 +58,14 @@ class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableNam
   private def generateParseMap(compressedParseMap: Map[ExactString, List[FuzzyString]]): Map[ExactString, String] = {
     val autoGen = compressedParseMap.keys.map(k => (k, k.baseString)).toMap
 
-    val defined = compressedParseMap.map(e => (e._1.baseString, e._2)).flatMap(e => e._2.flatMap {
-      case fs: WordString => fs.asExactStringList
-      case fs: ExactString => List(fs)
-    }.map(fs => (fs, e._1)))
+    val defined = compressedParseMap.map(keyValuePair => (keyValuePair._1.baseString, keyValuePair._2))
+        .flatMap(baseStringValuePair => baseStringValuePair._2.flatMap {
+          case wordString: WordString => wordString.asExactStringList
+          case exactString: ExactString => List(exactString)
+        }
+        .map(exactString => (exactString, baseStringValuePair._1)))
 
-    autoGen.++:(defined)
+    autoGen ++: defined
   }
 }
 
@@ -135,9 +137,12 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
   protected def getTSUnit(str: String): TSUnit
 
   override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
-    val syn = data.parseMap.get(str.i) //TODO case sensitive
+    val syn = data.parseMap.get(str.i) //TODO MixedString case
+    val ant = data.parseMap.get(str.e)
     if(syn.isDefined)
       Some(getTSUnit(syn.get))
+    else if(ant.isDefined)
+      Some(getTSUnit(ant.get))
     else
       None
   }

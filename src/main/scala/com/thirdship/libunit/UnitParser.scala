@@ -111,14 +111,15 @@ final class UnitParser {
 
 	def parseAsList(str: String): List[_ <: TSUnit] = {
 		val s = cleanString(str)
-		classes.map(c => c._2.apply(s)).flatMap(tso => {
-			if(tso.isEmpty)
-				None
-			else if(!tso.get.isInstanceOf[ComputableTSUnit] && "[0-9]".r.findAllMatchIn(s).nonEmpty)
-				None
-			else
-				tso
-		}).toList
+		classes.map(c => c._2.apply(s))
+			.flatMap(tso => {
+				if(tso.isEmpty)
+					None
+				else if(!tso.get.isInstanceOf[ComputableTSUnit] && "[0-9]".r.findAllMatchIn(s).nonEmpty)
+					None
+				else
+					tso
+			}).toList
 	}
 
 	def cleanString(str: String): String = {
