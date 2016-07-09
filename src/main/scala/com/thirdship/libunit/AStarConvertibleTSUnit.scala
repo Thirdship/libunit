@@ -12,8 +12,8 @@ import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
   * @param humanReadableName The name of the type unit, rather, what it represents. For example: Length, Time etc...
   */
 class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableName: String,
-                                 var compressedParseMap: Map[ExactString, List[FuzzyString]],
-                                 var conversionEdges: List[ConversionEdge[String, Double, Double]]){
+                                 val compressedParseMap: Map[ExactString, List[FuzzyString]],
+                                 val conversionEdges: List[ConversionEdge[String, Double, Double]]){
 
   /**
     * A map of unitName synonyms and the standard unitName
@@ -24,27 +24,35 @@ class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableNam
   lazy val  aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
 
   def createMetricUnits(units: List[ExactString]) = {
-    var metricUnits: MetricPrefixes = new MetricPrefixes("".e, List.empty[FuzzyString])
-    var newParseMap = compressedParseMap
-    var newEdges = conversionEdges
-    units.foreach(unitSuffix => {
-      metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
-      newParseMap ++= metricUnits.compressedParseMap
-      newEdges ++= metricUnits.edges
-    })
-    new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newParseMap, newEdges)
+	val newStuff = units.map( unitSuffix => {
+		new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
+	})
+
+	val newCompressedParseMap = newStuff.map(_.compressedParseMap).foldLeft(compressedParseMap)( (output, input) => {
+		output.++(input)
+	})
+
+	val newConversionEdges = newStuff.map(_.edges).foldLeft(conversionEdges)( (output, input) => {
+		output.++(input)
+	})
+
+	new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newCompressedParseMap, newConversionEdges)
   }
 
   def createBinaryUnits(units: List[ExactString]) = {
-    var binaryUnits: BinaryPrefixes = new BinaryPrefixes("".e, List.empty[FuzzyString])
-    var newParseMap = compressedParseMap
-    var newEdges = conversionEdges
-    units.foreach(unitSuffix => {
-      binaryUnits = new BinaryPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
-      newParseMap ++= binaryUnits.compressedParseMap
-      newEdges ++= binaryUnits.edges
-    })
-    new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newParseMap, newEdges)
+	  val newStuff = units.map( unitSuffix => {
+		  new BinaryPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
+	  })
+
+	  val newCompressedParseMap = newStuff.map(_.compressedParseMap).foldLeft(compressedParseMap)( (output, input) => {
+		  output.++(input)
+	  })
+
+	  val newConversionEdges = newStuff.map(_.edges).foldLeft(conversionEdges)( (output, input) => {
+		  output.++(input)
+	  })
+
+	  new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newCompressedParseMap, newConversionEdges)
   }
 
   private def generateParseMap(compressedParseMap: Map[ExactString, List[FuzzyString]]): Map[ExactString, String] = {
