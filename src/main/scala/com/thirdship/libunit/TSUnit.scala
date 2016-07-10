@@ -34,7 +34,6 @@ trait TSUnit {
 	 * If convertible, it creates a conversion function to convert this to that
 	 *
 	 * @see com.thirdship.libunit.TSUnit#conversionFunction
-	 *
 	 * @param that the destination TSUnit to convert to
 	 * @return a function to convert this to that
 	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
@@ -54,11 +53,9 @@ trait TSUnit {
 	 * @example
 	 * 		"meters".conversionFunction("kilometers") should return (a: Double) => a/1000
 	 * 		* Assume that "meters" and "kilometers" are units that are properly defined
-	 *
 	 * @note
 	 * 		This code will only be called when this.isConvertible(unit) == true
 	 *  	Make sure all function are pure and free of side effect.
-	 *
 	 * @param unit the unit to convert to.
 	 * @return a function that maps this.unit to unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
@@ -73,9 +70,7 @@ trait TSUnit {
 	 * 		"seconds".isConvertible("minutes")   == true
 	 * 		"meters".isConvertible("minutes")    == false
 	 * 		* Assume that "meters", "kilometers", "seconds", and "minutes" are units that are properly defined
-	 *
 	 * @note This should not throw any exceptions, and should consist of only pure methods.
-	 *
 	 * @param unit the unit we want to check conversion into
 	 * @return true if this can convert to the specified unit. False otherwise.
 	 */
@@ -101,11 +96,10 @@ trait TSUnit {
 	 * 		m * s.inverse = m / s
 	 * 		* Assume that m, s, and Scalar are TSUnits.
 	 * 		* Please note that the right hand column is a visual representation on what the TSUnit would represent
-	 *
 	 * @param that the unit to multiply this by
 	 * @return the product of this and that, returns a new TSUnit
 	 */
-	def *(that: TSUnit): TSUnit = new ComputableTSUnit(List(this, that), List.empty[TSUnit]).simplifyType
+	def *(that: TSUnit): TSUnit = new CompoundTSUnit(List(this, that), List.empty[TSUnit]).simplifyType
 
 	/**
 	 * Divides this by that
@@ -117,11 +111,10 @@ trait TSUnit {
 	 * 		m / s.inverse = m s
 	 * 		* Assume that m, s, and Scalar are TSUnits.
 	 * 		* Please note that the right hand column is a visual representation on what the TSUnit would represent
-	 *
 	 * @param that the unit to divide this by
 	 * @return this / that as a new TSUnit
 	 */
-	def /(that: TSUnit): TSUnit = new ComputableTSUnit(List(this), List(that)).simplifyType
+	def /(that: TSUnit): TSUnit = new CompoundTSUnit(List(this), List(that)).simplifyType
 
 	/**
 	 * Finds the inverse of this
@@ -131,24 +124,20 @@ trait TSUnit {
 	 * 		m.inverse.inverse = m
 	 * 		(m / s).inverse = s / m
 	 * 		* Assume that m and s are TSUnits.
-	 *
 	 * @return 1/this
 	 */
-	def inverse: TSUnit = new ComputableTSUnit(List.empty[TSUnit], List(this)).simplifyType
+	def inverse: TSUnit = new CompoundTSUnit(List.empty[TSUnit], List(this)).simplifyType
 
 	/**
 	 * Checks to see if the unit(s) of one TSUnit are equals to the unit(s) of another
 	 *
 	 * @note this function should consist only of pure method calls
-	 *
 	 * @note
 	 * 		This is used as a more specific and specialized equality check, used in the equals method.
-	 *
 	 * @example
 	 * 		"meter".equalUnits("meters") == true
 	 * 		"meter".equalUnits("kilometers") == false
 	 * 		* Assume that meter and kilometers are defined and comparable
-	 *
 	 * @param unit the unit to check against
 	 * @return if the unit(s) of this and that are the same
 	 */
@@ -156,13 +145,10 @@ trait TSUnit {
 
 	/**
 	 * @return the string representation of the unit represented
-	 *
 	 * @note
 	 *       Some TSUnits will have different units to represent the same data, but here they should return a common value.
-	 *
 	 * @note
 	 *        This is used primarily as a way to determine if units are convertible into each other.
-	 *
 	 * @example
 	 *  	Say that I want to represent time. I might choose to work with time in seconds. (This decision is arbitrary)
 	 *  	If I define the TimeTSUnit, it would use "s" as it's unitName, as that is what it refers to.
@@ -181,16 +167,13 @@ trait TSUnit {
 	 *
 	 * @note,
 	 *  An empty option is expected if an incorrect parse occurs, not an exception.
-	 *
 	 * @note,
 	 * 	The input to this function should not contain the number part of a unit value pair.
-	 *
 	 * @example,
 	 * {{{
 	 *     val lm = new LengthTSUnit("should not matter")
 	 *     parse("Meters") //returns a LengthMeasure of dimension m
 	 * }}}
-	 *
 	 * @param str the string to parse
 	 * @return an option that may contain a TSUnit.
 	 */
