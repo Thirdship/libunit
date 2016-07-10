@@ -144,6 +144,15 @@ trait TSUnit {
 	private[libunit] def equalUnits(unit: TSUnit): Boolean
 
 	/**
+	  * Provides a hash code for the unit
+	  *
+	  * @note this function should consist only of pure method calls
+	  *
+	  * @return the corresponding hash code for the unit
+	  */
+	private[libunit] def unitHashCode: Int
+
+	/**
 	 * @return the string representation of the unit represented
 	 * @note
 	 *       Some TSUnits will have different units to represent the same data, but here they should return a common value.
@@ -161,6 +170,8 @@ trait TSUnit {
 		case u: TSUnit => equalUnits(u)
 		case _ => false
 	}
+
+	override def hashCode: Int = unitHashCode
 
 	/**
 	 * Attempts to parse the string into a ts unit.

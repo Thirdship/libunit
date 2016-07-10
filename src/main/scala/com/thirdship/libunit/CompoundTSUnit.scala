@@ -203,6 +203,12 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 		}
 	}
 
+	override def unitHashCode: Int = {
+		// If the we are not simplified, we cannot guarantee our algorithms can work. Thus, we must simplify first.
+		if(!simplified) simplifyType.unitHashCode
+		else numerator.map(_.hashCode).sum + denominator.map(_.hashCode).sum
+	}
+
 	// simply swap the numerator with the denominator and invert the scalar.
 	override def inverse = new CompoundTSUnit(denominator, numerator, simplified, new ScalarTSUnit(1 / scalar.value))
 
@@ -301,6 +307,50 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 		if(numerator.isEmpty && denominator.isEmpty)
 			return scalar
 
+		// Get all the ComputableTSUnits in the fraction
+		val oldGoodNumUnits = numerator.filterNot(_.isInstanceOf[CompoundTSUnit])
+		val oldGoodDenUnits = denominator.filterNot(_.isInstanceOf[CompoundTSUnit])
+
+		// If there are ComputableTSUnits, we need to combine them into one
+		if (!(oldGoodNumUnits == numerator && oldGoodDenUnits == denominator)) {
+			// Identify the new numerator
+			val numNumUnits = numerator
+				.filter(_.isInstanceOf[CompoundTSUnit])
+				.map(_.asInstanceOf[CompoundTSUnit])
+				.flatMap(_.numerator)
+			val denDenUnits = denominator
+				.filter(_.isInstanceOf[CompoundTSUnit])
+				.map(_.asInstanceOf[CompoundTSUnit])
+				.flatMap(_.denominator)
+			val newNumerator = oldGoodNumUnits ++ numNumUnits ++ denDenUnits
+
+			// Identify the new denominator
+			val numDenUnits = numerator
+				.filter(_.isInstanceOf[CompoundTSUnit])
+				.map(_.asInstanceOf[CompoundTSUnit])
+				.flatMap(_.denominator)
+			val denNumUnits = denominator
+				.filter(_.isInstanceOf[CompoundTSUnit])
+				.map(_.asInstanceOf[CompoundTSUnit])
+				.flatMap(_.numerator)
+			val newDenominator = oldGoodDenUnits ++ numDenUnits ++ denNumUnits
+
+			// Identify the new scalar
+			val numScalars = numerator
+				.filter(_.isInstanceOf[CompoundTSUnit])
+				.map(_.asInstanceOf[CompoundTSUnit])
+			    .foldRight(new ScalarTSUnit)((numUnit,nextScalar) =>
+				    (numUnit.scalar * nextScalar).asInstanceOf[ScalarTSUnit])
+			val denScalars = denominator
+				.filter(_.isInstanceOf[CompoundTSUnit])
+				.map(_.asInstanceOf[CompoundTSUnit])
+				.foldRight(new ScalarTSUnit)((denUnit,nextScalar) =>
+					(denUnit.scalar * nextScalar).asInstanceOf[ScalarTSUnit])
+			val newScalar = (scalar * numScalars / denScalars).asInstanceOf[ScalarTSUnit]
+
+			return new CompoundTSUnit(newNumerator, newDenominator, scalar= newScalar).simplifyType
+		}
+
 		// Get all the scalars in the fraction
 		val n_scalars = numerator.filter(u=> u.isInstanceOf[ScalarTSUnit])
 		val d_scalars = denominator.filter(u=> u.isInstanceOf[ScalarTSUnit])
@@ -338,21 +388,24 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 	 * @return true if the two ComputableTSUnits are the same.
 	 */
 	private def equateUnitLists(u:CompoundTSUnit): Boolean = {
-
-		// TODO, prove that this works for all numerators. I feel like there is a bug here.
-		val a = numerator.filterNot(u.numerator.contains)
-		val b = denominator.filterNot(u.denominator.contains)
-
-		a.isEmpty && b.isEmpty
 		/*
      First, we check to see if the lengths of the numerator and denominator lists are the same between this and u. If they aren't, the units cannot be the same.
      */
-    //if((numerator.length != u.numerator.length) || (denominator.length != u.denominator.length))
-      //return false
+    if((numerator.length != u.numerator.length) || (denominator.length != u.denominator.length))
+      return false
     /*
      In order for the ComputableTSUnits to be equal, the this list cannot contain elements not in u and vice versa, for both numerators and denominators
      */
-    //numerator.diff(u.numerator).isEmpty && u.numerator.diff(numerator).isEmpty && denominator.diff(u.denominator).isEmpty && u.denominator.diff(denominator).isEmpty
+
+        val numsLeft = numerator.diff(u.numerator)
+		val numsRight = u.numerator.diff(numerator)
+		val densLeft = denominator.diff(u.denominator)
+		val densRight = u.denominator.diff(denominator)
+
+		numsLeft.isEmpty &&
+			numsRight.isEmpty &&
+			densLeft.isEmpty &&
+			densRight.isEmpty
 	}
 
 	/**

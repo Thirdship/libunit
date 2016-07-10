@@ -50,6 +50,8 @@ class BaseTSUnit(val name: String) extends TSUnit{
 		case _ => false
 	}
 
+	override def unitHashCode: Int = name.hashCode
+
 	override def getUnitName: String = name
 
 	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] =
