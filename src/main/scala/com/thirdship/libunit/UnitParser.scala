@@ -114,7 +114,7 @@ final class UnitParser {
 		classes.map(c => c._2.apply(s)).flatMap(tso => {
 			if(tso.isEmpty)
 				None
-			else if(!tso.get.isInstanceOf[ComputableTSUnit] && "[0-9]".r.findAllMatchIn(s).nonEmpty)
+			else if(!tso.get.isInstanceOf[CompoundTSUnit] && "[0-9]".r.findAllMatchIn(s).nonEmpty)
 				None
 			else
 				tso

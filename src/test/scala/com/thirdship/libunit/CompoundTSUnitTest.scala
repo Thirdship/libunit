@@ -5,9 +5,9 @@ import com.thirdship.libunit.units.ScalarTSUnit
 import com.thirdship.libunit.units.TimeHelpers.{Minutes, Seconds}
 import org.scalatest.{Matchers, FlatSpec}
 
-class ComputableTSUnitTest extends FlatSpec with Matchers {
+class CompoundTSUnitTest extends FlatSpec with Matchers {
 
-	"A ComputableTSUnitTest" should "Simplify Types" in {
+	"A CompoundTSUnitTest" should "Simplify Types" in {
 		val a = new BaseTSUnit("a")
 		val b = new BaseTSUnit("b")
 		val c = new BaseTSUnit("c")
@@ -22,11 +22,11 @@ class ComputableTSUnitTest extends FlatSpec with Matchers {
 		val a = new BaseTSUnit("a")
 		val b = new BaseTSUnit("b")
 
-		val a_1 = new ComputableTSUnit(List(a), List.empty[TSUnit])
-		val b_1 = new ComputableTSUnit(List(b), List.empty[TSUnit])
+		val a_1 = new CompoundTSUnit(List(a), List.empty[TSUnit])
+		val b_1 = new CompoundTSUnit(List(b), List.empty[TSUnit])
 
-		val aa_a = new ComputableTSUnit(List(a,a), List(a))
-		val aab_ab = new ComputableTSUnit(List(a,a,b), List(a,b))
+		val aa_a = new CompoundTSUnit(List(a,a), List(a))
+		val aab_ab = new CompoundTSUnit(List(a,a,b), List(a,b))
 
 		a should be(a)
 
