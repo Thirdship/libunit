@@ -22,11 +22,9 @@ import com.thirdship.libunit.utils.ParenUtils
  * for an easier internal simplification mechanism, and when wrapped properly should not pose an issue.
  *
  * @note Think of the arguments as: Is "scalar (numerator / denominator)" simplified?
- *
- * @note It is faster to store a simplified ComputableTSUnit as if it is not simplified, before every equals operation
+	* @note It is faster to store a simplified ComputableTSUnit as if it is not simplified, before every equals operation
  *       it will be re-simplified. This could be slow in some situations.
- *
- * @example
+	* @example
  * {{{
  * 	   val m = new LengthTSUnit("m")
  * 	   val km = new LengthTSUnit("km")
@@ -43,8 +41,7 @@ import com.thirdship.libunit.utils.ParenUtils
  *     a.isConvertible(c)	// true
  *     println(c.unitTag)	// "ComputableTSUnit#(LengthTSUnit#m)/(TimeTSUnit#s)"
  * }}}
- *
- * @param numerator a list of TSUnits that represent the numerator of the fraction
+	* @param numerator a list of TSUnits that represent the numerator of the fraction
  * @param denominator a list of TSUnits that represent the denominator of the fraction
  * @param simplified if the fraction is simplified.
  * @param scalar considered to be a multiplier on the fraction.
@@ -86,12 +83,15 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 			--- / --- = --- * --- = -------
 			 b     d     b     c     b * c
 		 */
-		case unit: ComputableTSUnit => new ComputableTSUnit(
-			numerator.foldLeft(unit.denominator)((list, u) => list.::(u)),	//combine this.numerator to unit.denominator
-			denominator.foldLeft(unit.numerator)((list, u) => list.::(u)),	//combine this.denominator to unit.numerator
-			false,															//the fraction needs to simplified
-			new ScalarTSUnit(scalar.value/unit.scalar.value)				//multiply scalars
-		).simplifyType
+		case unit: ComputableTSUnit =>
+			if(unit.simplified) {
+				new ComputableTSUnit(
+					numerator.foldLeft(unit.denominator)((list, u) => list.::(u)), //combine this.numerator to unit.denominator
+					denominator.foldLeft(unit.numerator)((list, u) => list.::(u)), //combine this.denominator to unit.numerator
+					false, //the fraction needs to simplified
+					new ScalarTSUnit(scalar.value / unit.scalar.value) //multiply scalars
+				).simplifyType
+			} else /(unit.simplifyType)
 
 		// If it is any other ts unit, just add the unit to the denominator
 		case unit: TSUnit => new ComputableTSUnit(numerator, denominator.::(unit))
@@ -206,6 +206,12 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 		}
 	}
 
+	override def unitHashCode: Int = {
+		// If the we are not simplified, we cannot guarantee our algorithms can work. Thus, we must simplify first.
+		if(!simplified) simplifyType.unitHashCode
+		else numerator.map(_.hashCode).sum + denominator.map(_.hashCode).sum
+	}
+
 	// simply swap the numerator with the denominator and invert the scalar.
 	override def inverse = new ComputableTSUnit(denominator, numerator, simplified, new ScalarTSUnit(1 / scalar.value))
 
@@ -237,8 +243,7 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 	 *
 	 * @note unitTags being equal should mean that they are convertible.
 	 *       However, this may not be the case if an error is made in a TSUnit.
-	 *
-	 * @param list a list of TSUnits to use
+		* @param list a list of TSUnits to use
 	 * @return the Map[String, List[TSUnit] ]
 	 */
 	private def getDimensionsFromList(list: List[TSUnit]) = list.sortBy(_.unitTag).groupBy(_.unitTag)
@@ -287,10 +292,8 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 
 	/**
 	 * @return this or a new TSUnit that is simpler in type.
-	 *
-	 * @note We define simpler to mean that it requires less information to fully define the unit.
-	 *
-	 * @example <ul>
+		* @note We define simpler to mean that it requires less information to fully define the unit.
+		* @example <ul>
 	 *          <li>m km s / km s min --> m / min</li>
 	 *          <li>m/m --> 1 Scalar</li>
 	 *          <li>km/m --> 1000 Scalar. The scalar should be removed by the user.
@@ -306,6 +309,50 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 		// If there is nothing in the fraction, then there is only a scalar left. Return it, go home.
 		if(numerator.isEmpty && denominator.isEmpty)
 			return scalar
+
+		// Get all the ComputableTSUnits in the fraction
+		val oldGoodNumUnits = numerator.filterNot(_.isInstanceOf[ComputableTSUnit])
+		val oldGoodDenUnits = denominator.filterNot(_.isInstanceOf[ComputableTSUnit])
+
+		// If there are ComputableTSUnits, we need to combine them into one
+		if (!(oldGoodNumUnits == numerator && oldGoodDenUnits == denominator)) {
+			// Identify the new numerator
+			val numNumUnits = numerator
+				.filter(_.isInstanceOf[ComputableTSUnit])
+				.map(_.asInstanceOf[ComputableTSUnit])
+				.flatMap(_.numerator)
+			val denDenUnits = denominator
+				.filter(_.isInstanceOf[ComputableTSUnit])
+				.map(_.asInstanceOf[ComputableTSUnit])
+				.flatMap(_.denominator)
+			val newNumerator = oldGoodNumUnits ++ numNumUnits ++ denDenUnits
+
+			// Identify the new denominator
+			val numDenUnits = numerator
+				.filter(_.isInstanceOf[ComputableTSUnit])
+				.map(_.asInstanceOf[ComputableTSUnit])
+				.flatMap(_.denominator)
+			val denNumUnits = denominator
+				.filter(_.isInstanceOf[ComputableTSUnit])
+				.map(_.asInstanceOf[ComputableTSUnit])
+				.flatMap(_.numerator)
+			val newDenominator = oldGoodDenUnits ++ numDenUnits ++ denNumUnits
+
+			// Identify the new scalar
+			val numScalars = numerator
+				.filter(_.isInstanceOf[ComputableTSUnit])
+				.map(_.asInstanceOf[ComputableTSUnit])
+			    .foldRight(new ScalarTSUnit)((numUnit,nextScalar) =>
+				    (numUnit.scalar * nextScalar).asInstanceOf[ScalarTSUnit])
+			val denScalars = denominator
+				.filter(_.isInstanceOf[ComputableTSUnit])
+				.map(_.asInstanceOf[ComputableTSUnit])
+				.foldRight(new ScalarTSUnit)((denUnit,nextScalar) =>
+					(denUnit.scalar * nextScalar).asInstanceOf[ScalarTSUnit])
+			val newScalar = (scalar * numScalars / denScalars).asInstanceOf[ScalarTSUnit]
+
+			return new ComputableTSUnit(newNumerator, newDenominator, scalar= newScalar).simplifyType
+		}
 
 		// Get all the scalars in the fraction
 		val n_scalars = numerator.filter(u=> u.isInstanceOf[ScalarTSUnit])
@@ -344,21 +391,24 @@ class ComputableTSUnit(		val numerator: List[TSUnit] = List.empty[TSUnit],
 	 * @return true if the two ComputableTSUnits are the same.
 	 */
 	private def equateUnitLists(u:ComputableTSUnit): Boolean = {
-
-		// TODO, prove that this works for all numerators. I feel like there is a bug here.
-		val a = numerator.filterNot(u.numerator.contains)
-		val b = denominator.filterNot(u.denominator.contains)
-
-		a.isEmpty && b.isEmpty
 		/*
      First, we check to see if the lengths of the numerator and denominator lists are the same between this and u. If they aren't, the units cannot be the same.
      */
-    //if((numerator.length != u.numerator.length) || (denominator.length != u.denominator.length))
-      //return false
+    if((numerator.length != u.numerator.length) || (denominator.length != u.denominator.length))
+      return false
     /*
      In order for the ComputableTSUnits to be equal, the this list cannot contain elements not in u and vice versa, for both numerators and denominators
      */
-    //numerator.diff(u.numerator).isEmpty && u.numerator.diff(numerator).isEmpty && denominator.diff(u.denominator).isEmpty && u.denominator.diff(denominator).isEmpty
+
+        val numsLeft = numerator.diff(u.numerator)
+		val numsRight = u.numerator.diff(numerator)
+		val densLeft = denominator.diff(u.denominator)
+		val densRight = u.denominator.diff(denominator)
+
+		numsLeft.isEmpty &&
+			numsRight.isEmpty &&
+			densLeft.isEmpty &&
+			densRight.isEmpty
 	}
 
 	/**
