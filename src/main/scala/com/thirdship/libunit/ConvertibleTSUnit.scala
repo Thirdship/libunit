@@ -47,7 +47,7 @@ abstract class ConvertibleTSUnit(val unitName: String,
 
 	override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
 		case u: ConvertibleTSUnit => generateConversionFunction(u)
-		case u: ComputableTSUnit => u.conversionFunction(this)
+		case u: CompoundTSUnit => u.conversionFunction(this)
 		case _ => throw new InvalidConversionState(this, unit)
 	}
 
@@ -55,7 +55,7 @@ abstract class ConvertibleTSUnit(val unitName: String,
 		case u: ConvertibleTSUnit =>
 			u.data.humanReadableName.equals(data.humanReadableName) &&
 			u.data.parseMap.contains(unitName.i)
-		case u: ComputableTSUnit => u.isConvertible(this)
+		case u: CompoundTSUnit => u.isConvertible(this)
 		case _ => false
 	}
 
