@@ -111,6 +111,8 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
     case _ => false
   }
 
+  override def unitHashCode: Int = unitName.hashCode
+
   // Implicits
   /**
     * Adds the ability to convert a double to a scalar conversion

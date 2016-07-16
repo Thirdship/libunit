@@ -78,7 +78,11 @@ class UnitParserTest extends FlatSpec with Matchers {
 			"((m)/s)",
 			"(m/(s))",
 			"((m)/(s))"
-		).foreach(a => { val b = UnitParser(a); println(a + " --> " + b); b should be(Some((Meters()/Seconds()).getUnit)) })
+		).foreach(a => {
+			val b = UnitParser(a)
+			println(a + " --> " + b)
+			b should be(Some((Meters()/Seconds()).getUnit))
+		})
 
 		//			"m^2/s" -> "(m m)/ s",
 
