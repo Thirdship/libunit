@@ -34,6 +34,8 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
 
     println(data.compressedParseMap.keys.map(_.baseString))
 
+    data.compressedParseMap.apply("Ys".i).map(_.baseString).toSet  should be (Set("Ysec","Ysecond","yottas","yottasec","yottasecond"))
+    data.compressedParseMap.apply("Zs".i).map(_.baseString).toSet  should be (Set("Zsec","Zsecond","zettas","zettasec","zettasecond"))
     data.compressedParseMap.apply("Es".i).map(_.baseString).toSet  should be (Set("Esec","Esecond","exas","exasec","exasecond"))
     data.compressedParseMap.apply("Ps".e).map(_.baseString).toSet  should be (Set("Psec","Psecond","petas","petasec","petasecond"))
     data.compressedParseMap.apply("Ts".i).map(_.baseString).toSet  should be (Set("Tsec","Tsecond","teras","terasec","terasecond"))
@@ -57,6 +59,8 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
 
     println(data.conversionEdges)
 
+    data.aStar.getConversions(baseUnit.baseString, "Ys")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Ys",  1e-24, 0.1)))
+    data.aStar.getConversions(baseUnit.baseString, "Zs")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Zs",  1e-21, 0.1)))
     data.aStar.getConversions(baseUnit.baseString, "Es")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Es",  1e-18, 0.1)))
     data.aStar.getConversions(baseUnit.baseString, "Ps")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Ps",  1e-15, 0.1)))
     data.aStar.getConversions(baseUnit.baseString, "Ts")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Ts",  1e-12, 0.1)))

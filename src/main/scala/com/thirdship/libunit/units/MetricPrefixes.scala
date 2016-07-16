@@ -34,6 +34,8 @@ class MetricPrefixes(unit: ExactString, parseList: List[FuzzyString]) {
 
 object MetricPrefixes {
   val newUnits = Map(
+    "Y".i -> (1e-24, List("yotta")),
+    "Z".i -> (1e-21, List("zetta")),
     "E".i -> (1e-18, List("exa")),
     "P".e -> (1e-15, List("peta")),
     "T".i -> (1e-12, List("tera")),
