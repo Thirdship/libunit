@@ -85,13 +85,13 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
 
   override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
     case u: AStarConvertibleTSUnit => generateConversionFunction(u)
-    case u: ComputableTSUnit => u.conversionFunction(this)
+    case u: CompoundTSUnit => u.conversionFunction(this)
     case _ => throw new InvalidConversionState(this, unit)
   }
 
   override def isConvertible(unit: TSUnit): Boolean = unit match {
     case u: AStarConvertibleTSUnit => unitName.equals(unitName)
-    case u: ComputableTSUnit => u.isConvertible(this)
+    case u: CompoundTSUnit => u.isConvertible(this)
     case _ => false
   }
 

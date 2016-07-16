@@ -26,7 +26,7 @@ class BaseTSUnit(val name: String) extends TSUnit{
 		case u: BaseTSUnit => (a: Double) => a
 
 		// If the unit is a ComputableTSUnit, then punt the problem over to it.
-		case u: ComputableTSUnit => u.conversionFunction(this)
+		case u: CompoundTSUnit => u.conversionFunction(this)
 		case _ => throw new InvalidConversionState(this, unit)
 	}
 
@@ -35,7 +35,7 @@ class BaseTSUnit(val name: String) extends TSUnit{
 		case unit: BaseTSUnit => unit.name.equals(name)
 
 		// If the unit is a ComputableTSUnit, we as unit as it knows more than we do.
-		case u: ComputableTSUnit => u.isConvertible(this)
+		case u: CompoundTSUnit => u.isConvertible(this)
 		case _ => false
 	}
 
@@ -46,7 +46,7 @@ class BaseTSUnit(val name: String) extends TSUnit{
 		case u: BaseTSUnit => u.name.equals(name)
 
 		// If the unit is a ComputableTSUnit, we as unit as it knows more than we do.
-		case u: ComputableTSUnit => u.equalUnits(this)
+		case u: CompoundTSUnit => u.equalUnits(this)
 		case _ => false
 	}
 

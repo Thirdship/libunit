@@ -167,8 +167,8 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 */
 	 protected def simplify:TSUnitValuePair = unit match {
 		// If the unit is a computable unit, if the unit says it is not simplified, then simplify it.
-		case u: ComputableTSUnit => if(u.scalar.value == 1)
-			this else new TSUnitValuePair(value * u.scalar.value, new ComputableTSUnit(u.numerator, u.denominator))
+		case u: CompoundTSUnit => if(u.scalar.value == 1)
+			this else new TSUnitValuePair(value * u.scalar.value, new CompoundTSUnit(u.numerator, u.denominator))
 		// If it as scalar, if it is not as simple as it can be, move that simplify
 		case u: ScalarTSUnit => if(u.value == 1) this else new TSUnitValuePair(value * u.value, new ScalarTSUnit())
 		case u: TSUnit => this
