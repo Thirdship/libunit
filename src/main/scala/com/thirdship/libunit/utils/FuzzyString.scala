@@ -82,6 +82,7 @@ class MixedString(val strings: List[FuzzyString], val separator:String) extends 
 
 }
 
+
 class ExactString(val str: String, val ignoreCase: Boolean = true) extends FuzzyString(str) {
 	override def checkEquality(str: String): Boolean = if(ignoreCase)
 		str.equalsIgnoreCase(baseString)
@@ -114,7 +115,7 @@ abstract class FuzzyString(val baseString: String) extends Comparable[FuzzyStrin
 		baseString.length()
 	}
 
-	override def compareTo(o: FuzzyString): Int = {baseString.compareTo(o.baseString)
+	override def compareTo(o: FuzzyString): Int = {baseString.compareTo(o.baseString)}
 
 	override def equals(obj: Any): Boolean = {
 		obj match {
