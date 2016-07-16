@@ -230,4 +230,5 @@ class FuzzyStringTest extends FlatSpec with Matchers {
 		).foreach(o => "hello".i.equals(o._1) should be(o._2))
 	}
 
+
 }
