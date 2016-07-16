@@ -6,7 +6,7 @@ import com.thirdship.libunit._
 import com.thirdship.libunit.utils.Helpers._
 
 /**
-  * Define an assortment of helpers that can create appropriate UnitValuePairs dealing with Lengths.
+  * Define an assortment of helpers that can create appropriate UnitValuePairs dealing with Temperatures.
   */
 object TemperatureHelpers{
 	object Fahrenheit     	{ def apply(value: Double = 1) = TSUnitValuePair(value, new TemperatureTSUnit("F" )) }
