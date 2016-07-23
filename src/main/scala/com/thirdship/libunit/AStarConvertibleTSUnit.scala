@@ -1,6 +1,7 @@
 package com.thirdship.libunit
 
 import com.thirdship.libunit.units.MetricPrefixes
+import com.thirdship.libunit.units.BinaryPrefixes
 import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
 
@@ -11,8 +12,8 @@ import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
   * @param humanReadableName The name of the type unit, rather, what it represents. For example: Length, Time etc...
   */
 class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableName: String,
-                                 var compressedParseMap: Map[ExactString, List[FuzzyString]],
-                                 var conversionEdges: List[ConversionEdge[String, Double, Double]]){
+                                 val compressedParseMap: Map[ExactString, List[FuzzyString]],
+                                 val conversionEdges: List[ConversionEdge[String, Double, Double]]){
 
   /**
     * A map of unitName synonyms and the standard unitName
@@ -23,24 +24,48 @@ class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableNam
   lazy val  aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
 
   def createMetricUnits(units: List[ExactString]) = {
-    var metricUnits: MetricPrefixes = new MetricPrefixes("".e, List.empty[FuzzyString])
-    units.foreach(unitSuffix => {
-      metricUnits = new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
-      compressedParseMap ++= metricUnits.compressedParseMap
-      conversionEdges ++= metricUnits.edges
-    })
-    this
+	val newStuff = units.map( unitSuffix => {
+		new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
+	})
+
+	val newCompressedParseMap = newStuff.map(_.compressedParseMap).foldLeft(compressedParseMap)( (output, input) => {
+		output.++(input)
+	})
+
+	val newConversionEdges = newStuff.map(_.edges).foldLeft(conversionEdges)( (output, input) => {
+		output.++(input)
+	})
+
+	new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newCompressedParseMap, newConversionEdges)
+  }
+
+  def createBinaryUnits(units: List[ExactString]) = {
+	  val newStuff = units.map( unitSuffix => {
+		  new BinaryPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
+	  })
+
+	  val newCompressedParseMap = newStuff.map(_.compressedParseMap).foldLeft(compressedParseMap)( (output, input) => {
+		  output.++(input)
+	  })
+
+	  val newConversionEdges = newStuff.map(_.edges).foldLeft(conversionEdges)( (output, input) => {
+		  output.++(input)
+	  })
+
+	  new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newCompressedParseMap, newConversionEdges)
   }
 
   private def generateParseMap(compressedParseMap: Map[ExactString, List[FuzzyString]]): Map[ExactString, String] = {
     val autoGen = compressedParseMap.keys.map(k => (k, k.baseString)).toMap
 
-    val defined = compressedParseMap.map(e => (e._1.baseString, e._2)).flatMap(e => e._2.flatMap {
-      case fs: WordString => fs.asExactStringList
-      case fs: ExactString => List(fs)
-    }.map(fs => (fs, e._1)))
+    val defined = compressedParseMap.map(keyValuePair => (keyValuePair._1.baseString, keyValuePair._2))
+        .flatMap(baseStringValuePair => baseStringValuePair._2.flatMap {
+          case wordString: WordString => wordString.asExactStringList
+          case exactString: ExactString => List(exactString)
+        }
+        .map(exactString => (exactString, baseStringValuePair._1)))
 
-    autoGen.++:(defined)
+    autoGen ++: defined
   }
 }
 
@@ -114,9 +139,12 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
   protected def getTSUnit(str: String): TSUnit
 
   override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
-    val syn = data.parseMap.get(str.i) //TODO case sensitive
+    val syn = data.parseMap.get(str.i) //TODO MixedString case
+    val ant = data.parseMap.get(str.e)
     if(syn.isDefined)
       Some(getTSUnit(syn.get))
+    else if(ant.isDefined)
+      Some(getTSUnit(ant.get))
     else
       None
   }
