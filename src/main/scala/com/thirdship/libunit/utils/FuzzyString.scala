@@ -1,6 +1,5 @@
 package com.thirdship.libunit.utils
 
-import com.google.common.primitives.UnsignedInteger
 import com.thirdship.libunit.ScalarConversion
 import org.atteo.evo.inflector.English
 
@@ -40,9 +39,7 @@ class MixedString(val strings: List[FuzzyString], val separator:String) extends 
 		builder.append(fuzzy.toString).append(separator)
 	}.toString()
 
-})
-
-{
+}) {
 
 	//The length of the component fuzzy strings summed together (no separators)
 	lazy val componentStringLengths = strings.map(_.length).sum
@@ -53,13 +50,13 @@ class MixedString(val strings: List[FuzzyString], val separator:String) extends 
 		this(strings, "")
 	}
 
-	override def length: Integer = {
+	override def length: Int = {
 		componentStringLengths
 	}
 
 	override def checkEquality(str: String): Boolean = {
 		//Note: doesn't take separator characters into account in the MixedString or the string to compare it to.
-		var strIndex: Integer = 0
+		var strIndex: Int = 0
 		for(componentStr:FuzzyString <- strings) {
 			val endIndex = strIndex + componentStr.length
 			if (endIndex >= str.length || !componentStr.checkEquality(str.substring(strIndex, endIndex))) {
@@ -71,7 +68,7 @@ class MixedString(val strings: List[FuzzyString], val separator:String) extends 
 	}
 
 	// should compareTo check case? it doesn't in ExactString
-//	override def compareTo(o:FuzzyString): Integer = {
+//	override def compareTo(o:FuzzyString): Int = {
 //		throw new NotImplementedError("Implement me!")
 //	}
 
@@ -111,7 +108,7 @@ abstract class FuzzyString(val baseString: String) extends Comparable[FuzzyStrin
 	def checkEquality(str: String): Boolean
 	def checkEquality(str: FuzzyString): Boolean = checkEquality(str.baseString)
 
-	def length: Integer = {
+	def length: Int = {
 		baseString.length()
 	}
 
