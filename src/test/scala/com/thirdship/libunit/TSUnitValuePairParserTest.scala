@@ -1,9 +1,10 @@
 package com.thirdship.libunit
 
+import org.scalatest.{FlatSpec, Matchers}
+
 import com.thirdship.libunit.units.LengthHelpers.Meters
 import com.thirdship.libunit.units.ScalarTSUnit
 import com.thirdship.libunit.units.TimeHelpers.Seconds
-import org.scalatest.{Matchers, FlatSpec}
 
 class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 
@@ -60,7 +61,7 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 			" 1 ((meters)/((seconds)))",
 			" 1 m * m * s / s * s * m",
 			"1      (m * m * s)/ ( s * s * m)"
-		).foreach(a => { val b = UnitValuePairParser(a); println(a + " --> " + b); b should be(Some(Meters()/Seconds())) })
+		).foreach(a => { val b = UnitValuePairParser(a); b should be(Some(Meters()/Seconds())) })
 
 		Map(
 			" 1 m^2 " -> "1 m*m",
@@ -69,8 +70,6 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 		).foreach(a => {
 			val b1 = UnitParser(a._1)
 			val b2 = UnitParser(a._2)
-
-			println(b1 + " ["+a._1+"] should be " + b2 + " ["+a._2+"]")
 
 			b1 should be(b2)
 		})
@@ -85,7 +84,7 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 			"1 ((m)/s)",
 			"1 (m/(s))",
 			"1 ((m)/(s))"
-		).foreach(a => { val b = UnitValuePairParser(a); println(a + " --> " + b); b should be(Some(Meters()/Seconds())) })
+		).foreach(a => { val b = UnitValuePairParser(a); b should be(Some(Meters()/Seconds())) })
 
 		//			"m^2/s" -> "(m m)/ s",
 
@@ -104,7 +103,7 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 			"50,001" -> 50001d,
 			"-6.4" -> -6.4d,
 			"  33.94     " -> 33.94d,
-			"0b0111010" -> 0x3A.toDouble, //0b 011 1010 or 0x3A
+			"0b0111010" -> 0x3A.toDouble, // 0b 011 1010 or 0x3A
 			"0x0FFF" -> 0x0FFF.toDouble,
 			"123e-5" -> 123e-5,
 			"123e+5" -> 123e+5,
@@ -116,7 +115,6 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 			val (string, value) = tuple
 			val scalar = UnitValuePairParser(string)
 
-			println(s"'$string' should be $value")
 			scalar shouldBe defined
 			scalar.get.getValue should be(value)
 			scalar.get shouldEqual TSUnitValuePair(value, new ScalarTSUnit())
@@ -130,19 +128,19 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 			"- meters"
 		)
 		testBadStrings.foreach(s => {
-			println(s"'$s' should not be defined")
 			UnitValuePairParser(s) shouldNot be(defined)
 		})
 	}
 
 	it should "parse to default when asked" in {
+		// scalastyle:off magic.number
 		UnitValuePairParser.parseToDefaultUnit("1 Kilometer").get should be(Meters(1000))
 		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Second").get should be(Meters(1000)/Seconds())
 
 		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Seconds").get should be(Meters(1000)/Seconds())
 		UnitValuePairParser.parseToDefaultUnit("5 Kilometer / Seconds").get should be(Meters(5000)/Seconds())
 		UnitValuePairParser.parseToDefaultUnit("0.5 Kilometer / Seconds").get should be(Meters(500)/Seconds())
-
+		// scalastyle:on magic.number
 	}
 
 }
