@@ -1,9 +1,9 @@
 package com.thirdship.libunit
 
-import com.thirdship.libunit.units.MetricPrefixes
 import com.thirdship.libunit.units.BinaryPrefixes
+import com.thirdship.libunit.units.MetricPrefixes
+import com.thirdship.libunit.utils.{ExactString, FuzzyString, WordString}
 import com.thirdship.libunit.utils.Helpers._
-import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
 
 /**
   * Holds the data of a AStarConvertibleTSUnit, used to make sure that there is a single source of information for the system
@@ -13,7 +13,7 @@ import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
   */
 class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableName: String,
                                  val compressedParseMap: Map[ExactString, List[FuzzyString]],
-                                 val conversionEdges: List[ConversionEdge[String, Double, Double]]){
+                                 val conversionEdges: List[ConversionEdge[String, Double, Double]]) {
 
   /**
     * A map of unitName synonyms and the standard unitName
@@ -23,32 +23,32 @@ class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableNam
   // Store outside the object, that way state is preserved.
   lazy val  aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
 
-  def createMetricUnits(units: List[ExactString]) = {
-	val newStuff = units.map( unitSuffix => {
+  def createMetricUnits(units: List[ExactString]): AStarConvertibleTSUnitData = {
+	val newStuff = units.map(unitSuffix => {
 		new MetricPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
 	})
 
-	val newCompressedParseMap = newStuff.map(_.compressedParseMap).foldLeft(compressedParseMap)( (output, input) => {
+	val newCompressedParseMap = newStuff.map(_.compressedParseMap).foldLeft(compressedParseMap)((output, input) => {
 		output.++(input)
 	})
 
-	val newConversionEdges = newStuff.map(_.edges).foldLeft(conversionEdges)( (output, input) => {
+	val newConversionEdges = newStuff.map(_.edges).foldLeft(conversionEdges)((output, input) => {
 		output.++(input)
 	})
 
 	new AStarConvertibleTSUnitData(baseUnit, humanReadableName, newCompressedParseMap, newConversionEdges)
   }
 
-  def createBinaryUnits(units: List[ExactString]) = {
-	  val newStuff = units.map( unitSuffix => {
+  def createBinaryUnits(units: List[ExactString]): AStarConvertibleTSUnitData = {
+	  val newStuff = units.map(unitSuffix => {
 		  new BinaryPrefixes(unitSuffix, compressedParseMap.apply(unitSuffix))
 	  })
 
-	  val newCompressedParseMap = newStuff.map(_.compressedParseMap).foldLeft(compressedParseMap)( (output, input) => {
+	  val newCompressedParseMap = newStuff.map(_.compressedParseMap).foldLeft(compressedParseMap)((output, input) => {
 		  output.++(input)
 	  })
 
-	  val newConversionEdges = newStuff.map(_.edges).foldLeft(conversionEdges)( (output, input) => {
+	  val newConversionEdges = newStuff.map(_.edges).foldLeft(conversionEdges)((output, input) => {
 		  output.++(input)
 	  })
 
@@ -104,7 +104,7 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
   private def generateConversionFunction(unit: AStarConvertibleTSUnit): (Double) => Double =
     data.aStar.solve(this.unitName, unit.unitName).conversion.to
 
-  override def toString = unitName
+  override def toString: String = unitName
 
   def equalUnits(unit: TSUnit): Boolean = unit match {
     case u: AStarConvertibleTSUnit => data.humanReadableName.equals(u.data.humanReadableName) && unitName.equals(u.unitName)
@@ -120,7 +120,7 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
     * @param d the double amount to apply to the conversion
     */
   implicit class scalarDouble(d: Double) {
-    def asScalarFn = new ScalarConversion(d)
+    def asScalarFn: ScalarConversion = new ScalarConversion(d)
   }
 
   /**
@@ -129,7 +129,7 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
     * @param i the integer amount to apply to the conversion
     */
   implicit class scalarInt(i: Int) {
-    def asScalarFn = new ScalarConversion(i)
+    def asScalarFn: ScalarConversion = new ScalarConversion(i)
   }
 
   /**
@@ -139,15 +139,15 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
   protected def getTSUnit(str: String): TSUnit
 
   override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
-    val syn = data.parseMap.get(str.i) //TODO MixedString case
+    val syn = data.parseMap.get(str.i) // TODO MixedString case
     val ant = data.parseMap.get(str.e)
-    if(syn.isDefined)
-      Some(getTSUnit(syn.get))
-    else if(ant.isDefined)
-      Some(getTSUnit(ant.get))
-    else
-      None
+    if(syn.isDefined) {
+      Some(getTSUnit(syn.get))}
+    else if (ant.isDefined) {
+      Some(getTSUnit(ant.get))}
+    else {
+      None}
   }
 
-  override def getUnitName = data.baseUnit.baseString
+  override def getUnitName: String = data.baseUnit.baseString
 }

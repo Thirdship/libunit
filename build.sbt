@@ -6,7 +6,7 @@ organization := "com.thirdship"
 
 scalaVersion := "2.11.7"
 
-//ScalaTest - Unit Testing with ScalaMock mocking
+// ScalaTest - Unit Testing with ScalaMock mocking
 libraryDependencies ++= Seq(
 	"org.scalamock" %% "scalamock-scalatest-support" % "3.2.2" % "test",
 	"com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
@@ -23,8 +23,8 @@ resolvers ++= Seq(
 
 publishTo := {
 	val nexus = "http://maven.thirdship.com/"
-	if (version.value.trim.endsWith("SNAPSHOT"))
-		Some("snapshots" at nexus + "content/repositories/snapshots")
-	else
-		Some("releases"  at nexus + "content/repositories/releases")
+	if (version.value.trim.endsWith("SNAPSHOT")) {
+		Some("snapshots" at nexus + "content/repositories/snapshots")}
+	else {
+		Some("releases"  at nexus + "content/repositories/releases")}
 }

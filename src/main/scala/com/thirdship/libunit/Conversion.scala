@@ -10,7 +10,7 @@ package com.thirdship.libunit
  * @tparam N the destination/base storage type.
  * @note the default values are to simply cast the input to the output type. This will surly break if M != N.
  */
-case class Conversion[M,N](to:   (M) => N = (a: M) => a.asInstanceOf[N], from: (N) => M = (b: N) => b.asInstanceOf[M]){
+case class Conversion[M, N](to: (M) => N = (a: M) => a.asInstanceOf[N], from: (N) => M = (b: N) => b.asInstanceOf[M]) {
 
 	/**
 	  * @return the conversion with the to and the from functions switched
@@ -29,7 +29,7 @@ case class Conversion[M,N](to:   (M) => N = (a: M) => a.asInstanceOf[N], from: (
  * }}}
 	* @param scalar the Double to scale by
  */
-class ScalarConversion(scalar: Double = 1) extends Conversion[Double,Double]( (a:Double) => a * scalar, (a:Double) => a / scalar)
+class ScalarConversion(scalar: Double = 1) extends Conversion[Double, Double]((a: Double) => a * scalar, (a: Double) => a / scalar)
 
 
 /**
@@ -44,14 +44,14 @@ class ScalarConversion(scalar: Double = 1) extends Conversion[Double,Double]( (a
   * @tparam M The source type
   * @tparam N The destination/base storage type.
   */
-case class ConversionEdge[T, M, N](start: T, end: T, conversion: Conversion[M ,N], cost: Double){
+case class ConversionEdge[T, M, N](start: T, end: T, conversion: Conversion[M, N], cost: Double) {
 
 	/**
 	  * A commuting method for ConversionEdge. This is used to get the inverse conversion between units without needing to store redundant ConversionEdges.
 	  *
 	  * @return A ConversionEdge with reversed endpoints, the inverse conversion factor, and cost increased by one.
 	  */
-	def inverted: ConversionEdge[T, N, M] = new ConversionEdge(end,start,conversion.inverted(),cost+1)
+	def inverted: ConversionEdge[T, N, M] = new ConversionEdge(end, start, conversion.inverted(), cost + 1)
 
 	override def equals(o: Any): Boolean = o match {
 		case edge: ConversionEdge[T, M, N] => {
@@ -59,6 +59,12 @@ case class ConversionEdge[T, M, N](start: T, end: T, conversion: Conversion[M ,N
 		}
 		case _: AnyRef => false
 	}
+
+	override def hashCode(): Int = ((start.toString + end.toString).hashCode * cost).toInt
+}
+
+object ConversionEdge {
+	val LOW_COST_EDGE = 0.1
 }
 
 /**

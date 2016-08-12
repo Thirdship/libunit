@@ -1,6 +1,6 @@
 package com.thirdship.libunit
 
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 class BaseTSUnitTest extends FlatSpec with Matchers {
 
