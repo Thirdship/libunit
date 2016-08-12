@@ -54,9 +54,8 @@ case class ConversionEdge[T, M, N](start: T, end: T, conversion: Conversion[M, N
 	def inverted: ConversionEdge[T, N, M] = new ConversionEdge(end, start, conversion.inverted(), cost + 1)
 
 	override def equals(o: Any): Boolean = o match {
-		case edge: ConversionEdge[T, M, N] => {
+		case edge: ConversionEdge[T, M, N] =>
 			edge.start == start && edge.end == end && edge.cost == cost
-		}
 		case _: AnyRef => false
 	}
 
@@ -78,5 +77,5 @@ object ConversionEdge {
   * @tparam T	The type that forms the edge
   */
 class ScalarConversionEdge[T](start: T, end: T, factor: Double, cost: Double = 0.0)
-	extends ConversionEdge(start, end, new ScalarConversion(factor), cost){
+	extends ConversionEdge(start, end, new ScalarConversion(factor), cost) {
 }

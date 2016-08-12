@@ -1,9 +1,10 @@
 package com.thirdship.libunit
 
+import org.scalatest.{FlatSpec, Matchers}
+
 import com.thirdship.libunit.units.LengthHelpers.{Kilometers, Meters}
 import com.thirdship.libunit.units.ScalarTSUnit
 import com.thirdship.libunit.units.TimeHelpers.{Minutes, Seconds}
-import org.scalatest.{Matchers, FlatSpec}
 
 class CompoundTSUnitTest extends FlatSpec with Matchers {
 
@@ -13,7 +14,7 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 		val c = new BaseTSUnit("c")
 
 		val abc = (a * b) / c
-		println(abc)
+		println(abc) // scalastyle:ignore println
 		abc * abc.inverse should be(new ScalarTSUnit)
 
 	}
@@ -25,8 +26,8 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 		val a_1 = new CompoundTSUnit(List(a), List.empty[TSUnit])
 		val b_1 = new CompoundTSUnit(List(b), List.empty[TSUnit])
 
-		val aa_a = new CompoundTSUnit(List(a,a), List(a))
-		val aab_ab = new CompoundTSUnit(List(a,a,b), List(a,b))
+		val aa_a = new CompoundTSUnit(List(a, a), List(a))
+		val aab_ab = new CompoundTSUnit(List(a, a, b), List(a, b))
 
 		a should be(a)
 
@@ -53,11 +54,10 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 		(a / b).isConvertible(a /b) should equal(true)
 		(b / b).isConvertible(a /b) should not equal true
 		(a / c).isConvertible(a /b) should not equal true
-
+		// scalastyle:off magic.number
 		val m = Meters(10)
-		val km = Kilometers(.01)
 		val s = Seconds(10)
-
+		// scalastyle:on magic.number
 		(m / s) should be(m/s)
 		(m / s).isConvertible((m / s).getUnit) should equal(true)
 
@@ -66,10 +66,12 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 	}
 
 	it should "contain a scaling mechanism" in {
+		// scalastyle:off magic.number println
 		val a = Meters(1).getUnit * new ScalarTSUnit(30)
 		val b = Seconds(1).getUnit * new ScalarTSUnit(15)
 		println(a/b)
 		println(a*b)
+		// scalastyle:on magic.number println
 	}
 
 	it should "convert some simple things" in {
@@ -78,7 +80,7 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 		val km = Kilometers()
 		val s = Seconds()
 
-
+		// scalastyle:off magic.number println
 		val a = min.convertTo(s)
 		println(a)
 		a.getValue should be(60.0)
@@ -90,7 +92,6 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 		val mm = (m/s).convertTo(m/min)
 		println(mm)
 		mm.getValue should be(60)
-
 		val m2 = m * m
 		val km2 = km * km
 
@@ -109,11 +110,12 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 		val kmm = (m2/s).convertTo((m * km) / min)
 		println(kmm)
 		kmm.getValue should be(60e-3 +- 1e-10)
+		// scalastyle:on magic.number println
 	}
 
 	it should "understand the concept of default units" in {
 		(Kilometers()/Minutes()).convertToDefaultUnits().getValue should be(16.66666666666666 +- 1e-10)
-		(Kilometers()/Seconds()).convertToDefaultUnits().getValue should be(1000)
+		(Kilometers()/Seconds()).convertToDefaultUnits().getValue should be(1000) // scalastyle:ignore magic.number
 		(Meters()/Seconds()).convertToDefaultUnits().getValue should be(1)
 		(Meters()/Minutes()).convertToDefaultUnits().getValue should be(0.01666666666666666 +- 1e-10)
 	}

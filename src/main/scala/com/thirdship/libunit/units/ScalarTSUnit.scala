@@ -7,7 +7,7 @@ import com.thirdship.libunit._
  */
 object ScalarHelpers {
 	object Scalar {
-		def apply(value: Double) = TSUnitValuePair(value, new ScalarTSUnit)
+		def apply(value: Double): TSUnitValuePair = TSUnitValuePair(value, new ScalarTSUnit)
 	}
 }
 
@@ -19,8 +19,9 @@ object ScalarHelpers {
  *
  * @param value the amount to scale by
  */
-class ScalarTSUnit(val value: Double = 1) extends BaseTSUnit("Scalar"){
+class ScalarTSUnit(val value: Double = 1) extends BaseTSUnit("Scalar") {
 
+	// scalastyle:off method.name
 	override def *(unit: TSUnit): TSUnit = unit match {
 		// We need to replace the current scalar instead of squaring a scalar.
 		case u: ScalarTSUnit => new ScalarTSUnit(value * u.value)
@@ -44,13 +45,14 @@ class ScalarTSUnit(val value: Double = 1) extends BaseTSUnit("Scalar"){
 		*/
 		case u: TSUnit => super./(u)
 	}
+	// scalastyle:on method.name
 
 	override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
 			case u: ScalarTSUnit => (a: Double) => (a * value) / u.value
-			case u: TSUnit => throw new InvalidConversionState(this,unit)
+			case u: TSUnit => throw new InvalidConversionState(this, unit)
 		}
 
-	override def toString: String = if(value == 1) "Scalar" else value+"x"
+	override def toString: String = if (value == 1) "Scalar" else value + "x"
 
 	override def equalUnits(unit: TSUnit): Boolean = unit match {
 		case u: ScalarTSUnit =>	name.equals(u.name) && value == u.value
@@ -60,9 +62,8 @@ class ScalarTSUnit(val value: Double = 1) extends BaseTSUnit("Scalar"){
 	override def unitHashCode: Int = value.hashCode
 
 	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
-		if (str.isEmpty || str.equalsIgnoreCase(name))
-			Some(new ScalarTSUnit())
-		else
-			None
+		if (str.isEmpty || str.equalsIgnoreCase(name)) {
+			Some(new ScalarTSUnit())}
+		else None
 	}
 }

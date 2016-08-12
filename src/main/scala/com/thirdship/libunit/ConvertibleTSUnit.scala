@@ -1,20 +1,20 @@
 package com.thirdship.libunit
 
+import com.thirdship.libunit.utils.{ExactString, FuzzyString, WordString}
 import com.thirdship.libunit.utils.Helpers._
-import com.thirdship.libunit.utils.{ExactString, WordString, FuzzyString}
-import com.thirdship.libunit.units.LengthTSUnit
 
 /**
   * Holds the data of a ConvertibleTSUnit, used to make sure that there is a single source of information for the system
   *
-  * @param baseUnit The unit all ConvertableTSUnits of this name can convert to and from.
+  * @param baseUnit The unit all ConvertibleTSUnits of this name can convert to and from.
   * @param humanReadableName The name of the type unit, rather, what it represents. For example: Length, Time etc...
-  * @param conversionMap The map of unitNames to the conversion from that unitName to the baseUnit. IE: List("m" -> new ScalarConversion(1), "km" -> new ScalarConversion(1000))
+  * @param conversionMap The map of unitNames to the conversion from that unitName to the baseUnit.
+	*                      IE: List("m" -> new ScalarConversion(1), "km" -> new ScalarConversion(1000))
   * @param compressedParseMap A map of unitName synonyms and the standard unitName
   */
 class ConvertibleTSUnitData(val baseUnit: String, val humanReadableName: String,
 							val conversionMap: Map[String, Conversion[Double, Double]],
-							private val compressedParseMap: Map[ExactString, List[FuzzyString]]){
+							private val compressedParseMap: Map[ExactString, List[FuzzyString]]) {
 
 	val parseMap: Map[ExactString, String] = generateParseMap(compressedParseMap)
 
@@ -60,7 +60,7 @@ abstract class ConvertibleTSUnit(val unitName: String,
 	}
 
 	/**
-	 * Creates a function that converts from this to a given ConvertableTSUnit
+	 * Creates a function that converts from this to a given ConvertibleTSUnit
 	  *
 	  * @param unit the unit to convert to
 	 * @return the function
@@ -68,21 +68,21 @@ abstract class ConvertibleTSUnit(val unitName: String,
 	private def generateConversionFunction(unit: ConvertibleTSUnit): (Double) => Double = {
 
 		// this this and unit are the same the return a no op function.
-		if (unitName.equals(unit.unitName))
-			return (a: Double) => a
+		if (unitName.equals(unit.unitName)) {
+			return (a: Double) => a}
 
-		val standardizedBaseUnit = data.parseMap.get(unitName.i).get
-		val toBaseUnit = data.conversionMap.get(standardizedBaseUnit).get.to
+		val standardizedBaseUnit = data.parseMap(unitName.i)
+		val toBaseUnit = data.conversionMap(standardizedBaseUnit).to
 
-		val standardizedFromUnit = data.parseMap.get(unit.unitName.i).get
-		val fromBaseUnit = data.conversionMap.get(standardizedFromUnit).get.from
+		val standardizedFromUnit = data.parseMap(unit.unitName.i)
+		val fromBaseUnit = data.conversionMap(standardizedFromUnit).from
 
 		(a: Double) => fromBaseUnit(toBaseUnit(a))
 	}
 
-	override def toString = unitName
+	override def toString: String = unitName
 
-	override def getUnitName = data.baseUnit
+	override def getUnitName: String = data.baseUnit
 
 	def equalUnits(unit: TSUnit): Boolean = unit match {
 		case u: ConvertibleTSUnit =>
@@ -99,11 +99,10 @@ abstract class ConvertibleTSUnit(val unitName: String,
 	protected def getTSUnit(str: String): TSUnit
 
 	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
-		val syn = data.parseMap.get(str.i) //TODO case sensitive
-		if(syn.isDefined)
-			Some(getTSUnit(syn.get))
-		else
-			None
+		val syn = data.parseMap.get(str.i) // TODO case sensitive
+		if (syn.isDefined) {
+			Some(getTSUnit(syn.get))}
+		else None
 	}
 
 }

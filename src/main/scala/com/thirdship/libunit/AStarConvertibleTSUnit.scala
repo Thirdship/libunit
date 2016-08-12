@@ -8,7 +8,7 @@ import com.thirdship.libunit.utils.Helpers._
 /**
   * Holds the data of a AStarConvertibleTSUnit, used to make sure that there is a single source of information for the system
   *
-  * @param baseUnit The unit all ConvertableTSUnits of this name can convert to and from.
+  * @param baseUnit The unit all ConvertibleTSUnits of this name can convert to and from.
   * @param humanReadableName The name of the type unit, rather, what it represents. For example: Length, Time etc...
   */
 class AStarConvertibleTSUnitData(val baseUnit: ExactString, val humanReadableName: String,

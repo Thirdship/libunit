@@ -28,7 +28,7 @@ trait TSUnit {
 	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	final def convert(that: TSUnit, value: Double): Double =convert(that)(value)
+	final def convert(that: TSUnit, value: Double): Double = convert(that)(value)
 
 	/**
 	 * If convertible, it creates a conversion function to convert this to that
@@ -39,8 +39,8 @@ trait TSUnit {
 	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	final def convert(that: TSUnit): (Double) => Double =  if(isConvertible(that)) {
-		//Ask implementations for the conversion function.
+	final def convert(that: TSUnit): (Double) => Double = if (isConvertible(that)) {
+		// Ask implementations for the conversion function.
 		conversionFunction(that)
 	} else {
 		// We cannot convert, so exit early.
@@ -84,7 +84,8 @@ trait TSUnit {
 	 * @param power the power to raise the unit to.
 	 * @return the unit raised to that power
 	 */
-	def ^(power: Integer): TSUnit = if(power <= 1) this else this * ^(power-1)
+	// scalastyle:off method.name
+	def ^(power: Integer): TSUnit = if (power <= 1) this else this * ^(power-1)
 
 	/**
 	 * Multiplies this by that
@@ -126,6 +127,7 @@ trait TSUnit {
 	 * 		* Assume that m and s are TSUnits.
 	 * @return 1/this
 	 */
+	// scalastyle:off method.name
 	def inverse: TSUnit = new CompoundTSUnit(List.empty[TSUnit], List(this)).simplifyType
 
 	/**
@@ -166,7 +168,7 @@ trait TSUnit {
 	private[libunit] def getUnitName: String
 
 
-	override def equals(o: Any) = o match {
+	override def equals(o: Any): Boolean = o match {
 		case u: TSUnit => equalUnits(u)
 		case _ => false
 	}
@@ -202,10 +204,10 @@ class UnitsException(str: String) extends Exception{
 	override def getMessage: String = str
 }
 
-class InvalidConversion(str: String) extends UnitsException(str){}
+class InvalidConversion(str: String) extends UnitsException(str) {}
 
-class UnableToConvertUnitsException(source: TSUnit, target: TSUnit) extends InvalidConversion(source+" was unable to be converted into "+target){}
+class UnableToConvertUnitsException(source: TSUnit, target: TSUnit) extends InvalidConversion(source + " was unable to be converted into " + target) {}
 
-class InvalidConversionState(source: TSUnit, target: TSUnit) extends UnableToConvertUnitsException(source, target){
+class InvalidConversionState(source: TSUnit, target: TSUnit) extends UnableToConvertUnitsException(source, target) {
 	override def getMessage: String = source + " was unable to be converted into " + target + ", but passed convertible check."
 }

@@ -1,12 +1,13 @@
 package com.thirdship.libunit.utils
 
-import com.thirdship.libunit.ScalarConversion
-import org.atteo.evo.inflector.English
-
 import scala.language.implicitConversions
 
+import org.atteo.evo.inflector.English
+
+import com.thirdship.libunit.ScalarConversion
+
 object Helpers {
-	implicit class ImplicitFuzzyString(s: String){
+	implicit class ImplicitFuzzyString(s: String) {
 		def i: ExactString = exact(true)
 		def e: ExactString = exact(false)
 
@@ -21,7 +22,7 @@ object Helpers {
 	  * @param d the double amount to apply to the conversion
 	  */
 	implicit class scalarDouble(d: Double) {
-		def asScalarFn = new ScalarConversion(d)
+		def asScalarFn: ScalarConversion = new ScalarConversion(d)
 	}
 
 	/**
@@ -30,17 +31,19 @@ object Helpers {
 	  * @param i the integer amount to apply to the conversion
 	  */
 	implicit class scalarInt(i: Int) {
-		def asScalarFn = new ScalarConversion(i)
+		def asScalarFn: ScalarConversion = new ScalarConversion(i)
 	}
 }
 
 class ExactString(val str: String, val ignoreCase: Boolean = true) extends FuzzyString(str) {
-	override def checkEquality(str: String): Boolean = if(ignoreCase)
-		str.equalsIgnoreCase(baseString)
-	else
-		str.equals(baseString)
+	override def checkEquality(str: String): Boolean = if (ignoreCase) {
+		str.equalsIgnoreCase(baseString)}
+	else {
+		str.equals(baseString)}
 
-	override def hashCode: Int = if(ignoreCase) super.hashCode else baseString.hashCode
+	override def equals(obj: Any): Boolean = super.equals(obj)
+
+	override def hashCode: Int = if (ignoreCase) super.hashCode else baseString.hashCode
 }
 
 class WordString(str: String) extends FuzzyString(str) {
@@ -48,10 +51,10 @@ class WordString(str: String) extends FuzzyString(str) {
 	lazy val asSingular = new ExactString(str)
 	lazy val asPlural = new ExactString(English.plural(str))
 
-	def asExactStringList = {
+	def asExactStringList: List[ExactString] = {
 		val s = asSingular
 		val p = asPlural
-		List(s,p)			//TODO find a way to determine if s is already plural, or that s == p
+		List(s, p)			// TODO find a way to determine if s is already plural, or that s == p
 	}
 
 	override def checkEquality(str: String): Boolean = asSingular.checkEquality(str) || asPlural.checkEquality(str)

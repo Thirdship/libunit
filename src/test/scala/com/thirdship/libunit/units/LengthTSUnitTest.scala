@@ -1,18 +1,19 @@
 package com.thirdship.libunit.units
 
-import com.thirdship.libunit.{UnitParser, TSUnit}
-import com.thirdship.libunit.units.LengthHelpers._
 import org.scalatest.{FlatSpec, Matchers}
+
+import com.thirdship.libunit.UnitParser
+import com.thirdship.libunit.units.LengthHelpers._
 
 class LengthTSUnitTest extends FlatSpec with Matchers {
 
 	"A LengthTSUnit" should "convert stuff" in {
 		val m = Meters(1)
 		val km = Kilometers(1)
-
+		// scalastyle:off magic.number
 		m + km should be(Meters(1001))
 		m - km should be(Meters(-999))
-
+		// scalastyle:on magic.number
 		(km + m) should be(Kilometers(1.001))
 		(km - m) should be(Kilometers(.999))
 
@@ -32,8 +33,8 @@ class LengthTSUnitTest extends FlatSpec with Matchers {
 		UnitParser("kiloms").get should be(Kilometers().getUnit)
 		UnitParser("kmeters").get should be(Kilometers().getUnit)
 		UnitParser("km").get should be(Kilometers().getUnit)
-		//TODO edge case "kms"
-		//UnitParser("kms").get should be(Kilometers().getUnit)
+		// TODO edge case "kms"
+		// UnitParser("kms").get should be(Kilometers().getUnit)
 	}
 
 	it should "have a default unit" in {

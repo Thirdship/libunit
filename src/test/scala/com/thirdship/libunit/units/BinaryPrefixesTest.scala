@@ -77,12 +77,12 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 	} // scalastyle:on magic.number
 
 	it should "convert between binary and non-binary units" in {
-		val b = new TSUnitValuePair(1, new StorageTSUnit("b"))
-		val byte = new TSUnitValuePair(1, new StorageTSUnit("B"))
-		val kbyte = new TSUnitValuePair(1, new StorageTSUnit("kB"))
-		val mbyte = new TSUnitValuePair(1, new StorageTSUnit("MB"))
-		val kibyte = new TSUnitValuePair(1, new StorageTSUnit("KiB"))
-		val mibyte = new TSUnitValuePair(1, new StorageTSUnit("MiB"))
+		val b = TSUnitValuePair(1, new StorageTSUnit("b"))
+		val byte = TSUnitValuePair(1, new StorageTSUnit("B"))
+		val kbyte = TSUnitValuePair(1, new StorageTSUnit("kB"))
+		val mbyte = TSUnitValuePair(1, new StorageTSUnit("MB"))
+		val kibyte = TSUnitValuePair(1, new StorageTSUnit("KiB"))
+		val mibyte = TSUnitValuePair(1, new StorageTSUnit("MiB"))
 
 		// scalastyle:off println
 		println(b + byte)
