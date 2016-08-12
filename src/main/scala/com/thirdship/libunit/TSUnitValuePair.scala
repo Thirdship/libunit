@@ -66,16 +66,16 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	/**
 	 * Adds this and that
 	 *
-	 * @note that must be convertable to this
+	 * @note that must be convertible to this
 	  * @example
 	 * 		"1 (m)" + "2 (m)" = "3 (m)"<br>
-	 * 		"2 (m)" + "3 (s)" = UnableToConvertUnitsException as "m" is not convertable to "s"<br>
+	 * 		"2 (m)" + "3 (s)" = UnableToConvertUnitsException as "m" is not convertible to "s"<br>
 	 * 		"1 (m)" + "1 (km)" = "1001 (m)"<br>
 	 * 		"1 (km)" + "1 (m)" = "1.001 (km)"<br>
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
 	  * @param that is the number to add to this
 	 * @return this + that, in the same units as this
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
 	def +(that: TSUnitValuePair): TSUnitValuePair = TSUnitValuePair(value + that.convertTo(this).value, unit)
@@ -83,16 +83,16 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	/**
 	 * Subtracts that from this
 	 *
-	 * @note that must be convertable to this
+	 * @note that must be convertible to this
 	  * @example
 	 * 		"1 (m)" - "2 (m)" = "-1 (m)"<br>
-	 * 		"2 (m)" - "3 (s)" = UnableToConvertUnitsException as "m" is not convertable to "s"<br>
+	 * 		"2 (m)" - "3 (s)" = UnableToConvertUnitsException as "m" is not convertible to "s"<br>
 	 * 		"1 (m)" - "1 (km)" = "-999 (m)"<br>
 	 * 		"1 (km)" - "1 (m)" = "-.999 (km)"<br>
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
 	  * @param that the UnitValuePair to subtract from this
 	 * @return this - that, in the same unit as this
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
 	def -(that: TSUnitValuePair): TSUnitValuePair = TSUnitValuePair(value - that.convertTo(this).value, unit)
@@ -129,7 +129,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
 	 * @param thatUnit the unit to convert this to
 	 * @return a new TSUnitValuePair from this that is converted to match thatUnit
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
 	def convertTo(thatUnit: TSUnit): TSUnitValuePair = TSUnitValuePair(unit.convert(thatUnit, value), thatUnit)
@@ -143,16 +143,16 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * 		"1 (km)".convertTo("2 (m)") = "1000 (m)"
 	 * @param that the UnitValuePair to convert to
 	 * @return a new TSUnitValuePair from this that is converted to match that's unit
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
 	def convertTo(that: TSUnitValuePair): TSUnitValuePair = convertTo(that.getUnit)
 
 	/**
-	  * Checks if the current UnitValuePair is convertable to the unit provided
+	  * Checks if the current UnitValuePair is convertible to the unit provided
 	 *
 	 * @param unit the UnitValuePair to check conversion against
-	 * @return if this is convertable to that
+	 * @return if this is convertible to that
 	 */
 	def isConvertible(unit: TSUnit): Boolean = unit.isConvertible(unit)
 

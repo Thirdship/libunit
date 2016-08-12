@@ -45,7 +45,7 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 		aab_ab should be(a)
 	}
 
-	it should "should be convertable" in {
+	it should "should be convertible" in {
 		val a = new BaseTSUnit("a")
 		val b = new BaseTSUnit("b")
 		val c = new BaseTSUnit("c")
