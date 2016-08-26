@@ -118,7 +118,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
   }
 
   /**
-    * A pathmax algorithm that maintains consistency in heuristic cost reporting.
+    * A path-max algorithm that maintains consistency in heuristic cost reporting.
     * This ensures that the heuristic from current to goal reported to the algorithm is always no more than
     * the heuristic from a neighbor of current to the goal and the cost from converting from current to that neighbor.
     *

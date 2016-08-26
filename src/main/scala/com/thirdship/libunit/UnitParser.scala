@@ -87,7 +87,8 @@ final class UnitParser {
 					else if (classOf[Boolean].equals(t)) false
 					else if (classOf[List[_]].equals(t)) List.empty[Object]
 					else if (classOf[ScalarTSUnit].equals(t)) new ScalarTSUnit()
-					else null // TODO use match and replace null
+					else null // scalastyle:ignore null
+					// TODO use match and replace null
 				}.asInstanceOf[Object])
 
 			Some(constructor.newInstance(args: _*).asInstanceOf[TSUnit])

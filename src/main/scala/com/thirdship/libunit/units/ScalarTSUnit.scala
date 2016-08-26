@@ -12,7 +12,7 @@ object ScalarHelpers {
 }
 
 /**
- * A Base Unit that defines a unitless scalar.
+ * A Base Unit that defines a unit-less scalar.
  *
  * @note this type of unit is used to represent when a conversion has taken place and resulted in a scalar and also
  *       also, it is used to represent when a unit no longer has any units.
