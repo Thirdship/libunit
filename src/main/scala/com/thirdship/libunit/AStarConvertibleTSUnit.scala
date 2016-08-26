@@ -142,11 +142,12 @@ abstract class AStarConvertibleTSUnit(val unitName: String, val data: AStarConve
     val syn = data.parseMap.get(str.i) // TODO MixedString case
     val ant = data.parseMap.get(str.e)
     if(syn.isDefined) {
-      Some(getTSUnit(syn.get))}
-    else if (ant.isDefined) {
-      Some(getTSUnit(ant.get))}
-    else {
-      None}
+      Some(getTSUnit(syn.get))
+    } else if (ant.isDefined) {
+      Some(getTSUnit(ant.get))
+    } else {
+      None
+    }
   }
 
   override def getUnitName: String = data.baseUnit.baseString

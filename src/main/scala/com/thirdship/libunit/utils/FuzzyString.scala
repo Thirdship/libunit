@@ -37,9 +37,10 @@ object Helpers {
 
 class ExactString(val str: String, val ignoreCase: Boolean = true) extends FuzzyString(str) {
 	override def checkEquality(str: String): Boolean = if (ignoreCase) {
-		str.equalsIgnoreCase(baseString)}
-	else {
-		str.equals(baseString)}
+		str.equalsIgnoreCase(baseString)
+	} else {
+		str.equals(baseString)
+	}
 
 	override def equals(obj: Any): Boolean = super.equals(obj)
 

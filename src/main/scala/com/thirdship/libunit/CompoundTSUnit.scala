@@ -1,8 +1,5 @@
 package com.thirdship.libunit
 
-import java.util
-
-import com.thirdship.libunit.units.ScalarHelpers.Scalar
 import com.thirdship.libunit.units.ScalarTSUnit
 import com.thirdship.libunit.utils.ParenUtils
 
@@ -97,7 +94,8 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 	override def conversionFunction(unit: TSUnit): (Double) => Double = {
 		// If this is not simplified, we cannot guarantee our algorithms can work. Thus, we must simplify first.
 		if (! simplified) {
-			return simplifyType.convert(unit)}
+			return simplifyType.convert(unit)
+		}
 
 		/*
 			Since we know that we are simplified and that we have passed the isConvertible check, we can begin
@@ -135,7 +133,8 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 	override def isConvertible(unit: TSUnit): Boolean = {
 		// If the we are not simplified, we cannot guarantee our algorithms can work. Thus, we must simplify first.
 		if (! simplified) {
-			return simplifyType.isConvertible(unit)}
+			return simplifyType.isConvertible(unit)
+		}
 
 		/*
 			Because we know that we are simplified, we can assume that the other needs to be a computableTSUnit,
@@ -193,7 +192,8 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 	override def equalUnits(unit: TSUnit): Boolean = {
 		// If the we are not simplified, we cannot guarantee our algorithms can work. Thus, we must simplify first.
 		if (! simplified) {
-			return simplifyType.equalUnits(unit)}
+			return simplifyType.equalUnits(unit)
+		}
 
 		unit match {
 
@@ -281,7 +281,8 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 				// Note, at this point changes is a function (Double) => Double
 				changes
 			} else {
-				throw new InvalidConversion(e._1 + " is not in target dimensions " + to.keySet.foldLeft("")((s, st) => s + "," + st))}
+				throw new InvalidConversion(e._1 + " is not in target dimensions " + to.keySet.foldLeft("")((s, st) => s + "," + st))
+			}
 
 		/*
 			Now that we have all of the conversion functions on like unit tags, we need to merge them into a single
@@ -307,11 +308,13 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 
 		// If this is already simplified then, we must trust ourselves. (You can do it you!)
 		if (simplified) {
-			return this}
+			return this
+		}
 
 		// If there is nothing in the fraction, then there is only a scalar left. Return it, go home.
 		if (numerator.isEmpty && denominator.isEmpty) {
-			return scalar}
+			return scalar
+		}
 
 		// Get all the ComputableTSUnits in the fraction
 		val oldGoodNumUnits = numerator.filterNot(_.isInstanceOf[CompoundTSUnit])
@@ -345,8 +348,7 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 		}
 		else if (scalar.value == 1 && numerator.length == 1 && denominator.isEmpty) {
 			numerator.head
-		}
-		else simplifyConvertibleUnits()
+		} else simplifyConvertibleUnits()
 	}
 
 	private def simplifyNestedCompoundTSUnits(oldGoodNumUnits: List[TSUnit], oldGoodDenUnits: List[TSUnit]): TSUnit = {
@@ -397,7 +399,8 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
      First, we check to see if the lengths of the numerator and denominator lists are the same between this and u. If they aren't, the units cannot be the same.
      */
     if ((numerator.length != u.numerator.length) || (denominator.length != u.denominator.length)) {
-      return false}
+      return false
+		}
     /*
      In order for the ComputableTSUnits to be equal, the this list cannot contain elements not in u and vice versa, for both numerators and denominators
      */
@@ -545,8 +548,8 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
         val numerator_unit: Option[TSUnit] = currentUnitParser.parse(numerator)
         val denominator_unit: Option[TSUnit] = currentUnitParser.parse(denominator)
         if (numerator_unit.isDefined && denominator_unit.isDefined) {
-          List(numerator_unit.get / denominator_unit.get)}
-        else List.empty
+          List(numerator_unit.get / denominator_unit.get)
+				} else List.empty
       } else {
         // We can assume that there are zero, one, or more units.
         // TODO fix the case of mph, ftlbs ect...
@@ -564,8 +567,8 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
       val groupings = """[a-zA-Z]+(\^\-*[0-9]+)+""".r.findAllIn(s).toList
 
       if (groupings.isEmpty) {
-        List(s)}
-      else {
+        List(s)
+			} else {
         groupings.flatMap(g => {
           val arr = g.split("""\^""").toList
           val unit = arr.head
@@ -585,9 +588,10 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
             ret = ret.::(unit)
 
           if (power >= 0) {
-            ret}
-          else {
-            ret.map(u => "1/" + u)}
+            ret
+					} else {
+            ret.map(u => "1/" + u)
+					}
         })
       }
     })

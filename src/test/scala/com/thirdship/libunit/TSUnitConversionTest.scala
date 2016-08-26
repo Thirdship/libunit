@@ -134,7 +134,7 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     val edgeB = new ScalarConversionEdge(gamma, alpha, fctr2, cst2)
     val edgeC = new ScalarConversionEdge(gamma, delta, fctr3, cst3)
     val astar = AStarSolver(allUnits, List(edgeA, edgeB, edgeC))
-    val cameFrom: Map[String, String] = Map(beta -> alpha, gamma -> alpha, delta -> gamma)
+    val cameFrom = scala.collection.mutable.Map[String, String](beta -> alpha, gamma -> alpha, delta -> gamma)
 
     val ad = astar.reconstructPath(cameFrom, alpha, delta)
     ad.cost === cst2 + 1 + cst3

@@ -1,5 +1,7 @@
 package com.thirdship.libunit
 
+import scala.collection.mutable
+
 /** A conversion implementation for creating a unit-conversion graph, and A* algorithm graph search implementation
   *
   * @note The following implements units and conversions in terms of graph theory. Units are vertices and conversions are edges.
@@ -22,13 +24,16 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
 
   def getConversions(start: String, end: String): Option[ConversionEdge[String, Double, Double]] = {
     if (start == end) {
-      return Some(new ScalarConversionEdge(start, start, 1))} // Reflexive edge
+      return Some(new ScalarConversionEdge(start, start, 1)) // Reflexive edge
+    }
     val equiv = allConversions.filter(a => (a.start == start) && (a.end == end))
     if (equiv.nonEmpty) {
-      return equiv.headOption} // Cached edge
+      return equiv.headOption // Cached edge
+    }
     val invert = allConversions.filter(a => (a.end == start) && (a.start == end))
     if (invert.nonEmpty) {
-      return Some(invert.head.inverted)} // Commutative edge
+      return Some(invert.head.inverted)  // Commutative edge
+    }
     None // Null edge
   }
 
@@ -44,7 +49,8 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     var neighbors = List.empty[String]
     allTSUnits.foreach(maybeNeighbor => {
       if (getConversions(center, maybeNeighbor).isDefined && center != maybeNeighbor) {
-        neighbors :+= maybeNeighbor}
+        neighbors :+= maybeNeighbor
+      }
     })
     neighbors
   }
@@ -60,9 +66,10 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
   def heuristic(start: String, end: String): Double = {
     val piece = getConversions(start, end)
     if (piece.isDefined) {
-      piece.get.cost} // returns cost if already calculated
-    else {
-      0} // Dijkstra's Algorithm
+      piece.get.cost // returns cost if already calculated
+    } else {
+      0 // Dijkstra's Algorithm
+    }
   }
 
   /**
@@ -76,7 +83,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     * @param  end      The ending unit form the search
     * @return A conversion from start to goal, using the information from cameFrom
     */
-  def reconstructPath(cameFrom: Map[String, String], start: String, end: String): ConversionEdge[String, Double, Double] = {
+  def reconstructPath(cameFrom: mutable.Map[String, String], start: String, end: String): ConversionEdge[String, Double, Double] = {
     val path = reconstructConversionEdgePathList(cameFrom, end)
 
     val conversionTo = path.map(ce => ce.conversion.to).foldLeft((a: Double) => a)((chain, func) => func.compose(chain))
@@ -96,7 +103,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
       * @param  end      The ending unit form the search
       * @return A list of conversion edges that when listed in order describe the path of conversion from start to end
 	  */
-  private def reconstructConversionEdgePathList(cameFrom: Map[String, String], end: String): List[ConversionEdge[String, Double, Double]] = {
+  private def reconstructConversionEdgePathList(cameFrom: mutable.Map[String, String], end: String): List[ConversionEdge[String, Double, Double]] = {
     var list = List.empty[String]
     var currentUnit = end
     list = list.::(currentUnit)
@@ -133,7 +140,8 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     allTSUnits.foreach(unit => {
       conversion = getConversions(start, unit)
       if(conversion.isDefined && unit != start) {
-        neighborCost :+= heuristic(unit, end) - conversion.get.cost}
+        neighborCost :+= heuristic(unit, end) - conversion.get.cost
+      }
     })
     neighborCost.max
   }
@@ -163,18 +171,20 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
   def solve(start: String, end: String): ConversionEdge[String, Double, Double] = {
     if (! allTSUnits.contains(start)) {
       val startNotUnit = new ScalarConversionEdge("start is", "not a unit!", 1) // TODO replace with exceptions or None
-      return startNotUnit}
+      return startNotUnit
+    }
     if (! allTSUnits.contains(end)) {
       val endNotUnit = new ScalarConversionEdge("end is", "not a unit!", 1) // TODO replace with exceptions or None
-      return endNotUnit}
+      return endNotUnit
+    }
     var closedSet = List.empty[String]
     var openSet = List.empty[String]
     openSet :+= start
-    var cameFrom = Map.empty[String, String]
+    val cameFrom = mutable.Map.empty[String, String]
     var current: String = ""
 
-    var gScore = Map.empty[String, Double]
-    var fScore = Map.empty[String, Double]
+    val gScore = mutable.Map.empty[String, Double]
+    val fScore = mutable.Map.empty[String, Double]
     gScore += start -> 0
     fScore += start -> heuristicPM(start, end)
 
@@ -183,7 +193,8 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
       current = openSet.head
       if(current == end) {
         val shortcut = reconstructPath(cameFrom, start, end)
-        return shortcut}
+        return shortcut
+      }
       openSet = openSet.filterNot(_ == current)
       closedSet :+= current
       val neighbors = getNeighbors(current).filterNot(neighbor => closedSet.contains(neighbor))
@@ -191,16 +202,14 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
         val maybeGScore = gScore(current) + getConversions(current, neighbor).get.cost
         var notBetterPath = false
         if (! openSet.contains(neighbor)) {
-          openSet :+= neighbor}
-        else if (maybeGScore >= gScore.getOrElse(neighbor, Double.PositiveInfinity)) {
-          notBetterPath = true}
+          openSet :+= neighbor
+        } else if (maybeGScore >= gScore.getOrElse(neighbor, Double.PositiveInfinity)) {
+          notBetterPath = true
+        }
         if (! notBetterPath) {
-          cameFrom -= neighbor
-          cameFrom += (neighbor -> current)
-          gScore -= neighbor
-          gScore += (neighbor -> maybeGScore)
-          fScore -= neighbor
-          fScore += (neighbor -> (gScore(neighbor) + heuristicPM(neighbor, end)))
+          cameFrom(neighbor) = current
+          gScore(neighbor) = maybeGScore
+          fScore(neighbor) = gScore(neighbor) + heuristicPM(neighbor, end)
         }
       })
     }

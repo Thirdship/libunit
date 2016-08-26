@@ -91,27 +91,21 @@ object UnitValuePairParser {
 				// and if it has a decimal then just return the double value
 				try {
 					Some(bigDecimal.longValueExact())
-				}
-				catch {
+				} catch {
 					case _: ArithmeticException => Some(bigDecimal.doubleValue())
 				}
-			}
-			else Some(java.lang.Long.parseLong(num))
-		}
-		else if (Option(scalar.group("hex")).isDefined) {
+			} else Some(java.lang.Long.parseLong(num))
+		} else if (Option(scalar.group("hex")).isDefined) {
 			val num = sign + scalar.group("hex").substring(2)
 			Some(java.lang.Long.parseLong(num, 16)) // scalastyle:ignore magic.number
-		}
-		else if (Option(scalar.group("binary")).isDefined) {
+		} else if (Option(scalar.group("binary")).isDefined) {
 			val num = sign + scalar.group("binary").substring(2)
 			Some(java.lang.Long.parseLong(num, 2))
-		}
-		else None
+		} else None
 
 		if (value.isDefined) {
 			val num = value.get
 			Some(TSUnitValuePair(num, unitOption.get))
-		}
-		else None
+		} else None
 	}
 }

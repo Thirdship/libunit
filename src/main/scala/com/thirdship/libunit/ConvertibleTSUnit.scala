@@ -69,7 +69,8 @@ abstract class ConvertibleTSUnit(val unitName: String,
 
 		// this this and unit are the same the return a no op function.
 		if (unitName.equals(unit.unitName)) {
-			return (a: Double) => a}
+			return (a: Double) => a
+		}
 
 		val standardizedBaseUnit = data.parseMap(unitName.i)
 		val toBaseUnit = data.conversionMap(standardizedBaseUnit).to
@@ -101,8 +102,8 @@ abstract class ConvertibleTSUnit(val unitName: String,
 	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
 		val syn = data.parseMap.get(str.i) // TODO case sensitive
 		if (syn.isDefined) {
-			Some(getTSUnit(syn.get))}
-		else None
+			Some(getTSUnit(syn.get))
+		} else None
 	}
 
 }

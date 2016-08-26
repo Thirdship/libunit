@@ -24,7 +24,8 @@ resolvers ++= Seq(
 publishTo := {
 	val nexus = "http://maven.thirdship.com/"
 	if (version.value.trim.endsWith("SNAPSHOT")) {
-		Some("snapshots" at nexus + "content/repositories/snapshots")}
-	else {
-		Some("releases"  at nexus + "content/repositories/releases")}
+		Some("snapshots" at nexus + "content/repositories/snapshots")
+	} else {
+		Some("releases"  at nexus + "content/repositories/releases")
+	}
 }
