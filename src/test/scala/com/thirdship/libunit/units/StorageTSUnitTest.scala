@@ -1,18 +1,19 @@
 package com.thirdship.libunit.units
 
-import com.thirdship.libunit.{TSUnit, UnitParser}
-import com.thirdship.libunit.units.StorageHelpers._
 import org.scalatest.{FlatSpec, Matchers}
+
+import com.thirdship.libunit.UnitParser
+import com.thirdship.libunit.units.StorageHelpers._
 
 class StorageTSUnitTest extends FlatSpec with Matchers {
 
 	"A StorageTSUnit" should "convert stuff" in {
 		val bit = Bits(1)
 		val byte = Bytes(1)
-
+		// scalastyle:off magic.number
 		bit + byte should be(Bits(9))
 		bit - byte should be(Bits(-7))
-
+		// scalastyle:on magic.number
 		(byte + bit) should be(Bytes(1.125))
 		(byte - bit) should be(Bytes(0.875))
 

@@ -1,8 +1,8 @@
 package com.thirdship.libunit.units
 
-import com.thirdship.libunit.utils.{ExactString, FuzzyString, WordString}
-import com.thirdship.libunit.utils.Helpers._
 import com.thirdship.libunit._
+import com.thirdship.libunit.utils.{ExactString, FuzzyString}
+import com.thirdship.libunit.utils.Helpers._
 
 class MetricPrefixes(unit: ExactString, parseList: List[FuzzyString]) {
 
@@ -11,16 +11,14 @@ class MetricPrefixes(unit: ExactString, parseList: List[FuzzyString]) {
 
       // TODO Use MixedString once ATH-241 is resolved
       val keyUnit = if (prefix._1.ignoreCase && unit.ignoreCase) (prefix._1.baseString + unit.baseString).i else (prefix._1.baseString + unit.baseString).e
-      //println(keyUnit.baseString)
 
       val suffixUnits = parseList.flatMap(suffix => {
         val firstUnit = (prefix._1.baseString + suffix.baseString).w
-        val altUnits = prefix._2._2.map( str => (str + suffix.baseString).w)
+        val altUnits = prefix._2._2.map(str => (str + suffix.baseString).w)
         altUnits :+ firstUnit
       })
-      val baseUnits = prefix._2._2.map( str => ( str + unit.baseString).w)
+      val baseUnits = prefix._2._2.map(str => (str + unit.baseString).w)
       val valueUnits: List[FuzzyString] = suffixUnits ++ baseUnits
-      //println(valueUnits.map(_.baseString))
 
       keyUnit -> valueUnits
     })
@@ -47,7 +45,7 @@ object MetricPrefixes {
     "d".i -> (1e1, List("deci")),
     "c".i -> (1e2, List("centi")),
     "m".e -> (1e3, List("milli")),
-    "u".i -> (1e6, List("μ", "micro")),
+    "u".i -> (1e6, List("μ", "micro")), // scalastyle:ignore non.ascii.character.disallowed
     "n".i -> (1e9, List("nano")),
     "p".e -> (1e12, List("pico")),
     "f".i -> (1e15, List("femto")),

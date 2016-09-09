@@ -1,96 +1,102 @@
 package com.thirdship.libunit.units
 
-import com.thirdship.libunit.utils.Helpers._
-import com.thirdship.libunit.{UnitParser, TSUnitValuePair, AStarConvertibleTSUnitData, ScalarConversionEdge}
 import org.scalatest.{FlatSpec, Matchers}
+
+import com.thirdship.libunit._
+import com.thirdship.libunit.utils.Helpers._
 
 class BinaryPrefixesTest extends FlatSpec with Matchers {
 
 	private val baseUnit = "B".e
 
 	var compressedParseMap = Map(
-		baseUnit 	-> List("byte".w),
-		"b".e       -> List("bit".w),
-		"nibble".i  -> List("nybble".w, "nyble".w, "half-byte".w)
+		baseUnit -> List("byte".w),
+		"b".e -> List("bit".w),
+		"nibble".i -> List("nybble".w, "nyble".w, "half-byte".w)
 	)
 
-	var edges = List(
-		new ScalarConversionEdge(baseUnit.baseString, "b",	8,       0.1),
-		new ScalarConversionEdge(baseUnit.baseString, "nibble", 2, 0.1)
-	)
+	var edges = List( // scalastyle:off magic.number
+		new ScalarConversionEdge(baseUnit.baseString, "b", 8, ConversionEdge.LOW_COST_EDGE),
+		new ScalarConversionEdge(baseUnit.baseString, "nibble", 2, ConversionEdge.LOW_COST_EDGE)
+	) // scalastyle:on magic.number
 
 	"A BinaryPrefixes" should "construct properly" in {
 		"""new MetricPrefixes(baseUnit,compressedParseMap(baseUnit))""" should compile
 	}
 
 	it should "augment compressedParseMap" in {
-		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges).createBinaryUnits(List(baseUnit, "b".e))
+		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges)
+			.createBinaryUnits(List(baseUnit, "b".e))
 
-		println(data.compressedParseMap.keys.map(_.baseString))
+		println(data.compressedParseMap.keys.map(_.baseString)) // scalastyle:ignore println
 
-		data.compressedParseMap.apply("YiB".e).map(_.baseString).toSet  should be (Set("Yibyte","yobiB","yobibyte"))
-		data.compressedParseMap.apply("ZiB".e).map(_.baseString).toSet  should be (Set("Zibyte","zebiB","zebibyte"))
-		data.compressedParseMap.apply("EiB".e).map(_.baseString).toSet  should be (Set("Eibyte","exbiB","exbibyte"))
-		data.compressedParseMap.apply("PiB".e).map(_.baseString).toSet  should be (Set("Pibyte","pebiB","pebibyte"))
-		data.compressedParseMap.apply("TiB".e).map(_.baseString).toSet  should be (Set("Tibyte","tebiB","tebibyte"))
-		data.compressedParseMap.apply("GiB".e).map(_.baseString).toSet  should be (Set("Gibyte","gibiB","gibibyte"))
-		data.compressedParseMap.apply("MiB".e).map(_.baseString).toSet  should be (Set("Mibyte","mebiB","mebibyte"))
-		data.compressedParseMap.apply("KiB".e).map(_.baseString).toSet  should be (Set("Kibyte","kibiB","kibibyte"))
+		data.compressedParseMap.apply("YiB".e).map(_.baseString).toSet  should be (Set("Yibyte", "yobiB", "yobibyte"))
+		data.compressedParseMap.apply("ZiB".e).map(_.baseString).toSet  should be (Set("Zibyte", "zebiB", "zebibyte"))
+		data.compressedParseMap.apply("EiB".e).map(_.baseString).toSet  should be (Set("Eibyte", "exbiB", "exbibyte"))
+		data.compressedParseMap.apply("PiB".e).map(_.baseString).toSet  should be (Set("Pibyte", "pebiB", "pebibyte"))
+		data.compressedParseMap.apply("TiB".e).map(_.baseString).toSet  should be (Set("Tibyte", "tebiB", "tebibyte"))
+		data.compressedParseMap.apply("GiB".e).map(_.baseString).toSet  should be (Set("Gibyte", "gibiB", "gibibyte"))
+		data.compressedParseMap.apply("MiB".e).map(_.baseString).toSet  should be (Set("Mibyte", "mebiB", "mebibyte"))
+		data.compressedParseMap.apply("KiB".e).map(_.baseString).toSet  should be (Set("Kibyte", "kibiB", "kibibyte"))
 
-		data.compressedParseMap.apply("Yib".e).map(_.baseString).toSet  should be (Set("Yibit","yobib","yobibit"))
-		data.compressedParseMap.apply("Zib".e).map(_.baseString).toSet  should be (Set("Zibit","zebib","zebibit"))
-		data.compressedParseMap.apply("Eib".e).map(_.baseString).toSet  should be (Set("Eibit","exbib","exbibit"))
-		data.compressedParseMap.apply("Pib".e).map(_.baseString).toSet  should be (Set("Pibit","pebib","pebibit"))
-		data.compressedParseMap.apply("Tib".e).map(_.baseString).toSet  should be (Set("Tibit","tebib","tebibit"))
-		data.compressedParseMap.apply("Gib".e).map(_.baseString).toSet  should be (Set("Gibit","gibib","gibibit"))
-		data.compressedParseMap.apply("Mib".e).map(_.baseString).toSet  should be (Set("Mibit","mebib","mebibit"))
-		data.compressedParseMap.apply("Kib".e).map(_.baseString).toSet  should be (Set("Kibit","kibib","kibibit"))
+		data.compressedParseMap.apply("Yib".e).map(_.baseString).toSet  should be (Set("Yibit", "yobib", "yobibit"))
+		data.compressedParseMap.apply("Zib".e).map(_.baseString).toSet  should be (Set("Zibit", "zebib", "zebibit"))
+		data.compressedParseMap.apply("Eib".e).map(_.baseString).toSet  should be (Set("Eibit", "exbib", "exbibit"))
+		data.compressedParseMap.apply("Pib".e).map(_.baseString).toSet  should be (Set("Pibit", "pebib", "pebibit"))
+		data.compressedParseMap.apply("Tib".e).map(_.baseString).toSet  should be (Set("Tibit", "tebib", "tebibit"))
+		data.compressedParseMap.apply("Gib".e).map(_.baseString).toSet  should be (Set("Gibit", "gibib", "gibibit"))
+		data.compressedParseMap.apply("Mib".e).map(_.baseString).toSet  should be (Set("Mibit", "mebib", "mebibit"))
+		data.compressedParseMap.apply("Kib".e).map(_.baseString).toSet  should be (Set("Kibit", "kibib", "kibibit"))
 	}
 
 	it should "augment edges" in {
-		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges).createBinaryUnits(List(baseUnit, "b".e))
+		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges)
+			.createBinaryUnits(List(baseUnit, "b".e))
 
-		println(data.conversionEdges)
+		println(data.conversionEdges) // scalastyle:ignore println
+		val baseString = baseUnit.baseString
 
-		data.aStar.getConversions(baseUnit.baseString, "YiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "YiB", Math.pow(2,-80), 1)))
-		data.aStar.getConversions(baseUnit.baseString, "ZiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "ZiB", Math.pow(2,-70), 1)))
-		data.aStar.getConversions(baseUnit.baseString, "EiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "EiB", Math.pow(2,-60), 1)))
-		data.aStar.getConversions(baseUnit.baseString, "PiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "PiB", Math.pow(2,-50), 1)))
-		data.aStar.getConversions(baseUnit.baseString, "TiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "TiB", Math.pow(2,-40), 1)))
-		data.aStar.getConversions(baseUnit.baseString, "GiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "GiB", Math.pow(2,-30), 1)))
-		data.aStar.getConversions(baseUnit.baseString, "MiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "MiB", Math.pow(2,-20), 1)))
-		data.aStar.getConversions(baseUnit.baseString, "KiB")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "KiB", Math.pow(2,-10), 1)))
+		// scalastyle:off magic.number
+		data.aStar.getConversions(baseString, "YiB")  should be (Option(new ScalarConversionEdge[String](baseString, "YiB", Math.pow(2, -80), 1)))
+		data.aStar.getConversions(baseString, "ZiB")  should be (Option(new ScalarConversionEdge[String](baseString, "ZiB", Math.pow(2, -70), 1)))
+		data.aStar.getConversions(baseString, "EiB")  should be (Option(new ScalarConversionEdge[String](baseString, "EiB", Math.pow(2, -60), 1)))
+		data.aStar.getConversions(baseString, "PiB")  should be (Option(new ScalarConversionEdge[String](baseString, "PiB", Math.pow(2, -50), 1)))
+		data.aStar.getConversions(baseString, "TiB")  should be (Option(new ScalarConversionEdge[String](baseString, "TiB", Math.pow(2, -40), 1)))
+		data.aStar.getConversions(baseString, "GiB")  should be (Option(new ScalarConversionEdge[String](baseString, "GiB", Math.pow(2, -30), 1)))
+		data.aStar.getConversions(baseString, "MiB")  should be (Option(new ScalarConversionEdge[String](baseString, "MiB", Math.pow(2, -20), 1)))
+		data.aStar.getConversions(baseString, "KiB")  should be (Option(new ScalarConversionEdge[String](baseString, "KiB", Math.pow(2, -10), 1)))
 
-		data.aStar.getConversions("b", "Yib")  should be (Option(new ScalarConversionEdge[String]("b", "Yib", Math.pow(2,-80), 1)))
-		data.aStar.getConversions("b", "Zib")  should be (Option(new ScalarConversionEdge[String]("b", "Zib", Math.pow(2,-70), 1)))
-		data.aStar.getConversions("b", "Eib")  should be (Option(new ScalarConversionEdge[String]("b", "Eib", Math.pow(2,-60), 1)))
-		data.aStar.getConversions("b", "Pib")  should be (Option(new ScalarConversionEdge[String]("b", "Pib", Math.pow(2,-50), 1)))
-		data.aStar.getConversions("b", "Tib")  should be (Option(new ScalarConversionEdge[String]("b", "Tib", Math.pow(2,-40), 1)))
-		data.aStar.getConversions("b", "Gib")  should be (Option(new ScalarConversionEdge[String]("b", "Gib", Math.pow(2,-30), 1)))
-		data.aStar.getConversions("b", "Mib")  should be (Option(new ScalarConversionEdge[String]("b", "Mib", Math.pow(2,-20), 1)))
-		data.aStar.getConversions("b", "Kib")  should be (Option(new ScalarConversionEdge[String]("b", "Kib", Math.pow(2,-10), 1)))
-	}
+		data.aStar.getConversions("b", "Yib")  should be (Option(new ScalarConversionEdge[String]("b", "Yib", Math.pow(2, -80), 1)))
+		data.aStar.getConversions("b", "Zib")  should be (Option(new ScalarConversionEdge[String]("b", "Zib", Math.pow(2, -70), 1)))
+		data.aStar.getConversions("b", "Eib")  should be (Option(new ScalarConversionEdge[String]("b", "Eib", Math.pow(2, -60), 1)))
+		data.aStar.getConversions("b", "Pib")  should be (Option(new ScalarConversionEdge[String]("b", "Pib", Math.pow(2, -50), 1)))
+		data.aStar.getConversions("b", "Tib")  should be (Option(new ScalarConversionEdge[String]("b", "Tib", Math.pow(2, -40), 1)))
+		data.aStar.getConversions("b", "Gib")  should be (Option(new ScalarConversionEdge[String]("b", "Gib", Math.pow(2, -30), 1)))
+		data.aStar.getConversions("b", "Mib")  should be (Option(new ScalarConversionEdge[String]("b", "Mib", Math.pow(2, -20), 1)))
+		data.aStar.getConversions("b", "Kib")  should be (Option(new ScalarConversionEdge[String]("b", "Kib", Math.pow(2, -10), 1)))
+	} // scalastyle:on magic.number
 
 	it should "convert between binary and non-binary units" in {
-		val b = new TSUnitValuePair(1, new StorageTSUnit("b"))
-		val byte  = new TSUnitValuePair(1, new StorageTSUnit("B" ))
-		val kbyte = new TSUnitValuePair(1, new StorageTSUnit("kB"))
-		val mbyte = new TSUnitValuePair(1, new StorageTSUnit("MB"))
-		val kibyte = new TSUnitValuePair(1, new StorageTSUnit("KiB"))
-		val mibyte = new TSUnitValuePair(1, new StorageTSUnit("MiB"))
+		val b = TSUnitValuePair(1, new StorageTSUnit("b"))
+		val byte = TSUnitValuePair(1, new StorageTSUnit("B"))
+		val kbyte = TSUnitValuePair(1, new StorageTSUnit("kB"))
+		val mbyte = TSUnitValuePair(1, new StorageTSUnit("MB"))
+		val kibyte = TSUnitValuePair(1, new StorageTSUnit("KiB"))
+		val mibyte = TSUnitValuePair(1, new StorageTSUnit("MiB"))
 
+		// scalastyle:off println
 		println(b + byte)
 		println(mbyte + kbyte)
 		println(kbyte - byte)
 		println(kibyte - mibyte)
 		println(byte + kibyte)
-	}
+	} // scalastyle:on println
 
 	it should "compare binary units correctly" in {
 		List(
-			("2048 Kib","2 Mib"),
-			("3 TiB","3145728 MiB"),
-			("8192 Zebibits","1 Yibyte")
+			("2048 Kib", "2 Mib"),
+			("3 TiB", "3145728 MiB"),
+			("8192 Zebibits", "1 Yibyte")
 		).foreach(s => UnitParser(s._1) == UnitParser(s._2) shouldBe true)
 	}
 }

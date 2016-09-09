@@ -27,7 +27,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	/**
 	 * Return the unit but always simplified
 	 */
-	lazy val getUnit: TSUnit  = getSimplified.unit
+	lazy val getUnit: TSUnit = getSimplified.unit
 
 	/**
 	 * Return the unit but simplified, note, the UnitValuePair may not change.
@@ -46,7 +46,8 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	  * @param that is number that would multiply this
 	 * @return this * that
 	 */
-	def *(that: TSUnitValuePair) = new TSUnitValuePair(value * that.value, unit * that.unit).simplify
+	// scalastyle:off method.name
+	def *(that: TSUnitValuePair): TSUnitValuePair = TSUnitValuePair(value * that.value, unit * that.unit).simplify
 
 	/**
 	 * Divides this by that
@@ -60,55 +61,55 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	  * @param that is number that would multiply this
 	 * @return this / that
 	 */
-	def /(that: TSUnitValuePair) = new TSUnitValuePair(value / that.value, unit / that.unit).simplify
+	def /(that: TSUnitValuePair): TSUnitValuePair = TSUnitValuePair(value / that.value, unit / that.unit).simplify
 
 	/**
 	 * Adds this and that
 	 *
-	 * @note that must be convertable to this
+	 * @note that must be convertible to this
 	  * @example
 	 * 		"1 (m)" + "2 (m)" = "3 (m)"<br>
-	 * 		"2 (m)" + "3 (s)" = UnableToConvertUnitsException as "m" is not convertable to "s"<br>
+	 * 		"2 (m)" + "3 (s)" = UnableToConvertUnitsException as "m" is not convertible to "s"<br>
 	 * 		"1 (m)" + "1 (km)" = "1001 (m)"<br>
 	 * 		"1 (km)" + "1 (m)" = "1.001 (km)"<br>
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
 	  * @param that is the number to add to this
 	 * @return this + that, in the same units as this
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	def +(that: TSUnitValuePair) = new TSUnitValuePair(value + that.convertTo(this).value, unit)
+	def +(that: TSUnitValuePair): TSUnitValuePair = TSUnitValuePair(value + that.convertTo(this).value, unit)
 
 	/**
 	 * Subtracts that from this
 	 *
-	 * @note that must be convertable to this
+	 * @note that must be convertible to this
 	  * @example
 	 * 		"1 (m)" - "2 (m)" = "-1 (m)"<br>
-	 * 		"2 (m)" - "3 (s)" = UnableToConvertUnitsException as "m" is not convertable to "s"<br>
+	 * 		"2 (m)" - "3 (s)" = UnableToConvertUnitsException as "m" is not convertible to "s"<br>
 	 * 		"1 (m)" - "1 (km)" = "-999 (m)"<br>
 	 * 		"1 (km)" - "1 (m)" = "-.999 (km)"<br>
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
 	  * @param that the UnitValuePair to subtract from this
 	 * @return this - that, in the same unit as this
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	def -(that: TSUnitValuePair) = new TSUnitValuePair(value - that.convertTo(this).value, unit)
+	def -(that: TSUnitValuePair): TSUnitValuePair = TSUnitValuePair(value - that.convertTo(this).value, unit)
 
-	def apply(func: (Double) => Double): TSUnitValuePair = new TSUnitValuePair(func(value), unit)
-	def apply(func: (Double, Double) => Double, x: Double): TSUnitValuePair = new TSUnitValuePair(func(value,x), unit)
+	def apply(func: (Double) => Double): TSUnitValuePair = TSUnitValuePair(func(value), unit)
+	def apply(func: (Double, Double) => Double, x: Double): TSUnitValuePair = TSUnitValuePair(func(value, x), unit)
 
-	def +(x: Double) = apply((a,b) => a + b, x)
-	def -(x: Double) = apply((a,b) => a - b, x)
-	def /(x: Double) = apply((a,b) => a / b, x)
-	def *(x: Double) = apply((a,b) => a * b, x)
+	def +(x: Double): TSUnitValuePair = apply((a, b) => a + b, x)
+	def -(x: Double): TSUnitValuePair = apply((a, b) => a - b, x)
+	def /(x: Double): TSUnitValuePair = apply((a, b) => a / b, x)
+	def *(x: Double): TSUnitValuePair = apply((a, b) => a * b, x)
 
-	def +(x: Int) = apply((a,b) => a + b, x.toDouble)
-	def -(x: Int) = apply((a,b) => a - b, x.toDouble)
-	def /(x: Int) = apply((a,b) => a / b, x.toDouble)
-	def *(x: Int) = apply((a,b) => a * b, x.toDouble)
-
+	def +(x: Int): TSUnitValuePair = apply((a, b) => a + b, x.toDouble)
+	def -(x: Int): TSUnitValuePair = apply((a, b) => a - b, x.toDouble)
+	def /(x: Int): TSUnitValuePair = apply((a, b) => a / b, x.toDouble)
+	def *(x: Int): TSUnitValuePair = apply((a, b) => a * b, x.toDouble)
+	// scalastyle:on method.name
 	/**
 	 * Finds the inverse of this
 	 *
@@ -118,7 +119,7 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
 	  * @return 1/this
 	 */
-	def inverse = new TSUnitValuePair(1/value, unit.inverse)
+	def inverse: TSUnitValuePair = TSUnitValuePair(1/value, unit.inverse)
 
 	/**
 	  * Converts this to match thatUnit
@@ -128,10 +129,10 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * 		* assume correct parsing of data into UnitValuePairs where "Value (Unit)"
 	 * @param thatUnit the unit to convert this to
 	 * @return a new TSUnitValuePair from this that is converted to match thatUnit
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	def convertTo(thatUnit: TSUnit): TSUnitValuePair = new TSUnitValuePair(unit.convert(thatUnit, value), thatUnit)
+	def convertTo(thatUnit: TSUnit): TSUnitValuePair = TSUnitValuePair(unit.convert(thatUnit, value), thatUnit)
 
 	/**
 	 * Converts this to match that's unit
@@ -142,35 +143,37 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	 * 		"1 (km)".convertTo("2 (m)") = "1000 (m)"
 	 * @param that the UnitValuePair to convert to
 	 * @return a new TSUnitValuePair from this that is converted to match that's unit
-	 * @throws UnableToConvertUnitsException the destination is not convertable from the current unit
+	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
 	def convertTo(that: TSUnitValuePair): TSUnitValuePair = convertTo(that.getUnit)
 
 	/**
-	  * Checks if the current UnitValuePair is convertable to the unit provided
+	  * Checks if the current UnitValuePair is convertible to the unit provided
 	 *
 	 * @param unit the UnitValuePair to check conversion against
-	 * @return if this is convertable to that
+	 * @return if this is convertible to that
 	 */
 	def isConvertible(unit: TSUnit): Boolean = unit.isConvertible(unit)
 
-	override def toString = value+ " " +unit
+	override def toString: String = value + " " + unit
 
-	override def equals(o: Any) = o match {
+	override def equals(o: Any): Boolean = o match {
 		case uvp: TSUnitValuePair => value == uvp.value && unit.equals(uvp.unit)
 		case _ => false
 	}
 
+	override def hashCode(): Int = unit.hashCode * value.hashCode
+
 	/**
 	 * @return a new UnitValuePair with a simplified Unit
 	 */
-	 protected def simplify:TSUnitValuePair = unit match {
+	 protected def simplify: TSUnitValuePair = unit match {
 		// If the unit is a computable unit, if the unit says it is not simplified, then simplify it.
-		case u: CompoundTSUnit => if(u.scalar.value == 1)
-			this else new TSUnitValuePair(value * u.scalar.value, new CompoundTSUnit(u.numerator, u.denominator))
+		case u: CompoundTSUnit => if (u.scalar.value == 1) this
+			else TSUnitValuePair(value * u.scalar.value, new CompoundTSUnit(u.numerator, u.denominator))
 		// If it as scalar, if it is not as simple as it can be, move that simplify
-		case u: ScalarTSUnit => if(u.value == 1) this else new TSUnitValuePair(value * u.value, new ScalarTSUnit())
+		case u: ScalarTSUnit => if (u.value == 1) this else TSUnitValuePair(value * u.value, new ScalarTSUnit())
 		case u: TSUnit => this
 	}
 

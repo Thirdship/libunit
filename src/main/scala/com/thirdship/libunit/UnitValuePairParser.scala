@@ -1,8 +1,6 @@
 package com.thirdship.libunit
 
-import java.util.regex.Pattern
-
-import com.thirdship.libunit.units.ScalarTSUnit
+import java.util.regex.{Matcher, Pattern}
 
 /**
   * Created by jacobingalls on 1/28/16.
@@ -39,89 +37,75 @@ object UnitValuePairParser {
 	      |)?
 	      |""".stripMargin)
 
-	def apply(str: String) = parse(str)
+	def apply(str: String): Option[TSUnitValuePair] = parse(str)
 
 	def parseToDefaultUnit(str: String): Option[TSUnitValuePair] = {
 		val parsed = parse(str)
-		if(parsed.isDefined) {
+		if (parsed.isDefined) {
 			Option(parsed.get.convertToDefaultUnits())
-		} else
-			None
+		} else None
 	}
 
-	def parse(str: String): Option[TSUnitValuePair] ={
-		//Trim and uniform text
-		val tokens = reg.matcher(str.replaceAll("\\s"," ").trim)
+	def parse(str: String): Option[TSUnitValuePair] = {
+		// Trim and uniform text
+		val tokens = reg.matcher(str.replaceAll("\\s", " ").trim)
 
-		//Split out number and unit
-		val matchResult =if(tokens.matches())
-			Some(tokens)
-		else
-			None
+		// Split out number and unit
+		val matchResult = if (tokens.matches()) Some(tokens)
+		else None
 
-		if(matchResult.isDefined) {
+		if (matchResult.isDefined) {
 			val scalar = matchResult.get
 
 			// if we don't have a value at all, return nothing
-			if(scalar.group("number") == null)
-				return None
+			if (Option(scalar.group("number")).isEmpty) return None
 
 			val unitOption = UnitParser(scalar.group("unit"))
 
 			// if our unit is set and isn't a valid unit, return nothing
-			if(scalar.group("unit") != null && unitOption.isEmpty)
-				return None
+			if (Option(scalar.group("unit")).isDefined && unitOption.isEmpty) return None
 
-			if(scalar.group("decimal") != null) {
-				//number is a floating point number, so parse as double
+			if(Option(scalar.group("decimal")).isDefined) {
+				// number is a floating point number, so parse as double
 				val num = scalar.group("number")
 					.replaceAll(",", "")
 					.toDouble
 
-				Some( TSUnitValuePair(num, unitOption.get) )
+				Some(TSUnitValuePair(num, unitOption.get))
 			}
 			else {
-				val sign = if(scalar.group("sign") != null)
-					scalar.group("sign")
-				else
-					""
-				val value: Option[Double] = if(scalar.group("integer") != null) {
-					val num = sign + scalar.group("integer").replaceAll(",", "")
-					if(scalar.group("exponent") != null) {
-						val bigDecimal = new java.math.BigDecimal(num + "e" + scalar.group("exponent"))
-						// try to get an exact value with this exponent,
-						// and if it has a decimal then just return the double value
-						try {
-							Some( bigDecimal.longValueExact() )
-						}
-						catch {
-							case _: ArithmeticException => Some( bigDecimal.doubleValue() )
-						}
-					}
-					else
-						Some( java.lang.Long.parseLong(num) )
-				}
-				else if(scalar.group("hex") != null) {
-					val num = sign + scalar.group("hex").substring(2)
-					Some( java.lang.Long.parseLong(num, 16) )
-				}
-				else if(scalar.group("binary") != null) {
-					val num = sign + scalar.group("binary").substring(2)
-					Some( java.lang.Long.parseLong(num, 2) )
-				}
-				else
-					None
-
-				if(value.isDefined) {
-					val num = value.get
-
-					Some( TSUnitValuePair(num, unitOption.get) )
-				}
-				else
-					None
+				parseNonMatch(scalar, unitOption)
 			}
 		}
-		else
-			None
+		else None
+	}
+
+	private def parseNonMatch(scalar: Matcher, unitOption: Option[TSUnit]): Option[TSUnitValuePair] = {
+		val sign = if (Option(scalar.group("sign")).isDefined) scalar.group("sign")
+		else ""
+		val value: Option[Double] = if (Option(scalar.group("integer")).isDefined) {
+			val num = sign + scalar.group("integer").replaceAll(",", "")
+			if (Option(scalar.group("exponent")).isDefined) {
+				val bigDecimal = new java.math.BigDecimal(num + "e" + scalar.group("exponent"))
+				// try to get an exact value with this exponent,
+				// and if it has a decimal then just return the double value
+				try {
+					Some(bigDecimal.longValueExact())
+				} catch {
+					case _: ArithmeticException => Some(bigDecimal.doubleValue())
+				}
+			} else Some(java.lang.Long.parseLong(num))
+		} else if (Option(scalar.group("hex")).isDefined) {
+			val num = sign + scalar.group("hex").substring(2)
+			Some(java.lang.Long.parseLong(num, 16)) // scalastyle:ignore magic.number
+		} else if (Option(scalar.group("binary")).isDefined) {
+			val num = sign + scalar.group("binary").substring(2)
+			Some(java.lang.Long.parseLong(num, 2))
+		} else None
+
+		if (value.isDefined) {
+			val num = value.get
+			Some(TSUnitValuePair(num, unitOption.get))
+		} else None
 	}
 }

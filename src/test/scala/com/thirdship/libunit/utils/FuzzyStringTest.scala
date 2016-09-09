@@ -1,7 +1,8 @@
 package com.thirdship.libunit.utils
 
+import org.scalatest.{FlatSpec, Matchers}
+
 import com.thirdship.libunit.utils.Helpers._
-import org.scalatest.{Matchers, FlatSpec}
 
 class FuzzyStringTest extends FlatSpec with Matchers {
 

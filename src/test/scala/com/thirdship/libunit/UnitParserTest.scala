@@ -1,8 +1,9 @@
 package com.thirdship.libunit
 
+import org.scalatest.{FlatSpec, Matchers}
+
 import com.thirdship.libunit.units.LengthHelpers.Meters
 import com.thirdship.libunit.units.TimeHelpers.Seconds
-import org.scalatest.{Matchers, FlatSpec}
 
 class UnitParserTest extends FlatSpec with Matchers {
 
@@ -53,7 +54,7 @@ class UnitParserTest extends FlatSpec with Matchers {
 			"((meters)/((seconds)))",
 			"m * m * s / s * s * m",
 			"(m * m * s)/ ( s * s * m)"
-		).foreach(a => { val b = UnitParser(a); println(a + " --> " + b); b should be(Some((Meters()/Seconds()).getUnit)) })
+		).foreach(a => { val b = UnitParser(a); b should be(Some((Meters()/Seconds()).getUnit)) })
 
 		Map(
 			"m^2 " -> "m*m",
@@ -62,8 +63,6 @@ class UnitParserTest extends FlatSpec with Matchers {
 		).foreach(a => {
 			val b1 = UnitParser(a._1)
 			val b2 = UnitParser(a._2)
-
-			println(b1 + " ["+a._1+"] should be " + b2 + " ["+a._2+"]")
 
 			b1 should be(b2)
 		})
@@ -80,7 +79,6 @@ class UnitParserTest extends FlatSpec with Matchers {
 			"((m)/(s))"
 		).foreach(a => {
 			val b = UnitParser(a)
-			println(a + " --> " + b)
 			b should be(Some((Meters()/Seconds()).getUnit))
 		})
 
@@ -90,6 +88,7 @@ class UnitParserTest extends FlatSpec with Matchers {
 
 
 	it should "be consistent with scalar strings" in {
+		// scalastyle:off println
 		val a = UnitParser("m 2")
 		println(a)
 		println(UnitParser("meter 2"))
@@ -97,6 +96,7 @@ class UnitParserTest extends FlatSpec with Matchers {
 		println(UnitParser("m 21"))
 		println(UnitParser("meter 21"))
 		println(UnitParser("meters 21"))
+		// scalastyle:on println
 	}
 
 }

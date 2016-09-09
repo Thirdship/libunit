@@ -1,7 +1,8 @@
 package com.thirdship.libunit
 
-import com.thirdship.libunit.units.{ScalarTSUnit, LengthTSUnit}
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
+
+import com.thirdship.libunit.units.{LengthTSUnit, ScalarTSUnit}
 
 class TSUnitValuePairTest extends FlatSpec with Matchers {
 
@@ -11,9 +12,11 @@ class TSUnitValuePairTest extends FlatSpec with Matchers {
 	}
 
 	"A UnitValuePair" should "provide basic arithmetic operations" in {
-		val m = new TSUnitValuePair(10, "m".unit)
-		val s = new TSUnitValuePair(10, "s".unit)
-
+		// scalastyle:off magic.number
+		val m = TSUnitValuePair(10, "m".unit)
+		val s = TSUnitValuePair(10, "s".unit)
+		// scalastyle:on magic.number
+		// scalastyle:off println
 		println(m)
 		println(m * m)
 		println(m / s)
@@ -21,14 +24,16 @@ class TSUnitValuePairTest extends FlatSpec with Matchers {
 
 		println(m + m)
 		println(m - m)
-
-		a [UnableToConvertUnitsException] should be thrownBy m + s
+		// scalastyle:on println
+		a[UnableToConvertUnitsException] should be thrownBy m + s
 	}
 
 	it should "provide arithmetic operations to length units" in {
-		val m  = new TSUnitValuePair(10, "m".lengthUnit)
-		val km = new TSUnitValuePair(10, "km".lengthUnit)
-
+		// scalastyle:off magic.number
+		val m = TSUnitValuePair(10, "m".lengthUnit)
+		val km = TSUnitValuePair(10, "km".lengthUnit)
+		// scalastyle:on magic.number
+		// scalastyle:off println
 		println("Working with m")
 		println(m)
 		println(m * m)
@@ -46,8 +51,8 @@ class TSUnitValuePairTest extends FlatSpec with Matchers {
 		println(km - km)
 
 		println("Working with m and km")
-		println(km * m)		//10km * 10m  =  100 (km * m)
-		println(m  * km)	//10m  * 10km =  100 (m  * km)
+		println(km * m)		// 10km * 10m  =  100 (km * m)
+		println(m  * km)	// 10m  * 10km =  100 (m  * km)
 
 		println(km / m)
 		println(m  / km)
@@ -56,27 +61,32 @@ class TSUnitValuePairTest extends FlatSpec with Matchers {
 		println(m  + km)
 		println(km - m)
 		println(m  - km)
+		// scalastyle:on println
 	}
 
 	it should "work with scalars" in {
-		val s = new TSUnitValuePair(10,new ScalarTSUnit(10))
-		val s2 =  s * s
+		// scalastyle:off magic.number
+		val s = TSUnitValuePair(10, new ScalarTSUnit(10))
+		val s2 = s * s
 		s.getValue should be(100)
 		s2.getValue should be(100*100)
+		// scalastyle:on magic.number
 	}
 
 
 	it should "provide arithmetic operations to computable units" in {
-		val m = new TSUnitValuePair(10, "m".unit)
-		val s = new TSUnitValuePair(10, "s".unit)
+		// scalastyle:off magic.number
+		val m = TSUnitValuePair(10, "m".unit)
+		val s = TSUnitValuePair(10, "s".unit)
+		// scalastyle:on magic.number
 		val m_per_s = m /s
-
+		// scalastyle:off println
 		println(m_per_s * m_per_s)
 		println(m_per_s / m_per_s)
 
 		println(m_per_s + m_per_s)
 		println(m_per_s - m_per_s)
-
+		// scalastyle:on println
 	}
 
 }
