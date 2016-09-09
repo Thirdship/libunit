@@ -1,7 +1,5 @@
 package com.thirdship.libunit
 
-import scala.collection.mutable
-
 /** A conversion implementation for creating a unit-conversion graph, and A* algorithm graph search implementation
   *
   * @note The following implements units and conversions in terms of graph theory. Units are vertices and conversions are edges.
@@ -83,7 +81,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     * @param  end      The ending unit form the search
     * @return A conversion from start to goal, using the information from cameFrom
     */
-  def reconstructPath(cameFrom: mutable.Map[String, String], start: String, end: String): ConversionEdge[String, Double, Double] = {
+  def reconstructPath(cameFrom: Map[String, String], start: String, end: String): ConversionEdge[String, Double, Double] = {
     val path = reconstructConversionEdgePathList(cameFrom, end)
 
     val conversionTo = path.map(ce => ce.conversion.to).foldLeft((a: Double) => a)((chain, func) => func.compose(chain))
@@ -103,7 +101,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
       * @param  end      The ending unit form the search
       * @return A list of conversion edges that when listed in order describe the path of conversion from start to end
 	  */
-  private def reconstructConversionEdgePathList(cameFrom: mutable.Map[String, String], end: String): List[ConversionEdge[String, Double, Double]] = {
+  private def reconstructConversionEdgePathList(cameFrom: Map[String, String], end: String): List[ConversionEdge[String, Double, Double]] = {
     var list = List.empty[String]
     var currentUnit = end
     list = list.::(currentUnit)
@@ -153,12 +151,12 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     *   given current unit will be the cost from the start to current plus the heuristic cost from the current to the
     *   goal. This idea is represented by the simple equation f = g + h. The trick is to find the smallest f-score.
     *   In this implementation, values for f are stored in the fScores map, keyed to the specified unit. Values for g
-    *   are stored in the gScores map, keyed by the specified unit.
+    *   are stored in the gScores map, keyed to the specified unit.
     *
-    * closedSet is the set of units in the graph that are not the goal. openSet is the set of units that might be the
-    *   goal. The openSet, then, represents the fringes of the search, whereas the closedSet represents the insides of
-    *   the searched map. The openSet is iterated over until the goal is found, and populated by neighbors of units in
-    *   the openSet.
+    * closedSet is the set of units in the graph that are not the end unit. openSet is the set of units that might be
+    *   the end unit. The openSet, then, represents the fringes of the search, whereas the closedSet represents the
+    *   insides of the searched map. The openSet is iterated over until the goal is found, and populated by neighbors of
+    *   units in the openSet.
     *
     * cameFrom is a map of units to units, storing the value of the unit was visited right before the unit key in the
     *   final path. This is used to reconstruct the path taken by the algorithm. As different ways of traveling from one
@@ -170,52 +168,48 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     */
   def solve(start: String, end: String): ConversionEdge[String, Double, Double] = {
     if (! allTSUnits.contains(start)) {
-      val startNotUnit = new ScalarConversionEdge("start is", "not a unit!", 1) // TODO replace with exceptions or None
-      return startNotUnit
+      return new ScalarConversionEdge("start is", "not a unit!", 1) // TODO replace with exceptions or None
     }
     if (! allTSUnits.contains(end)) {
-      val endNotUnit = new ScalarConversionEdge("end is", "not a unit!", 1) // TODO replace with exceptions or None
-      return endNotUnit
+      return new ScalarConversionEdge("end is", "not a unit!", 1) // TODO replace with exceptions or None
     }
-    var closedSet = List.empty[String]
-    var openSet = List.empty[String]
-    openSet :+= start
-    val cameFrom = mutable.Map.empty[String, String]
+    var closedSet = List.empty[String] // The set of all nodes that are not end
+    var openSet = List[String](start) // The set of all units that might be end
+    var cameFrom = Map.empty[String, String] // Maps units to the unit it "came from"; read as "key" came from "value"
     var current: String = ""
-
-    val gScore = mutable.Map.empty[String, Double]
-    val fScore = mutable.Map.empty[String, Double]
-    gScore += start -> 0
-    fScore += start -> heuristicPM(start, end)
+    var gScore = Map[String, Double](start -> 0) // Maps unit to its cost from start to key unit
+    var fScore = Map[String, Double](start -> heuristicPM(start, end)) // Maps unit to its approximate cost from start to end going through key unit
 
     while(openSet.nonEmpty) {
       openSet.sortWith(fScore.getOrElse(_, Double.PositiveInfinity) < fScore.getOrElse(_, Double.PositiveInfinity))
-      current = openSet.head
+      current = openSet.head // Set current to unit in openSet with the lowest f-score
       if(current == end) {
-        val shortcut = reconstructPath(cameFrom, start, end)
-        return shortcut
+        return reconstructPath(cameFrom, start, end) // We reached the end unit. Reconstruct the path.
       }
       openSet = openSet.filterNot(_ == current)
-      closedSet :+= current
-      val neighbors = getNeighbors(current).filterNot(neighbor => closedSet.contains(neighbor))
+      closedSet :+= current // current is not end, therefore remove from openSet and add to closedSet
+      val neighbors = getNeighbors(current).filterNot(neighbor => closedSet.contains(neighbor)) // Units adjacent to current
       neighbors.foreach(neighbor => {
-        val maybeGScore = gScore(current) + getConversions(current, neighbor).get.cost
+        val maybeGScore = gScore(current) + getConversions(current, neighbor).get.cost // Possible g-score for neighbor
         var notBetterPath = false
         if (! openSet.contains(neighbor)) {
-          openSet :+= neighbor
+          openSet :+= neighbor // Add neighbor to openSet. Due to neighbors definition, cannot contain units from the closedSet
         } else if (maybeGScore >= gScore.getOrElse(neighbor, Double.PositiveInfinity)) {
-          notBetterPath = true
+          notBetterPath = true // We already have a g-score for neighbor that indicates a lower-cost path
         }
-        if (! notBetterPath) {
-          cameFrom(neighbor) = current
-          gScore(neighbor) = maybeGScore
-          fScore(neighbor) = gScore(neighbor) + heuristicPM(neighbor, end)
+        if (! notBetterPath) { // The path we found is new or is better than what we have
+          cameFrom -= neighbor
+          cameFrom += (neighbor -> current) // Say that neighbor came from current
+          gScore -= neighbor
+          gScore += (neighbor -> maybeGScore) // Update to better g-score
+          fScore -= neighbor
+          fScore += (neighbor -> (gScore(neighbor) + heuristicPM(neighbor, end))) // Update to better estimated f-score
         }
-      })
-    }
+      }) // Repeat for all neighbor units of current
+    } // Repeat for all openSet units until openSet is empty, i.e. all units have been found and checked
 
     // TODO replace with exception or None
     val failure = new ScalarConversionEdge("Failed A*", "Failed A*", 1)
-    failure
+    failure // Could not find any path from start to end
   }
 }

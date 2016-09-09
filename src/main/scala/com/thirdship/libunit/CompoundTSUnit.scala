@@ -137,40 +137,41 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 		}
 
 		/*
-			Because we know that we are simplified, we can assume that the other needs to be a computableTSUnit,
+			Because we know that we are simplified, we can assume that the other needs to be a CompoundTSUnit,
 			or we are dealing with an internal scalar.
 		 */
 		unit match {
 
 			/*
-				If the other unit is a ComputableTSUnit as well, we must see if their dimensions are the same.
+				If the other unit is a CompoundTSUnit as well, we must see if their dimensions are the same.
 			 */
-			case u: CompoundTSUnit =>
-				if (u.simplified) { // the other unit needs to be simplified as well
-					if (numerator.length == u.numerator.length && denominator.length == u.denominator.length) {
-						keySetEquals(u)
-					} else false
-				} else isConvertible(u.simplifyType)
-
+			case u: CompoundTSUnit => isCompoundConvertible(u)
 
 			/*
 				If the scalar is not 1, then there is the real possibility of the units being convertible, but needing
 				a scalar modification. We check this by ensuring that there is only one unit in the fraction, and that
 				it happens to be in the numerator. But, it still has to be convertible.
 			 */
-			case u: TSUnit => scalar.value != 1 &&
-				numerator.length == 1 &&
-				denominator.isEmpty &&
-				numerator.head.isConvertible(u)
+			case u: TSUnit =>
+        scalar.value != 1 &&
+          numerator.length == 1 &&
+          denominator.isEmpty &&
+          numerator.head.isConvertible(u)
 		}
 	}
 
-	private def keySetEquals(unit: CompoundTSUnit): Boolean = {
-		numeratorDimensions.keySet.equals(unit.numeratorDimensions.keySet) &&
-			denominatorDimensions.keySet.equals(unit.denominatorDimensions.keySet)
-	}
+  private def isCompoundConvertible(unit: CompoundTSUnit): Boolean = {
+    if (! simplified) {
+      false // This method relies on this being simplified
+    } else if (unit.simplified) { // The other unit needs to be simplified as well
+      if (numerator.length == unit.numerator.length && denominator.length == unit.denominator.length) {
+        numeratorDimensions.keySet.equals(unit.numeratorDimensions.keySet) &&
+          denominatorDimensions.keySet.equals(unit.denominatorDimensions.keySet)
+      } else false
+    } else isConvertible(unit.simplifyType) // Self-calling might result in comparing a CompoundTSUnit to not a CompoundTSUnit
+  }
 
-	override def toString: String = {
+  override def toString: String = {
 		val s = scalar.value.toString
 
 		val n = if (numerator.isEmpty) { // simply set the numerator to the scalar value
@@ -396,24 +397,24 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 	 */
 	private def equateUnitLists(u: CompoundTSUnit): Boolean = {
 		/*
-     First, we check to see if the lengths of the numerator and denominator lists are the same between this and u. If they aren't, the units cannot be the same.
+     First, we check to see if the units can be converted between each other. This verifies list lengths and dimension sets.
      */
-    if ((numerator.length != u.numerator.length) || (denominator.length != u.denominator.length)) {
-      return false
-		}
-    /*
-     In order for the ComputableTSUnits to be equal, the this list cannot contain elements not in u and vice versa, for both numerators and denominators
+    if (isConvertible(u)) {
+      /*
+     In order for the ComputableTSUnits to be equal, the this list cannot contain elements not in u and vice versa, for both numerators and denominators.
      */
 
-		val numsLeft = numerator.diff(u.numerator)
-		val numsRight = u.numerator.diff(numerator)
-		val densLeft = denominator.diff(u.denominator)
-		val densRight = u.denominator.diff(denominator)
+      val numsLeft = numerator.diff(u.numerator)
+      val numsRight = u.numerator.diff(numerator)
+      val densLeft = denominator.diff(u.denominator)
+      val densRight = u.denominator.diff(denominator)
 
-		numsLeft.isEmpty &&
-			numsRight.isEmpty &&
-			densLeft.isEmpty &&
-			densRight.isEmpty
+      numsLeft.isEmpty &&
+        numsRight.isEmpty &&
+        densLeft.isEmpty &&
+        densRight.isEmpty
+		} else false
+
 	}
 
 	/**

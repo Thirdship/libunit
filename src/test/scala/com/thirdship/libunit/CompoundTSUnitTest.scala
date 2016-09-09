@@ -14,7 +14,6 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 		val c = new BaseTSUnit("c")
 
 		val abc = (a * b) / c
-		println(abc) // scalastyle:ignore println
 		abc * abc.inverse should be(new ScalarTSUnit)
 
 	}
