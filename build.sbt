@@ -16,16 +16,12 @@ libraryDependencies ++= Seq(
 	"com.thirdship" %% "name-generator" % "0.1.0"
 )
 
-resolvers ++= Seq(
-	"Thirdship repository Releases"		at "http://maven.thirdship.com/content/repositories/releases/",
-	"Thirdship repository Snapshots" 	at "http://maven.thirdship.com/content/repositories/snapshots/"
-)
-
 publishTo := {
-	val nexus = "http://maven.thirdship.com/"
-	if (version.value.trim.endsWith("SNAPSHOT")) {
-		Some("snapshots" at nexus + "content/repositories/snapshots")
-	} else {
-		Some("releases"  at nexus + "content/repositories/releases")
-	}
+	val nexus = "https://sbt.johnstarich.com/"
+	if (version.value.trim.endsWith("SNAPSHOT"))
+		Some("snapshots" at nexus + "repository/maven-snapshots")
+	else
+		Some("releases" at nexus + "repository/maven-releases")
 }
+
+credentials += Credentials(Path.userHome / ".sbt" / ".credentials" / "thirdship")
