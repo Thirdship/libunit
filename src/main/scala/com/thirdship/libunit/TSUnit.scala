@@ -28,7 +28,10 @@ trait TSUnit {
 	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	final def convert(that: TSUnit, value: Double): Double = convert(that)(value)
+	final def convert(that: TSUnit, value: Double): Double = {
+		val convertFunc = convert(that)
+		convertFunc(value)
+	}
 
 	/**
 	 * If convertible, it creates a conversion function to convert this to that

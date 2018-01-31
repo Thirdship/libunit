@@ -26,7 +26,7 @@ object LengthHelpers{
 
 	private val edges = List(
     // scalastyle:off magic.number
-		new ScalarConversionEdge("in", baseUnit.baseString, 254/10000, 1),
+		new ScalarConversionEdge("in", baseUnit.baseString, 254.0/10000, 1),
 		new ScalarConversionEdge("ft", "in", 12, 0.1),
 		new ScalarConversionEdge("mil", "ft", 5280, 0.1)
     // scalastyle:on magic.number

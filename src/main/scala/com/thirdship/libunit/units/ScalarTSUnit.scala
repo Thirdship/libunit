@@ -20,6 +20,7 @@ object ScalarHelpers {
  * @param value the amount to scale by
  */
 class ScalarTSUnit(val value: Double = 1) extends BaseTSUnit("Scalar") {
+	override def defaultUnit(): TSUnit = new ScalarTSUnit()
 
 	// scalastyle:off method.name
 	override def *(unit: TSUnit): TSUnit = unit match {
@@ -48,9 +49,9 @@ class ScalarTSUnit(val value: Double = 1) extends BaseTSUnit("Scalar") {
 	// scalastyle:on method.name
 
 	override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
-			case u: ScalarTSUnit => (a: Double) => (a * value) / u.value
-			case u: TSUnit => throw new InvalidConversionState(this, unit)
-		}
+		case u: ScalarTSUnit => (a: Double) => (a * value) / u.value
+		case _ => throw new InvalidConversionState(this, unit)
+	}
 
 	override def toString: String = if (value == 1) "Scalar" else value + "x"
 

@@ -4,6 +4,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 import com.thirdship.libunit.units.LengthHelpers.Meters
 import com.thirdship.libunit.units.ScalarTSUnit
+import com.thirdship.libunit.units.ScalarHelpers.Scalar
 import com.thirdship.libunit.units.TimeHelpers.Seconds
 
 class TSUnitValuePairParserTest extends FlatSpec with Matchers {
@@ -140,7 +141,7 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Seconds").get should be(Meters(1000)/Seconds())
 		UnitValuePairParser.parseToDefaultUnit("5 Kilometer / Seconds").get should be(Meters(5000)/Seconds())
 		UnitValuePairParser.parseToDefaultUnit("0.5 Kilometer / Seconds").get should be(Meters(500)/Seconds())
-		// scalastyle:on magic.number
-	}
 
+		UnitValuePairParser.parseToDefaultUnit("5 Kilometer / Meter").get should be(Scalar(5000))
+	}
 }

@@ -168,17 +168,17 @@ final case class TSUnitValuePair(private val value: Double, private val unit: TS
 	/**
 	 * @return a new UnitValuePair with a simplified Unit
 	 */
-	 protected def simplify: TSUnitValuePair = unit match {
+	protected def simplify: TSUnitValuePair = unit match {
 		// If the unit is a computable unit, if the unit says it is not simplified, then simplify it.
 		case u: CompoundTSUnit => if (u.scalar.value == 1) this
 			else TSUnitValuePair(value * u.scalar.value, new CompoundTSUnit(u.numerator, u.denominator))
 		// If it as scalar, if it is not as simple as it can be, move that simplify
 		case u: ScalarTSUnit => if (u.value == 1) this else TSUnitValuePair(value * u.value, new ScalarTSUnit())
-		case u: TSUnit => this
+		case _ => this
 	}
 
 	/**
 	  * @return  a new TSUnitValuePair from this that is converted to the default units of the stored unit
 	  */
-	def convertToDefaultUnits(): TSUnitValuePair = convertTo(unit.defaultUnit())  * getValue
+	def convertToDefaultUnits(): TSUnitValuePair = convertTo(unit.defaultUnit())
 }
