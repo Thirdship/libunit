@@ -67,7 +67,7 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 		).simplifyType
 
 		// If it is any other ts unit, just add the unit to the numerator
-		case unit: TSUnit => new CompoundTSUnit(numerator.::(unit), denominator).simplifyType
+		case unit: TSUnit => new CompoundTSUnit(numerator.::(unit), denominator, false, scalar).simplifyType
 	}
 
 
@@ -111,9 +111,8 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 				val n = generateConversionFunction(numeratorDimensions, u.numeratorDimensions)
 				val d = generateConversionFunction(denominatorDimensions, u.denominatorDimensions)
 				val s = scalar.conversionFunction(u.scalar)
-
 				// returns a function for the program to run later
-				(a: Double) => s(n(a) / d(a))
+				(a: Double) => s(n(a) / d(1))
 			} else conversionFunction(u.simplifyType)
 
 			/*
@@ -178,16 +177,22 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 			s
 		} else { // if the scalar is not 1, display it with a rendering of the numerator
 			(if (scalar.value != 1) s + " " else "") +
-			numerator.foldLeft("")((string, unit) => string + unit + " ")
+			numerator
+				.map(_.toString)
+				.sorted
+        .mkString(" ")
 		}
 
 		// if there is nothing in the denominator pretend that it does not exist
 		if (denominator.isEmpty) return n
 
 		// render the denominator
-		val d = denominator.foldLeft("")((string, unit) => string + unit + " ")
+		val d = denominator
+			.map(_.toString)
+			.sorted
+			.mkString(" ")
 
-		n + "/ " + d
+	  n + " / " + d
 	}
 
 	override def equalUnits(unit: TSUnit): Boolean = {
@@ -426,46 +431,47 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 	 */
 	private def simplifyConvertibleUnits(): TSUnit = {
 		// Check to see if the numerator and the denominator talk about the same types of units
-		val theSame = numeratorDimensions.keys.filter(n => denominatorDimensions.contains(n))
+		val numSet = numeratorDimensions.keys.toSet
+		val denSet = denominatorDimensions.keys.toSet
+		val cancelableUnitTypes = numSet.intersect(denSet).toSeq
+		val remainingNumUnits = (numSet -- denSet).toSeq.flatMap(numeratorDimensions)
+		val remainingDenUnits = (denSet -- numSet).toSeq.flatMap(denominatorDimensions)
 
 		/* If there is a Length for example in both the numerator and the denominator, then we know that the fraction is
 			simplified. Thus we need to cancel out a Length from both, this may result in a scalar, so we must account
 			for that as well.
 		*/
-		if (theSame.nonEmpty) {
+		if (cancelableUnitTypes.nonEmpty) {
 			/*
 				This is the case that there is a m/km or something, this set the scalar to the conversion ratio and pick on.
 				m/km is 1m/1000m so the scalar would be 1/1000 and the result would be just scalar.
 			 */
-			var s = 1d
+			var canceledUnitsCoefficient = 1d
 			// For every unit tag that is shared between the two, loop over and simplify
-			val sure = theSame.map(ut => {
+			val (reducedNumerator, reducedDenominator) = cancelableUnitTypes
+				.map(ut => {
+					// get the un simplified numerator and denominator that refer to this unit tag.
+					val numUnits = numeratorDimensions(ut)
+					val denUnits = denominatorDimensions(ut)
 
-				// get the un simplified numerator and denominator that refer to this unit tag.
-				val n_prev = numeratorDimensions(ut)
-				val d_prev = denominatorDimensions(ut)
+					// take the first element in the list
+					val (firstNum, remainingNumUnits) = (numUnits.head, numUnits.tail)
+					val (firstDen, remainingDenUnits) = (denUnits.head, denUnits.tail)
 
-				// take the first element in the list
-				val n_val = n_prev.head
-				val d_val = d_prev.head
+					// then convert the difference
+					canceledUnitsCoefficient *= firstNum.convert(firstDen, 1)
 
-				// and remove it
-				val n_new = n_prev diff List(n_val)
-				val d_new = d_prev diff List(d_val)
-
-				// then convert the difference
-				s = s * n_val.convert(d_val, 1)
-
-				// and return the new lists to recurse on later
-				(n_new, d_new)
-			}).unzip
+					// and return the new lists to recurse on later
+					(remainingNumUnits, remainingDenUnits)
+				})
+				.unzip
 
 			// Flatten the tuple of lists we made into two lists of ts units.
-			val n = sure._1.flatten.toList
-			val d = sure._2.flatten.toList
+			val newNumerator: Seq[TSUnit] = remainingNumUnits ++ reducedNumerator.flatten
+			val newDenominator: Seq[TSUnit] = remainingDenUnits ++ reducedDenominator.flatten
 
 			// Make a new Computable ts unit and attempt to simplify it
-			return new CompoundTSUnit(n, d, false, new ScalarTSUnit(scalar.value * s)).simplifyType
+			return new CompoundTSUnit(newNumerator.toList, newDenominator.toList, false, new ScalarTSUnit(scalar.value * canceledUnitsCoefficient)).simplifyType
 		}
 		// We have passed all simplification steps, so then we must set the simply flag.
 		new CompoundTSUnit(numerator, denominator, true, scalar)
@@ -496,16 +502,15 @@ class CompoundTSUnit(val numerator: List[TSUnit] = List.empty[TSUnit],
 		val units: List[TSUnit] = parseUnitList(str, currentUnitParser, first_paren)
 
 		if (units.nonEmpty) {
-			val out_unit = units.foldLeft[TSUnit](new ScalarTSUnit())((out, in) => in match {
-				case i: CompoundTSUnit => i * out
-				case o: TSUnit => out * o
-			})
+			val (compoundUnits, otherUnits) = units.partition {
+				case _: CompoundTSUnit => true
+				case _ => false
+			}
+			val compoundUnitsProduct = compoundUnits.reduceOption(_ * _).getOrElse(new ScalarTSUnit())
+			val otherUnitsProduct = otherUnits.reduceOption(_ * _).getOrElse(new ScalarTSUnit())
+			val out_unit = compoundUnitsProduct * otherUnitsProduct
 
-//			if (str.trim.startsWith("/"))
-//				Some(out_unit.inverse)
-//			else
 			Some(out_unit)
-
 		} else {
 			None
     }

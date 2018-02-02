@@ -136,12 +136,27 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 	it should "parse to default when asked" in {
 		// scalastyle:off magic.number
 		UnitValuePairParser.parseToDefaultUnit("1 Kilometer").get should be(Meters(1000))
-		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Second").get should be(Meters(1000)/Seconds())
+		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Second").get should be(Meters(1000) / Seconds())
 
-		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Seconds").get should be(Meters(1000)/Seconds())
-		UnitValuePairParser.parseToDefaultUnit("5 Kilometer / Seconds").get should be(Meters(5000)/Seconds())
-		UnitValuePairParser.parseToDefaultUnit("0.5 Kilometer / Seconds").get should be(Meters(500)/Seconds())
+		UnitValuePairParser.parseToDefaultUnit("1 Kilometer / Seconds").get should be(Meters(1000) / Seconds())
+		UnitValuePairParser.parseToDefaultUnit("5 Kilometer / Seconds").get should be(Meters(5000) / Seconds())
+		UnitValuePairParser.parseToDefaultUnit("0.5 Kilometer / Seconds").get should be(Meters(500) / Seconds())
 
 		UnitValuePairParser.parseToDefaultUnit("5 Kilometer / Meter").get should be(Scalar(5000))
+	}
+
+	it should "parse and simplify complex units" in {
+		var first: TSUnitValuePair = null
+		var second: TSUnit = null
+
+		first = UnitValuePairParser.parse("5 ((feet * seconds) / inches)").get
+		second = UnitParser.parse("seconds").get
+		first.convertTo(second) should be(Seconds(5 * 12))
+
+		first = UnitValuePairParser.parse("2 (ft in s min kg) / (mile hour)").get
+		second = UnitParser("in min kg").get
+		val converted = first.convertTo(second)
+		converted.getUnit.toString shouldEqual "in kg min"
+		converted.getValue shouldEqual 2 * 5.26e-8 +- 1e-8
 	}
 }
