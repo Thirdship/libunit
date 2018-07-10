@@ -4,11 +4,11 @@ version := "1.0.7"
 
 organization := "com.thirdship"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.6"
 
 // ScalaTest - Unit Testing with ScalaMock mocking
 libraryDependencies ++= Seq(
-	"org.scalamock" %% "scalamock-scalatest-support" % "3.5.0" % "test",
+	"org.scalatest" %% "scalatest" % "3.0.1" % "test",
 	"com.typesafe.scala-logging" %% "scala-logging" % "3.7.2",
 	"org.reflections" % "reflections" % "0.9.10",
 	"org.atteo" % "evo-inflector" % "1.0.1",
