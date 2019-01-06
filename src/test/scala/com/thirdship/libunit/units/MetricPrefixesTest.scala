@@ -2,14 +2,14 @@ package com.thirdship.libunit.units
 
 import org.scalatest.{FlatSpec, Matchers}
 
-import com.thirdship.libunit.{AStarConvertibleUnitData, ScalarConversionEdge, UnitValuePair, UnitParser}
+import com.thirdship.libunit.{AStarConvertibleUnitData, ScalarConversionEdge, UnitParser, UnitValuePair}
 import com.thirdship.libunit.utils.Helpers._
 
 class MetricPrefixesTest extends FlatSpec with Matchers {
 
   private val baseUnit = "s".i
 
-  var compressedParseMap = Map(
+  val compressedParseMap = Map(
     baseUnit -> List("sec".i, "second".w),
     "min".i -> List("minute".w),
     "h".i -> List("hr".w, "hour".w),
@@ -18,10 +18,10 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
     "jiffy".i -> List()
   )
 
-  var edges = List(
+  val edges = List(
     // scalastyle:off magic.number
     new ScalarConversionEdge("min", baseUnit.baseString, 60, 0.1),
-    new ScalarConversionEdge("h",	"min", 60, 0.1),
+    new ScalarConversionEdge("h", "min", 60, 0.1),
     new ScalarConversionEdge("d", "h", 24, 0.1),
     new ScalarConversionEdge("y", "d", 365.2422, 1),
     new ScalarConversionEdge(baseUnit.baseString, "jiffy", 3e-24, 1)

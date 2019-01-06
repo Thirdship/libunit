@@ -1,13 +1,13 @@
 package com.thirdship.libunit.units
 
 import com.thirdship.libunit._
-import com.thirdship.libunit.utils.{ExactString, FuzzyString, WordString}
+import com.thirdship.libunit.utils.{ExactString, FuzzyString}
 import com.thirdship.libunit.utils.Helpers._
 
 class BinaryPrefixes(unit: ExactString, parseList: List[FuzzyString]) {
 
 	lazy val compressedParseMap: Map[ExactString, List[FuzzyString]] = {
-		BinaryPrefixes.newUnits.map(prefix => {
+		BinaryPrefixes.Prefixes.map(prefix => {
 
 			// TODO Use MixedString once ATH-241 is resolved
 			val keyUnit = if (prefix._1.ignoreCase && unit.ignoreCase) (prefix._1.baseString + unit.baseString).i else (prefix._1.baseString + unit.baseString).e
@@ -25,14 +25,14 @@ class BinaryPrefixes(unit: ExactString, parseList: List[FuzzyString]) {
 	}
 
 	val edges: List[ScalarConversionEdge[String]] =
-		BinaryPrefixes.newUnits.map(prefix => {
+		BinaryPrefixes.Prefixes.map(prefix => {
 			new ScalarConversionEdge(unit.baseString, prefix._1.baseString + unit.baseString, prefix._2._1, 1)
 		}).toList
 }
 
 object BinaryPrefixes {
 	// scalastyle:off magic.number
-	val newUnits = Map(
+	val Prefixes = Map(
 		"Y".i -> (1e-24, List("yotta")),
 		"Z".i -> (1e-21, List("zetta")),
 		"E".i -> (1e-18, List("exa")),
@@ -51,6 +51,4 @@ object BinaryPrefixes {
 		"Ki".i -> (Math.pow(2, -10), List("kibi"))
 	)
 	// scalastyle:on magic.number
-
-
 }

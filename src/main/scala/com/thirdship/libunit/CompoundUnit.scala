@@ -91,7 +91,7 @@ class CompoundUnit(val numerator: List[BaseUnit] = List.empty[BaseUnit],
 		case unit: BaseUnit => new CompoundUnit(numerator, denominator.::(unit))
 	} // scalastyle:on method.name
 
-	override def conversionFunction(unit: BaseUnit): (Double) => Double = {
+	override def conversionFunction(unit: BaseUnit): Double => Double = {
 		// If this is not simplified, we cannot guarantee our algorithms can work. Thus, we must simplify first.
 		if (! simplified) {
 			return simplifyType.convert(unit)
@@ -112,7 +112,7 @@ class CompoundUnit(val numerator: List[BaseUnit] = List.empty[BaseUnit],
 				val d = generateConversionFunction(denominatorDimensions, u.denominatorDimensions)
 				val s = scalar.conversionFunction(u.scalar)
 				// returns a function for the program to run later
-				(a: Double) => s(n(a) / d(1))
+				a: Double => s(n(a) / d(1))
 			} else conversionFunction(u.simplifyType)
 
 			/*
@@ -124,7 +124,7 @@ class CompoundUnit(val numerator: List[BaseUnit] = List.empty[BaseUnit],
 				val n = numerator.head.convert(u)
 
 				// returns a function for the program to run later
-				(a: Double) => s(n(a))
+				a: Double => s(n(a))
 			} else throw new InvalidConversionState(this, unit);
 		}
 	}
@@ -211,7 +211,7 @@ class CompoundUnit(val numerator: List[BaseUnit] = List.empty[BaseUnit],
 				then they are not equal. They may still be convertible into each other. For example, this might have
 				a scalar applied.
 			*/
-			case u: BaseUnit => false
+			case _: BaseUnit => false
 		}
 	}
 
@@ -268,7 +268,7 @@ class CompoundUnit(val numerator: List[BaseUnit] = List.empty[BaseUnit],
 	 * @param to is the the same dimension as 'from', but the target BaseUnit instead
 	 * @return a function mapping a value in from's units to a value in to's units
 	 */
-	private def generateConversionFunction(from: Map[String, List[BaseUnit]], to: Map[String, List[BaseUnit]]): (Double) => Double = {
+	private def generateConversionFunction(from: Map[String, List[BaseUnit]], to: Map[String, List[BaseUnit]]): Double => Double = {
 
 		// In each row in the from map
 		val ret = from.map(e => {
@@ -590,7 +590,7 @@ class CompoundUnit(val numerator: List[BaseUnit] = List.empty[BaseUnit],
             .toInt
 
           var ret = List.empty[String]
-          for (i <- 1 to Math.abs(power))
+          for (_ <- 1 to Math.abs(power))
             ret = ret.::(unit)
 
           if (power >= 0) {

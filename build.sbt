@@ -6,6 +6,10 @@ organization := "com.thirdship"
 
 scalaVersion := "2.12.6"
 
+scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-Xfatal-warnings")
+
+scalacOptions ++= Seq("-encoding", "utf-8")
+
 // ScalaTest - Unit Testing with ScalaMock mocking
 libraryDependencies ++= Seq(
 	"org.scalatest" %% "scalatest" % "3.0.1" % "test",
@@ -17,10 +21,11 @@ libraryDependencies ++= Seq(
 
 publishTo := {
 	val nexus = "https://sbt.johnstarich.com/"
-	if (version.value.trim.endsWith("SNAPSHOT"))
+	if (version.value.trim.endsWith("SNAPSHOT")) {
 		Some("snapshots" at nexus + "repository/maven-snapshots")
-	else
+	} else {
 		Some("releases" at nexus + "repository/maven-releases")
+	}
 }
 
 credentials += Credentials(Path.userHome / ".sbt" / ".credentials" / "thirdship")

@@ -167,10 +167,10 @@ case class AStarSolver(var allUnits: List[String], var allConversions: List[Conv
     * @return A conversion from start to goal that is the most conversion-cost-efficient.
     */
   def solve(start: String, end: String): ConversionEdge[String, Double, Double] = {
-    if (!allUnits.contains(start)) {
+    if (! allUnits.contains(start)) {
       return new ScalarConversionEdge("start is", "not a unit!", 1) // TODO replace with exceptions or None
     }
-    if (!allUnits.contains(end)) {
+    if (! allUnits.contains(end)) {
       return new ScalarConversionEdge("end is", "not a unit!", 1) // TODO replace with exceptions or None
     }
     var closedSet = List.empty[String] // The set of all nodes that are not end

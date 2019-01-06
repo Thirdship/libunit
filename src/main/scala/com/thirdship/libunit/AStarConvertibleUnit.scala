@@ -1,7 +1,6 @@
 package com.thirdship.libunit
 
-import com.thirdship.libunit.units.BinaryPrefixes
-import com.thirdship.libunit.units.MetricPrefixes
+import com.thirdship.libunit.units.{BinaryPrefixes, MetricPrefixes}
 import com.thirdship.libunit.utils.{ExactString, FuzzyString, WordString}
 import com.thirdship.libunit.utils.Helpers._
 
@@ -83,14 +82,14 @@ abstract class AStarConvertibleUnit(val unitName: String, val data: AStarConvert
 
   override def defaultUnit(): BaseUnit = getBaseUnit(data.baseUnit.baseString)
 
-  override def conversionFunction(unit: BaseUnit): (Double) => Double = unit match {
+  override def conversionFunction(unit: BaseUnit): Double => Double = unit match {
     case u: AStarConvertibleUnit => generateConversionFunction(u)
     case u: CompoundUnit => u.conversionFunction(this)
     case _ => throw new InvalidConversionState(this, unit)
   }
 
   override def isConvertible(unit: BaseUnit): Boolean = unit match {
-    case u: AStarConvertibleUnit => unitName.equals(unitName)
+    case _: AStarConvertibleUnit => unitName.equals(unitName)
     case u: CompoundUnit => u.isConvertible(this)
     case _ => false
   }
@@ -101,7 +100,7 @@ abstract class AStarConvertibleUnit(val unitName: String, val data: AStarConvert
     * @param unit the unit to convert to
     * @return the function
     */
-  private def generateConversionFunction(unit: AStarConvertibleUnit): (Double) => Double =
+  private def generateConversionFunction(unit: AStarConvertibleUnit): Double => Double =
     data.aStar.solve(this.unitName, unit.unitName).conversion.to
 
   override def toString: String = unitName

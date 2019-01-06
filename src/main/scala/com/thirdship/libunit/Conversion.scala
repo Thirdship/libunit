@@ -10,7 +10,7 @@ package com.thirdship.libunit
  * @tparam N the destination/base storage type.
  * @note the default values are to simply cast the input to the output type. This will surly break if M != N.
  */
-case class Conversion[M, N](to: (M) => N = (a: M) => a.asInstanceOf[N], from: (N) => M = (b: N) => b.asInstanceOf[M]) {
+case class Conversion[M, N](to: M => N = (a: M) => a.asInstanceOf[N], from: N => M = (b: N) => b.asInstanceOf[M]) {
 
 	/**
 	  * @return the conversion with the to and the from functions switched

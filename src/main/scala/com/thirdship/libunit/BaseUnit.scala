@@ -42,7 +42,7 @@ trait BaseUnit {
 	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	final def convert(that: BaseUnit): (Double) => Double = if (isConvertible(that)) {
+	final def convert(that: BaseUnit): Double => Double = if (isConvertible(that)) {
 		// Ask implementations for the conversion function.
 		conversionFunction(that)
 	} else {
@@ -63,7 +63,7 @@ trait BaseUnit {
 	 * @return a function that maps this.unit to unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	protected def conversionFunction(unit: BaseUnit): (Double) => Double
+	protected def conversionFunction(unit: BaseUnit): Double => Double
 
 	/**
 	 * Checks to see of the current unit is convertible into the requested unit

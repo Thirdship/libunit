@@ -45,7 +45,7 @@ abstract class ConvertibleUnit(val unitName: String,
 
 	override def defaultUnit(): BaseUnit = getBaseUnit(data.baseUnit)
 
-	override def conversionFunction(unit: BaseUnit): (Double) => Double = unit match {
+	override def conversionFunction(unit: BaseUnit): Double => Double = unit match {
 		case u: ConvertibleUnit => generateConversionFunction(u)
 		case u: CompoundUnit => u.conversionFunction(this)
 		case _ => throw new InvalidConversionState(this, unit)
@@ -65,7 +65,7 @@ abstract class ConvertibleUnit(val unitName: String,
 	  * @param unit the unit to convert to
 	 * @return the function
 	 */
-	private def generateConversionFunction(unit: ConvertibleUnit): (Double) => Double = {
+	private def generateConversionFunction(unit: ConvertibleUnit): Double => Double = {
 
 		// this this and unit are the same the return a no op function.
 		if (unitName.equals(unit.unitName)) {
@@ -78,7 +78,7 @@ abstract class ConvertibleUnit(val unitName: String,
 		val standardizedFromUnit = data.parseMap(unit.unitName.i)
 		val fromBaseUnit = data.conversionMap(standardizedFromUnit).from
 
-		(a: Double) => fromBaseUnit(toBaseUnit(a))
+		a: Double => fromBaseUnit(toBaseUnit(a))
 	}
 
 	override def toString: String = unitName

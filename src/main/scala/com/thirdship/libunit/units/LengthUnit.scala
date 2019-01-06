@@ -6,14 +6,14 @@ import com.thirdship.libunit.utils.Helpers._
 /**
  * Define an assortment of helpers that can create appropriate UnitValuePairs dealing with Lengths.
  */
-object LengthHelpers{
-	object Meters     	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("m")) }
-	object Kilometers 	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("km")) }
-	object Millimeters 	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("mm")) }
-	object Microns		 	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("um")) }
+object LengthHelpers {
+	object Meters { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("m")) }
+	object Kilometers { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("km")) }
+	object Millimeters { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("mm")) }
+	object Microns { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("um")) }
 
-	object Feet     	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("ft")) }
-	object Inches 		{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("in")) }
+	object Feet { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("ft")) }
+	object Inches { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new LengthUnit("in")) }
 
 	private val baseUnit = "m".i
 

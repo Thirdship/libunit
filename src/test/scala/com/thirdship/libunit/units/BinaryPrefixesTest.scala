@@ -9,13 +9,13 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 
 	private val baseUnit = "B".e
 
-	var compressedParseMap = Map(
+	val compressedParseMap = Map(
 		baseUnit -> List("byte".w),
 		"b".e -> List("bit".w),
 		"nibble".i -> List("nybble".w, "nyble".w, "half-byte".w)
 	)
 
-	var edges = List( // scalastyle:off magic.number
+	val edges = List( // scalastyle:off magic.number
 		new ScalarConversionEdge(baseUnit.baseString, "b", 8, ConversionEdge.LOW_COST_EDGE),
 		new ScalarConversionEdge(baseUnit.baseString, "nibble", 2, ConversionEdge.LOW_COST_EDGE)
 	) // scalastyle:on magic.number

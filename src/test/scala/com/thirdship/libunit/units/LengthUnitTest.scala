@@ -2,11 +2,10 @@ package com.thirdship.libunit.units
 
 import org.scalatest.{FlatSpec, Matchers}
 
-import com.thirdship.libunit.{UnitValuePair, UnitParser}
+import com.thirdship.libunit.{UnitParser, UnitValuePair}
 import com.thirdship.libunit.units.LengthHelpers._
 
 class LengthUnitTest extends FlatSpec with Matchers {
-
 	"A LengthUnit" should "convert stuff" in {
 		val m = Meters(1)
 		val km = Kilometers(1)

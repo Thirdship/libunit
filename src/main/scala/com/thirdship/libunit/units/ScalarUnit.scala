@@ -48,7 +48,7 @@ class ScalarUnit(val value: Double = 1) extends InconvertibleUnit("Scalar") {
 	}
 	// scalastyle:on method.name
 
-	override def conversionFunction(unit: BaseUnit): (Double) => Double = unit match {
+	override def conversionFunction(unit: BaseUnit): Double => Double = unit match {
 		case u: ScalarUnit => (a: Double) => (a * value) / u.value
 		case _ => throw new InvalidConversionState(this, unit)
 	}

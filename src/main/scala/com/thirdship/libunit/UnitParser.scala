@@ -44,14 +44,14 @@ final class UnitParser {
 
 	lazy val name = NameGenerator()
 
-	private[libunit] var classes = Map.empty[Class[_ <: BaseUnit], (String) => Option[_ <: BaseUnit]]
+	private[libunit] var classes = Map.empty[Class[_ <: BaseUnit], String => Option[_ <: BaseUnit]]
 
 	def this(searchPaths: List[String]) = {
 		this()
 		this.classes = getClassesForSearchPaths(searchPaths)
 	}
 
-	private def getClassesForSearchPaths(searchPaths: List[String]): Map[Class[_ <: BaseUnit], (String) => Option[_ <: BaseUnit]] = {
+	private def getClassesForSearchPaths(searchPaths: List[String]): Map[Class[_ <: BaseUnit], String => Option[_ <: BaseUnit]] = {
 		val reflections = searchPaths.map(new Reflections(_))
 
 		UnitParser.logger.info("Initializing static UnitParser: " + name)
@@ -70,7 +70,10 @@ final class UnitParser {
 		UnitParser.logger.info("(" + name + ") Registering: " + instances.map(_.getClass.getCanonicalName))
 
 		instances.map(ts => {
-			(ts.getClass, (s: String) => {implicit val currentUnitParser = this; ts.parse(s)})
+			(ts.getClass, (s: String) => {
+				implicit val currentUnitParser = this
+				ts.parse(s)
+			})
 		}).toMap
 	}
 

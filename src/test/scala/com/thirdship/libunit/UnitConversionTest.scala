@@ -5,7 +5,6 @@ import scala.util.Random
 import org.scalatest.{FlatSpec, Matchers}
 
 class UnitConversionTest extends FlatSpec with Matchers {
-
   val alpha = "alpha"
   val beta = "beta"
   val gamma = "gamma"

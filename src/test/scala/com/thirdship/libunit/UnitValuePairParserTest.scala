@@ -3,8 +3,8 @@ package com.thirdship.libunit
 import org.scalatest.{FlatSpec, Matchers}
 
 import com.thirdship.libunit.units.LengthHelpers.Meters
-import com.thirdship.libunit.units.ScalarUnit
 import com.thirdship.libunit.units.ScalarHelpers.Scalar
+import com.thirdship.libunit.units.ScalarUnit
 import com.thirdship.libunit.units.TimeHelpers.Seconds
 
 class UnitValuePairParserTest extends FlatSpec with Matchers {
@@ -146,11 +146,8 @@ class UnitValuePairParserTest extends FlatSpec with Matchers {
 	}
 
 	it should "parse and simplify complex units" in {
-		var first: UnitValuePair = null
-		var second: BaseUnit = null
-
-		first = UnitValuePairParser.parse("5 ((feet * seconds) / inches)").get
-		second = UnitParser.parse("seconds").get
+		var first: UnitValuePair = UnitValuePairParser.parse("5 ((feet * seconds) / inches)").get
+		var second: BaseUnit = UnitParser.parse("seconds").get
 		first.convertTo(second) should be(Seconds(5 * 12))
 
 		first = UnitValuePairParser.parse("2 (ft in s min kg) / (mile hour)").get

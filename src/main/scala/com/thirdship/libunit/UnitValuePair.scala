@@ -97,7 +97,7 @@ final case class UnitValuePair(private val value: Double, private val unit: Base
 	 */
 	def -(that: UnitValuePair): UnitValuePair = UnitValuePair(value - that.convertTo(this).value, unit)
 
-	def apply(func: (Double) => Double): UnitValuePair = UnitValuePair(func(value), unit)
+	def apply(func: Double => Double): UnitValuePair = UnitValuePair(func(value), unit)
 	def apply(func: (Double, Double) => Double, x: Double): UnitValuePair = UnitValuePair(func(value, x), unit)
 
 	def +(x: Double): UnitValuePair = apply((a, b) => a + b, x)

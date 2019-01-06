@@ -6,21 +6,21 @@ import com.thirdship.libunit.utils.Helpers._
 /**
   * Define an assortment of helpers that can create appropriate UnitValuePairs dealing with digital storage units.
   */
-object StorageHelpers{
-	object Bytes    	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new StorageUnit("B")) }
-	object Bits     	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new StorageUnit("b")) }
-	object Kilobytes  	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new StorageUnit("KB")) }
-	object Megabytes   	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new StorageUnit("MB")) }
+object StorageHelpers {
+	object Bytes { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new StorageUnit("B")) }
+	object Bits { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new StorageUnit("b")) }
+	object Kilobytes { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new StorageUnit("KB")) }
+	object Megabytes { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new StorageUnit("MB")) }
 
 	private val baseUnit = "B".e
 
-	var compressedParseMap = Map(
+	val compressedParseMap = Map(
 		baseUnit -> List("byte".w),
 		"b".e -> List("bit".w),
 		"nibble".i -> List("nybble".w, "nyble".w, "half-byte".w)
 	)
 
-	var edges = List(
+	val edges = List(
 		// scalastyle:off magic.number
 		new ScalarConversionEdge(baseUnit.baseString, "b", 8, 0.1),
 		new ScalarConversionEdge(baseUnit.baseString, "nibble", 2, 0.1)

@@ -18,12 +18,12 @@ class InconvertibleUnit(val name: String) extends BaseUnit {
 
 	override def defaultUnit(): BaseUnit = new InconvertibleUnit(name)
 
-	override def conversionFunction(unit: BaseUnit): (Double) => Double = unit match {
+	override def conversionFunction(unit: BaseUnit): Double => Double = unit match {
 		/*
 			If the unit is an InconvertibleUnit, and because we know that the two units are convertible, the units must be the same.
 			Thus, we must return a no-op.
 		*/
-		case u: InconvertibleUnit => (a: Double) => a
+		case _: InconvertibleUnit => (a: Double) => a
 
 		// If the unit is a ComputableUnit, then punt the problem over to it.
 		case u: CompoundUnit => u.conversionFunction(this)
