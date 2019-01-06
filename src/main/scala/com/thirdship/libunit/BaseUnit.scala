@@ -4,12 +4,12 @@ package com.thirdship.libunit
  * Represents a Unit
  *
  * @example
- * 		In the statement 10 meters, meters is the unit and would need to be represented as a TSUnit
+ * 		In the statement 10 meters, meters is the unit and would need to be represented as a BaseUnit
  *
  * @note
  * 		m/s is a unit. However, m/s is a combination of both meter and second units and will be represented as such.
  */
-trait TSUnit {
+trait BaseUnit {
 
 	/**
 	 *	A string that describes what the unit is representing.
@@ -22,13 +22,13 @@ trait TSUnit {
 	/**
 	 * If convertible, it creates a conversion function to convert this to that, then applies the requested value
 	 *
-	 * @param that the destination TSUnit to convert to
+	 * @param that the destination BaseUnit to convert to
 	 * @param value the value to convert
 	 * @return this->that(value)
 	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	final def convert(that: TSUnit, value: Double): Double = {
+	final def convert(that: BaseUnit, value: Double): Double = {
 		val convertFunc = convert(that)
 		convertFunc(value)
 	}
@@ -36,13 +36,13 @@ trait TSUnit {
 	/**
 	 * If convertible, it creates a conversion function to convert this to that
 	 *
-	 * @see com.thirdship.libunit.TSUnit#conversionFunction
-	 * @param that the destination TSUnit to convert to
+	 * @see com.thirdship.libunit.BaseUnit#conversionFunction
+	 * @param that the destination BaseUnit to convert to
 	 * @return a function to convert this to that
 	 * @throws UnableToConvertUnitsException the destination is not convertible from the current unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	final def convert(that: TSUnit): (Double) => Double = if (isConvertible(that)) {
+	final def convert(that: BaseUnit): (Double) => Double = if (isConvertible(that)) {
 		// Ask implementations for the conversion function.
 		conversionFunction(that)
 	} else {
@@ -63,7 +63,7 @@ trait TSUnit {
 	 * @return a function that maps this.unit to unit
 	 * @throws UnitsException when unit conversion occurs but there is an error
 	 */
-	protected def conversionFunction(unit: TSUnit): (Double) => Double
+	protected def conversionFunction(unit: BaseUnit): (Double) => Double
 
 	/**
 	 * Checks to see of the current unit is convertible into the requested unit
@@ -77,7 +77,7 @@ trait TSUnit {
 	 * @param unit the unit we want to check conversion into
 	 * @return true if this can convert to the specified unit. False otherwise.
 	 */
-	def isConvertible(unit: TSUnit): Boolean
+	def isConvertible(unit: BaseUnit): Boolean
 
 	/**
 	 *	Raises a unit to a power
@@ -88,7 +88,7 @@ trait TSUnit {
 	 * @return the unit raised to that power
 	 */
 	// scalastyle:off method.name
-	def ^(power: Integer): TSUnit = if (power <= 1) this else this * ^(power-1)
+	def ^(power: Integer): BaseUnit = if (power <= 1) this else this * ^(power-1)
 
 	/**
 	 * Multiplies this by that
@@ -98,12 +98,12 @@ trait TSUnit {
 	 * 		m * m = m m
 	 * 		m * m.inverse = Scalar
 	 * 		m * s.inverse = m / s
-	 * 		* Assume that m, s, and Scalar are TSUnits.
-	 * 		* Please note that the right hand column is a visual representation on what the TSUnit would represent
+	 * 		* Assume that m, s, and Scalar are BaseUnits.
+	 * 		* Please note that the right hand column is a visual representation on what the BaseUnit would represent
 	 * @param that the unit to multiply this by
-	 * @return the product of this and that, returns a new TSUnit
+	 * @return the product of this and that, returns a new BaseUnit
 	 */
-	def *(that: TSUnit): TSUnit = new CompoundTSUnit(List(this, that), List.empty[TSUnit]).simplifyType
+	def *(that: BaseUnit): BaseUnit = new CompoundUnit(List(this, that), List.empty[BaseUnit]).simplifyType
 
 	/**
 	 * Divides this by that
@@ -113,12 +113,12 @@ trait TSUnit {
 	 * 		m / m = Scalar
 	 * 		m / m.inverse = m m
 	 * 		m / s.inverse = m s
-	 * 		* Assume that m, s, and Scalar are TSUnits.
-	 * 		* Please note that the right hand column is a visual representation on what the TSUnit would represent
+	 * 		* Assume that m, s, and Scalar are BaseUnits.
+	 * 		* Please note that the right hand column is a visual representation on what the BaseUnit would represent
 	 * @param that the unit to divide this by
-	 * @return this / that as a new TSUnit
+	 * @return this / that as a new BaseUnit
 	 */
-	def /(that: TSUnit): TSUnit = new CompoundTSUnit(List(this), List(that)).simplifyType
+	def /(that: BaseUnit): BaseUnit = new CompoundUnit(List(this), List(that)).simplifyType
 
 	/**
 	 * Finds the inverse of this
@@ -127,14 +127,14 @@ trait TSUnit {
 	 *		m.inverse = 1 / m
 	 * 		m.inverse.inverse = m
 	 * 		(m / s).inverse = s / m
-	 * 		* Assume that m and s are TSUnits.
+	 * 		* Assume that m and s are BaseUnits.
 	 * @return 1/this
 	 */
 	// scalastyle:off method.name
-	def inverse: TSUnit = new CompoundTSUnit(List.empty[TSUnit], List(this)).simplifyType
+	def inverse: BaseUnit = new CompoundUnit(List.empty[BaseUnit], List(this)).simplifyType
 
 	/**
-	 * Checks to see if the unit(s) of one TSUnit are equals to the unit(s) of another
+	 * Checks to see if the unit(s) of one BaseUnit are equals to the unit(s) of another
 	 *
 	 * @note this function should consist only of pure method calls
 	 * @note
@@ -146,7 +146,7 @@ trait TSUnit {
 	 * @param unit the unit to check against
 	 * @return if the unit(s) of this and that are the same
 	 */
-	private[libunit] def equalUnits(unit: TSUnit): Boolean
+	private[libunit] def equalUnits(unit: BaseUnit): Boolean
 
 	/**
 	  * Provides a hash code for the unit
@@ -160,19 +160,19 @@ trait TSUnit {
 	/**
 	 * @return the string representation of the unit represented
 	 * @note
-	 *       Some TSUnits will have different units to represent the same data, but here they should return a common value.
+	 *       Some BaseUnits will have different units to represent the same data, but here they should return a common value.
 	 * @note
 	 *        This is used primarily as a way to determine if units are convertible into each other.
 	 * @example
 	 *  	Say that I want to represent time. I might choose to work with time in seconds. (This decision is arbitrary)
-	 *  	If I define the TimeTSUnit, it would use "s" as it's unitName, as that is what it refers to.
+	 *  	If I define the TimeUnit, it would use "s" as it's unitName, as that is what it refers to.
 	 *  	Therefore, when I define minutes, it's unit displayed would be 'm', but the unit name would still be 's'.
 	 */
 	private[libunit] def getUnitName: String
 
 
 	override def equals(o: Any): Boolean = o match {
-		case u: TSUnit => equalUnits(u)
+		case u: BaseUnit => equalUnits(u)
 		case _ => false
 	}
 
@@ -187,20 +187,20 @@ trait TSUnit {
 	 * 	The input to this function should not contain the number part of a unit value pair.
 	 * @example,
 	 * {{{
-	 *     val lm = new LengthTSUnit("should not matter")
+	 *     val lm = new LengthUnit("should not matter")
 	 *     parse("Meters") //returns a LengthMeasure of dimension m
 	 * }}}
 	 * @param str the string to parse
-	 * @return an option that may contain a TSUnit.
+	 * @return an option that may contain a BaseUnit.
 	 */
-	private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit]
+	private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: BaseUnit]
 
 	/**
 	  * The name that would be used to characterize the set of units
 	  *
 	  * For example for LengthTS units, "m" for List("meter","kilometer", "km", ...)
 	  */
-	def defaultUnit(): TSUnit
+	def defaultUnit(): BaseUnit
 }
 
 class UnitsException(str: String) extends Exception{
@@ -209,8 +209,8 @@ class UnitsException(str: String) extends Exception{
 
 class InvalidConversion(str: String) extends UnitsException(str) {}
 
-class UnableToConvertUnitsException(source: TSUnit, target: TSUnit) extends InvalidConversion(source + " was unable to be converted into " + target) {}
+class UnableToConvertUnitsException(source: BaseUnit, target: BaseUnit) extends InvalidConversion(source + " was unable to be converted into " + target) {}
 
-class InvalidConversionState(source: TSUnit, target: TSUnit) extends UnableToConvertUnitsException(source, target) {
+class InvalidConversionState(source: BaseUnit, target: BaseUnit) extends UnableToConvertUnitsException(source, target) {
 	override def getMessage: String = source + " was unable to be converted into " + target + ", but passed convertible check."
 }

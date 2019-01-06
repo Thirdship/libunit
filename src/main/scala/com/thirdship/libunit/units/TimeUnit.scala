@@ -4,8 +4,8 @@ import com.thirdship.libunit._
 import com.thirdship.libunit.utils.Helpers._
 
 object TimeHelpers{
-	object Seconds { def apply(value: Double = 1): TSUnitValuePair = TSUnitValuePair(value, new TimeTSUnit("s")) }
-	object Minutes { def apply(value: Double = 1): TSUnitValuePair = TSUnitValuePair(value, new TimeTSUnit("min")) }
+	object Seconds { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new TimeUnit("s")) }
+	object Minutes { def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new TimeUnit("min")) }
 
 	private val baseUnit = "s".i
 
@@ -28,12 +28,12 @@ object TimeHelpers{
 		// scalastyle:on magic.number
 	)
 
-	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Time", compressedParseMap, edges).createMetricUnits(List(baseUnit))
+	val data: AStarConvertibleUnitData = new AStarConvertibleUnitData(baseUnit, "Time", compressedParseMap, edges).createMetricUnits(List(baseUnit))
 }
 
-class TimeTSUnit(unit: String = "s") extends AStarConvertibleTSUnit(unit, TimeHelpers.data) {
+class TimeUnit(unit: String = "s") extends AStarConvertibleUnit(unit, TimeHelpers.data) {
 
-	override protected def getTSUnit(str: String): TSUnit = {
-		new TimeTSUnit(str)
+	override protected def getBaseUnit(str: String): BaseUnit = {
+		new TimeUnit(str)
 	}
 }

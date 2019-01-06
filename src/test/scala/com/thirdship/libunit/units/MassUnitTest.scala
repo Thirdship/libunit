@@ -5,9 +5,9 @@ import org.scalatest.{FlatSpec, Matchers}
 import com.thirdship.libunit.UnitParser
 import com.thirdship.libunit.units.MassHelpers._
 
-class MassTSUnitTest extends FlatSpec with Matchers {
+class MassUnitTest extends FlatSpec with Matchers {
 
-	"A MassTSUnit" should "convert stuff" in {
+	"A MassUnit" should "convert stuff" in {
 		val kg = Kilograms(1)
 		val g = Grams(1)
 
@@ -17,7 +17,7 @@ class MassTSUnitTest extends FlatSpec with Matchers {
 		g + kg should be(Grams(1001))
 		g - kg should be(Grams(-999))
 
-		Slug(10).convertTo(new MassTSUnit("g")) should be(Grams(145939.0))
+		Slug(10).convertTo(new MassUnit("g")) should be(Grams(145939.0))
 		// scalastyle:on magic.number
 		g should be(g)
 		Slug(1) should be(Slug(1))

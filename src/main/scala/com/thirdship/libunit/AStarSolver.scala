@@ -7,7 +7,7 @@ package com.thirdship.libunit
   *       Each conversion also has a cost associated with the conversion, referring to the loss of precision when doing the conversion.
   *
   */
-case class AStarSolver(var allTSUnits: List[String], var allConversions: List[ConversionEdge[String, Double, Double]]) {
+case class AStarSolver(var allUnits: List[String], var allConversions: List[ConversionEdge[String, Double, Double]]) {
 
   /**
     * Returns a conversion, if it exists, between the given units.
@@ -45,7 +45,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
 
   def getNeighbors(center: String): List[String] = {
     var neighbors = List.empty[String]
-    allTSUnits.foreach(maybeNeighbor => {
+    allUnits.foreach(maybeNeighbor => {
       if (getConversions(center, maybeNeighbor).isDefined && center != maybeNeighbor) {
         neighbors :+= maybeNeighbor
       }
@@ -135,7 +135,7 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     var neighborCost = List.empty[Double]
     var conversion: Option[ConversionEdge[String, Double, Double]] = None
     neighborCost :+= heuristic(start, end)
-    allTSUnits.foreach(unit => {
+    allUnits.foreach(unit => {
       conversion = getConversions(start, unit)
       if(conversion.isDefined && unit != start) {
         neighborCost :+= heuristic(unit, end) - conversion.get.cost
@@ -167,10 +167,10 @@ case class AStarSolver(var allTSUnits: List[String], var allConversions: List[Co
     * @return A conversion from start to goal that is the most conversion-cost-efficient.
     */
   def solve(start: String, end: String): ConversionEdge[String, Double, Double] = {
-    if (! allTSUnits.contains(start)) {
+    if (!allUnits.contains(start)) {
       return new ScalarConversionEdge("start is", "not a unit!", 1) // TODO replace with exceptions or None
     }
-    if (! allTSUnits.contains(end)) {
+    if (!allUnits.contains(end)) {
       return new ScalarConversionEdge("end is", "not a unit!", 1) // TODO replace with exceptions or None
     }
     var closedSet = List.empty[String] // The set of all nodes that are not end

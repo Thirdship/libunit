@@ -5,9 +5,9 @@ import org.scalatest.{FlatSpec, Matchers}
 import com.thirdship.libunit.UnitParser
 import com.thirdship.libunit.units.StorageHelpers._
 
-class StorageTSUnitTest extends FlatSpec with Matchers {
+class StorageUnitTest extends FlatSpec with Matchers {
 
-	"A StorageTSUnit" should "convert stuff" in {
+	"A StorageUnit" should "convert stuff" in {
 		val bit = Bits(1)
 		val byte = Bytes(1)
 		// scalastyle:off magic.number

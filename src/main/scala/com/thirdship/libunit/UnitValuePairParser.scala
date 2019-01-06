@@ -37,16 +37,16 @@ object UnitValuePairParser {
 	      |)?
 	      |""".stripMargin)
 
-	def apply(str: String): Option[TSUnitValuePair] = parse(str)
+	def apply(str: String): Option[UnitValuePair] = parse(str)
 
-	def parseToDefaultUnit(str: String): Option[TSUnitValuePair] = {
+	def parseToDefaultUnit(str: String): Option[UnitValuePair] = {
 		val parsed = parse(str)
 		if (parsed.isDefined) {
 			Option(parsed.get.convertToDefaultUnits())
 		} else None
 	}
 
-	def parse(str: String): Option[TSUnitValuePair] = {
+	def parse(str: String): Option[UnitValuePair] = {
 		// Trim and uniform text
 		val tokens = reg.matcher(str.replaceAll("\\s", " ").trim)
 
@@ -71,7 +71,7 @@ object UnitValuePairParser {
 					.replaceAll(",", "")
 					.toDouble
 
-				Some(TSUnitValuePair(num, unitOption.get))
+				Some(UnitValuePair(num, unitOption.get))
 			}
 			else {
 				parseNonMatch(scalar, unitOption)
@@ -80,7 +80,7 @@ object UnitValuePairParser {
 		else None
 	}
 
-	private def parseNonMatch(scalar: Matcher, unitOption: Option[TSUnit]): Option[TSUnitValuePair] = {
+	private def parseNonMatch(scalar: Matcher, unitOption: Option[BaseUnit]): Option[UnitValuePair] = {
 		val sign = if (Option(scalar.group("sign")).isDefined) scalar.group("sign")
 		else ""
 		val value: Option[Double] = if (Option(scalar.group("integer")).isDefined) {
@@ -105,7 +105,7 @@ object UnitValuePairParser {
 
 		if (value.isDefined) {
 			val num = value.get
-			Some(TSUnitValuePair(num, unitOption.get))
+			Some(UnitValuePair(num, unitOption.get))
 		} else None
 	}
 }

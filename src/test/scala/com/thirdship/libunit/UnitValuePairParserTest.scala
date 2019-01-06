@@ -3,11 +3,11 @@ package com.thirdship.libunit
 import org.scalatest.{FlatSpec, Matchers}
 
 import com.thirdship.libunit.units.LengthHelpers.Meters
-import com.thirdship.libunit.units.ScalarTSUnit
+import com.thirdship.libunit.units.ScalarUnit
 import com.thirdship.libunit.units.ScalarHelpers.Scalar
 import com.thirdship.libunit.units.TimeHelpers.Seconds
 
-class TSUnitValuePairParserTest extends FlatSpec with Matchers {
+class UnitValuePairParserTest extends FlatSpec with Matchers {
 
 	"A UnitParser" should "have units" in {
 		UnitParser().classes.isEmpty should equal(false)
@@ -19,7 +19,7 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 			"1 km",
 			"1.00 kilometer",
 			"1.0000 kilometers"
-		).foreach(s => UnitValuePairParser(s).get.getUnit.getClass.getName should be("com.thirdship.libunit.units.LengthTSUnit"))
+		).foreach(s => UnitValuePairParser(s).get.getUnit.getClass.getName should be("com.thirdship.libunit.units.LengthUnit"))
 
 
 		List(
@@ -30,12 +30,12 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 			"001.000 yr",
 			"01 y"
 		).foreach(s => {
-			UnitValuePairParser(s).get.getUnit.getClass.getName should be("com.thirdship.libunit.units.TimeTSUnit")
+			UnitValuePairParser(s).get.getUnit.getClass.getName should be("com.thirdship.libunit.units.TimeUnit")
 			UnitValuePairParser(s).get.getValue should be(1)
 		})
 
 		List("1", " 1", "	1	", "1 scalar").foreach(s => {
-			UnitValuePairParser(s).get.getUnit.getClass.getName should be("com.thirdship.libunit.units.ScalarTSUnit")
+			UnitValuePairParser(s).get.getUnit.getClass.getName should be("com.thirdship.libunit.units.ScalarUnit")
 			UnitValuePairParser(s).get.getValue should be(1)
 		})
 
@@ -118,7 +118,7 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 
 			scalar shouldBe defined
 			scalar.get.getValue should be(value)
-			scalar.get shouldEqual TSUnitValuePair(value, new ScalarTSUnit())
+			scalar.get shouldEqual UnitValuePair(value, new ScalarUnit())
 		})
 
 		val testBadStrings = List(
@@ -146,8 +146,8 @@ class TSUnitValuePairParserTest extends FlatSpec with Matchers {
 	}
 
 	it should "parse and simplify complex units" in {
-		var first: TSUnitValuePair = null
-		var second: TSUnit = null
+		var first: UnitValuePair = null
+		var second: BaseUnit = null
 
 		first = UnitValuePairParser.parse("5 ((feet * seconds) / inches)").get
 		second = UnitParser.parse("seconds").get

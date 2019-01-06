@@ -17,7 +17,7 @@ class UnitParserTest extends FlatSpec with Matchers {
 			"km",
 			"kilometer",
 			"kilometers"
-		).foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.LengthTSUnit"))
+		).foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.LengthUnit"))
 
 
 		List(
@@ -27,9 +27,9 @@ class UnitParserTest extends FlatSpec with Matchers {
 			"years",
 			"yr",
 			"y"
-		).foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.TimeTSUnit"))
+		).foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.TimeUnit"))
 
-		List("", " ", "		", "scalar").foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.ScalarTSUnit"))
+		List("", " ", "		", "scalar").foreach(s => UnitParser(s).get.getClass.getName should be("com.thirdship.libunit.units.ScalarUnit"))
 
 		List("NOT A UNIT!").foreach(UnitParser(_) should be(None))
 

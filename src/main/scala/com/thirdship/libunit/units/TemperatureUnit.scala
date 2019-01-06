@@ -7,11 +7,11 @@ import com.thirdship.libunit.utils.Helpers._
   * Define an assortment of helpers that can create appropriate UnitValuePairs dealing with Temperatures.
   */
 object TemperatureHelpers{
-	object Fahrenheit     	{ def apply(value: Double = 1): TSUnitValuePair = TSUnitValuePair(value, new TemperatureTSUnit("F")) }
-	object Celsius 	{ def apply(value: Double = 1): TSUnitValuePair = TSUnitValuePair(value, new TemperatureTSUnit("C")) }
-	object Kelvin 	{ def apply(value: Double = 1): TSUnitValuePair = TSUnitValuePair(value, new TemperatureTSUnit("K")) }
-	object Millikelvin		 	{ def apply(value: Double = 1): TSUnitValuePair = TSUnitValuePair(value, new TemperatureTSUnit("mK")) }
-	object Rankine     	{ def apply(value: Double = 1): TSUnitValuePair = TSUnitValuePair(value, new TemperatureTSUnit("R")) }
+	object Fahrenheit     	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new TemperatureUnit("F")) }
+	object Celsius 	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new TemperatureUnit("C")) }
+	object Kelvin 	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new TemperatureUnit("K")) }
+	object Millikelvin		 	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new TemperatureUnit("mK")) }
+	object Rankine     	{ def apply(value: Double = 1): UnitValuePair = UnitValuePair(value, new TemperatureUnit("R")) }
 
 	private val baseUnit = "C".i
 
@@ -32,7 +32,7 @@ object TemperatureHelpers{
 		new ScalarConversionEdge("K", "R", 1.8, 0.1)
 	)
 
-	val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit,	"Temperature",	compressedParseMap,	edges).createMetricUnits(List("K".i))
+	val data: AStarConvertibleUnitData = new AStarConvertibleUnitData(baseUnit,	"Temperature", compressedParseMap, edges).createMetricUnits(List("K".i))
 
 }
 
@@ -40,12 +40,12 @@ object TemperatureHelpers{
   * A convertible unit that measures the temperature of something.
   *
   * @example
-  * 		new TemperatureTSUnit("C") would measure degrees Celsius
-  * 		new TemperatureTSUnit("F") would measure degrees Fahrenheit
+  * 		new TemperatureUnit("C") would measure degrees Celsius
+  * 		new TemperatureUnit("F") would measure degrees Fahrenheit
   * @param unit the name of the unit
   */
-class TemperatureTSUnit(unit: String = "m") extends AStarConvertibleTSUnit(unit, TemperatureHelpers.data) {
-	override protected def getTSUnit(str: String): TSUnit = {
-		new TemperatureTSUnit(str)
+class TemperatureUnit(unit: String = "m") extends AStarConvertibleUnit(unit, TemperatureHelpers.data) {
+	override protected def getBaseUnit(str: String): BaseUnit = {
+		new TemperatureUnit(str)
 	}
 }

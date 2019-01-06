@@ -25,7 +25,7 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 	}
 
 	it should "augment compressedParseMap" in {
-		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges)
+		val data: AStarConvertibleUnitData = new AStarConvertibleUnitData(baseUnit, "Storage", compressedParseMap, edges)
 			.createBinaryUnits(List(baseUnit, "b".e))
 
 		println(data.compressedParseMap.keys.map(_.baseString)) // scalastyle:ignore println
@@ -50,7 +50,7 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 	}
 
 	it should "augment edges" in {
-		val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Storage", compressedParseMap, edges)
+		val data: AStarConvertibleUnitData = new AStarConvertibleUnitData(baseUnit, "Storage", compressedParseMap, edges)
 			.createBinaryUnits(List(baseUnit, "b".e))
 
 		println(data.conversionEdges) // scalastyle:ignore println
@@ -77,12 +77,12 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 	} // scalastyle:on magic.number
 
 	it should "convert between binary and non-binary units" in {
-		val b = TSUnitValuePair(1, new StorageTSUnit("b"))
-		val byte = TSUnitValuePair(1, new StorageTSUnit("B"))
-		val kbyte = TSUnitValuePair(1, new StorageTSUnit("kB"))
-		val mbyte = TSUnitValuePair(1, new StorageTSUnit("MB"))
-		val kibyte = TSUnitValuePair(1, new StorageTSUnit("KiB"))
-		val mibyte = TSUnitValuePair(1, new StorageTSUnit("MiB"))
+		val b = UnitValuePair(1, new StorageUnit("b"))
+		val byte = UnitValuePair(1, new StorageUnit("B"))
+		val kbyte = UnitValuePair(1, new StorageUnit("kB"))
+		val mbyte = UnitValuePair(1, new StorageUnit("MB"))
+		val kibyte = UnitValuePair(1, new StorageUnit("KiB"))
+		val mibyte = UnitValuePair(1, new StorageUnit("MiB"))
 
 		// scalastyle:off println
 		println(b + byte)

@@ -7,7 +7,7 @@ import com.thirdship.libunit._
  */
 object ScalarHelpers {
 	object Scalar {
-		def apply(value: Double): TSUnitValuePair = TSUnitValuePair(value, new ScalarTSUnit)
+		def apply(value: Double): UnitValuePair = UnitValuePair(value, new ScalarUnit)
 	}
 }
 
@@ -19,52 +19,52 @@ object ScalarHelpers {
  *
  * @param value the amount to scale by
  */
-class ScalarTSUnit(val value: Double = 1) extends BaseTSUnit("Scalar") {
-	override def defaultUnit(): TSUnit = new ScalarTSUnit()
+class ScalarUnit(val value: Double = 1) extends InconvertibleUnit("Scalar") {
+	override def defaultUnit(): BaseUnit = new ScalarUnit()
 
 	// scalastyle:off method.name
-	override def *(unit: TSUnit): TSUnit = unit match {
+	override def *(unit: BaseUnit): BaseUnit = unit match {
 		// We need to replace the current scalar instead of squaring a scalar.
-		case u: ScalarTSUnit => new ScalarTSUnit(value * u.value)
+		case u: ScalarUnit => new ScalarUnit(value * u.value)
 
 		/*
 			However, if it is not a Scalar, let the normal process apply.
 			This makes sense as if the scalar is not 1, then we need to apply that scalar to the resulting fraction.
 			Once the scalar is applied to the fraction, it can be pulled out and further simplified by UnitValuePair
 		*/
-		case u: TSUnit => super.*(u)
+		case u: BaseUnit => super.*(u)
 	}
 
-	override def /(unit: TSUnit): TSUnit = unit match {
+	override def /(unit: BaseUnit): BaseUnit = unit match {
 		// We need to replace the current scalar instead of squaring a scalar.
-		case u: ScalarTSUnit => new ScalarTSUnit(value / u.value)
+		case u: ScalarUnit => new ScalarUnit(value / u.value)
 
 		/*
 			However, if it is not a Scalar, let the normal process apply.
 			This makes sense as if the scalar is not 1, then we need to apply that scalar to the resulting fraction.
 			Once the scalar is applied to the fraction, it can be pulled out and further simplified by UnitValuePair
 		*/
-		case u: TSUnit => super./(u)
+		case u: BaseUnit => super./(u)
 	}
 	// scalastyle:on method.name
 
-	override def conversionFunction(unit: TSUnit): (Double) => Double = unit match {
-		case u: ScalarTSUnit => (a: Double) => (a * value) / u.value
+	override def conversionFunction(unit: BaseUnit): (Double) => Double = unit match {
+		case u: ScalarUnit => (a: Double) => (a * value) / u.value
 		case _ => throw new InvalidConversionState(this, unit)
 	}
 
 	override def toString: String = if (value == 1) "Scalar" else value + "x"
 
-	override def equalUnits(unit: TSUnit): Boolean = unit match {
-		case u: ScalarTSUnit =>	name.equals(u.name) && value == u.value
-		case u: TSUnit =>	super.equalUnits(u)
+	override def equalUnits(unit: BaseUnit): Boolean = unit match {
+		case u: ScalarUnit => name.equals(u.name) && value == u.value
+		case u: BaseUnit =>	super.equalUnits(u)
 	}
 
 	override def unitHashCode: Int = value.hashCode
 
-	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: TSUnit] = {
+	override private[libunit] def parse(str: String)(implicit currentUnitParser: UnitParser = UnitParser()): Option[_ <: BaseUnit] = {
 		if (str.isEmpty || str.equalsIgnoreCase(name)) {
-			Some(new ScalarTSUnit())
+			Some(new ScalarUnit())
 		} else None
 	}
 }

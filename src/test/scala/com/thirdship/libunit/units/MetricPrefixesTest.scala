@@ -2,7 +2,7 @@ package com.thirdship.libunit.units
 
 import org.scalatest.{FlatSpec, Matchers}
 
-import com.thirdship.libunit.{AStarConvertibleTSUnitData, ScalarConversionEdge, TSUnitValuePair, UnitParser}
+import com.thirdship.libunit.{AStarConvertibleUnitData, ScalarConversionEdge, UnitValuePair, UnitParser}
 import com.thirdship.libunit.utils.Helpers._
 
 class MetricPrefixesTest extends FlatSpec with Matchers {
@@ -33,7 +33,7 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
   }
 
   it should "augment compressedParseMap" in {
-    val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Time", compressedParseMap, edges).createMetricUnits(List(baseUnit))
+    val data: AStarConvertibleUnitData = new AStarConvertibleUnitData(baseUnit, "Time", compressedParseMap, edges).createMetricUnits(List(baseUnit))
 
     data.compressedParseMap.apply("Ys".i).map(_.baseString).toSet  should be (Set("Ysec", "Ysecond", "yottas", "yottasec", "yottasecond"))
     data.compressedParseMap.apply("Zs".i).map(_.baseString).toSet  should be (Set("Zsec", "Zsecond", "zettas", "zettasec", "zettasecond"))
@@ -57,7 +57,7 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
   }
 
   it should "augment edges" in {
-    val data: AStarConvertibleTSUnitData = new AStarConvertibleTSUnitData(baseUnit, "Time", compressedParseMap, edges).createMetricUnits(List(baseUnit))
+    val data: AStarConvertibleUnitData = new AStarConvertibleUnitData(baseUnit, "Time", compressedParseMap, edges).createMetricUnits(List(baseUnit))
 
     data.aStar.getConversions(baseUnit.baseString, "Ys")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Ys", 1e-24, 0.1)))
     data.aStar.getConversions(baseUnit.baseString, "Zs")  should be (Option(new ScalarConversionEdge[String](baseUnit.baseString, "Zs", 1e-21, 0.1)))
@@ -80,10 +80,10 @@ class MetricPrefixesTest extends FlatSpec with Matchers {
   }
 
   it should "convert between metric and non-metric units" in {
-    val ks = TSUnitValuePair(1, new TimeTSUnit("ks"))
-    val s = TSUnitValuePair(1, new TimeTSUnit("s"))
-    val ms = TSUnitValuePair(1, new TimeTSUnit("ms"))
-    val us = TSUnitValuePair(1, new TimeTSUnit("us"))
+    val ks = UnitValuePair(1, new TimeUnit("ks"))
+    val s = UnitValuePair(1, new TimeUnit("s"))
+    val ms = UnitValuePair(1, new TimeUnit("ms"))
+    val us = UnitValuePair(1, new TimeUnit("us"))
 
     // scalastyle:off println
     println(ks + s)

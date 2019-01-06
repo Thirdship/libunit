@@ -2,13 +2,13 @@ package com.thirdship.libunit
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class TSUnitTest extends FlatSpec with Matchers {
+class BaseUnitTest extends FlatSpec with Matchers {
 
 	implicit class MeasurableString(str: String) {
-		def unit: TSUnit = new BaseTSUnit(str)
+		def unit: BaseUnit = new InconvertibleUnit(str)
 	}
 
-	"A TSUnit" should "print yo" in {
+	"A BaseUnit" should "print yo" in {
 		val a = "a".unit
 		val b = "b".unit
 		val c = "c".unit

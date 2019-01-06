@@ -2,12 +2,12 @@ package com.thirdship.libunit.units
 
 import org.scalatest.{FlatSpec, Matchers}
 
-import com.thirdship.libunit.{TSUnitValuePair, UnitParser}
+import com.thirdship.libunit.{UnitValuePair, UnitParser}
 import com.thirdship.libunit.units.LengthHelpers._
 
-class LengthTSUnitTest extends FlatSpec with Matchers {
+class LengthUnitTest extends FlatSpec with Matchers {
 
-	"A LengthTSUnit" should "convert stuff" in {
+	"A LengthUnit" should "convert stuff" in {
 		val m = Meters(1)
 		val km = Kilometers(1)
 		// scalastyle:off magic.number
@@ -45,7 +45,7 @@ class LengthTSUnitTest extends FlatSpec with Matchers {
 
 	it should "convert from inches to meters" in {
 		// scalastyle:off magic.number
-		var convertedUnit: TSUnitValuePair = Inches()
+		var convertedUnit: UnitValuePair = Inches()
 
 		convertedUnit = Inches(1).convertToDefaultUnits()
 		convertedUnit.getUnit.toString shouldEqual "m"

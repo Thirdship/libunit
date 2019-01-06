@@ -5,9 +5,9 @@ import org.scalatest.{FlatSpec, Matchers}
 import com.thirdship.libunit.UnitParser
 import com.thirdship.libunit.units.TemperatureHelpers._
 
-class TemperatureTSUnitTest extends FlatSpec with Matchers {
+class TemperatureUnitTest extends FlatSpec with Matchers {
 
-	"A TemperatureTSUnit" should "convert stuff" in {
+	"A TemperatureUnit" should "convert stuff" in {
 		val c = Celsius(0)
 		val f = Fahrenheit(0)
 		val k = Kelvin(273.15)
@@ -19,9 +19,9 @@ class TemperatureTSUnitTest extends FlatSpec with Matchers {
 		c + k should be(Celsius(0))
 		c - k should be(Celsius(0))
 		// scalastyle:off magic.number
-		Celsius(0).convertTo(new TemperatureTSUnit("F")) should be(Fahrenheit(32))
-		Celsius(-20).convertTo(new TemperatureTSUnit("F")) should be(Fahrenheit(-4))
-		Celsius(-40).convertTo(new TemperatureTSUnit("F")) should be(Fahrenheit(-40))
+		Celsius(0).convertTo(new TemperatureUnit("F")) should be(Fahrenheit(32))
+		Celsius(-20).convertTo(new TemperatureUnit("F")) should be(Fahrenheit(-4))
+		Celsius(-40).convertTo(new TemperatureUnit("F")) should be(Fahrenheit(-40))
 		// scalastyle:on magic.number
 		(r + f).getValue should equal(919.34 +- 0.001)
 		(r - f).getValue should equal(0.0 +- 0.001)

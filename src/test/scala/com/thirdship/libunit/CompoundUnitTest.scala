@@ -3,30 +3,30 @@ package com.thirdship.libunit
 import org.scalatest.{FlatSpec, Matchers}
 
 import com.thirdship.libunit.units.LengthHelpers.{Kilometers, Meters}
-import com.thirdship.libunit.units.ScalarTSUnit
+import com.thirdship.libunit.units.ScalarUnit
 import com.thirdship.libunit.units.TimeHelpers.{Minutes, Seconds}
 
-class CompoundTSUnitTest extends FlatSpec with Matchers {
+class CompoundUnitTest extends FlatSpec with Matchers {
 
-	"A CompoundTSUnitTest" should "Simplify Types" in {
-		val a = new BaseTSUnit("a")
-		val b = new BaseTSUnit("b")
-		val c = new BaseTSUnit("c")
+	"A CompoundUnitTest" should "Simplify Types" in {
+		val a = new InconvertibleUnit("a")
+		val b = new InconvertibleUnit("b")
+		val c = new InconvertibleUnit("c")
 
 		val abc = (a * b) / c
-		abc * abc.inverse should be(new ScalarTSUnit)
+		abc * abc.inverse should be(new ScalarUnit)
 
 	}
 
 	it should "should convert down" in {
-		val a = new BaseTSUnit("a")
-		val b = new BaseTSUnit("b")
+		val a = new InconvertibleUnit("a")
+		val b = new InconvertibleUnit("b")
 
-		val a_1 = new CompoundTSUnit(List(a), List.empty[TSUnit])
-		val b_1 = new CompoundTSUnit(List(b), List.empty[TSUnit])
+		val a_1 = new CompoundUnit(List(a), List.empty[BaseUnit])
+		val b_1 = new CompoundUnit(List(b), List.empty[BaseUnit])
 
-		val aa_a = new CompoundTSUnit(List(a, a), List(a))
-		val aab_ab = new CompoundTSUnit(List(a, a, b), List(a, b))
+		val aa_a = new CompoundUnit(List(a, a), List(a))
+		val aab_ab = new CompoundUnit(List(a, a, b), List(a, b))
 
 		a should be(a)
 
@@ -45,9 +45,9 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 	}
 
 	it should "should be convertible" in {
-		val a = new BaseTSUnit("a")
-		val b = new BaseTSUnit("b")
-		val c = new BaseTSUnit("c")
+		val a = new InconvertibleUnit("a")
+		val b = new InconvertibleUnit("b")
+		val c = new InconvertibleUnit("c")
 
 
 		(a / b).isConvertible(a /b) should equal(true)
@@ -66,8 +66,8 @@ class CompoundTSUnitTest extends FlatSpec with Matchers {
 
 	it should "contain a scaling mechanism" in {
 		// scalastyle:off magic.number println
-		val a = Meters(1).getUnit * new ScalarTSUnit(30)
-		val b = Seconds(1).getUnit * new ScalarTSUnit(15)
+		val a = Meters(1).getUnit * new ScalarUnit(30)
+		val b = Seconds(1).getUnit * new ScalarUnit(15)
 		println(a/b)
 		println(a*b)
 		// scalastyle:on magic.number println

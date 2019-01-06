@@ -4,7 +4,7 @@ import scala.util.Random
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class TSUnitConversionTest extends FlatSpec with Matchers {
+class UnitConversionTest extends FlatSpec with Matchers {
 
   val alpha = "alpha"
   val beta = "beta"
@@ -20,7 +20,7 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
 
   val allUnits = List(alpha, beta, gamma, delta, epsilon)
 
-  "TSUnitConversion" should "play well with maps" in {
+  "UnitConversion" should "play well with maps" in {
     Map(alpha -> fctr1)(alpha) should equal(fctr1)
   }
 
@@ -104,7 +104,7 @@ class TSUnitConversionTest extends FlatSpec with Matchers {
     astar.getNeighbors(beta)    should be(List(alpha))
     astar.getNeighbors(gamma)   should be(List(alpha, delta))
     astar.getNeighbors(delta)   should be(List(gamma))
-    astar.getNeighbors(epsilon) should be(List.empty[TSUnit])
+    astar.getNeighbors(epsilon) should be(List.empty[BaseUnit])
   }
 
   it should "return  a real cost" in {

@@ -2,19 +2,19 @@ package com.thirdship.libunit
 
 import org.scalatest.{FlatSpec, Matchers}
 
-import com.thirdship.libunit.units.{LengthTSUnit, ScalarTSUnit}
+import com.thirdship.libunit.units.{LengthUnit, ScalarUnit}
 
-class TSUnitValuePairTest extends FlatSpec with Matchers {
+class UnitValuePairTest extends FlatSpec with Matchers {
 
 	implicit class MeasurableString(str: String) {
-		def unit: TSUnit = new BaseTSUnit(str)
-		def lengthUnit: TSUnit = new LengthTSUnit(str)
+		def unit: BaseUnit = new InconvertibleUnit(str)
+		def lengthUnit: BaseUnit = new LengthUnit(str)
 	}
 
 	"A UnitValuePair" should "provide basic arithmetic operations" in {
 		// scalastyle:off magic.number
-		val m = TSUnitValuePair(10, "m".unit)
-		val s = TSUnitValuePair(10, "s".unit)
+		val m = UnitValuePair(10, "m".unit)
+		val s = UnitValuePair(10, "s".unit)
 		// scalastyle:on magic.number
 		// scalastyle:off println
 		println(m)
@@ -30,8 +30,8 @@ class TSUnitValuePairTest extends FlatSpec with Matchers {
 
 	it should "provide arithmetic operations to length units" in {
 		// scalastyle:off magic.number
-		val m = TSUnitValuePair(10, "m".lengthUnit)
-		val km = TSUnitValuePair(10, "km".lengthUnit)
+		val m = UnitValuePair(10, "m".lengthUnit)
+		val km = UnitValuePair(10, "km".lengthUnit)
 		// scalastyle:on magic.number
 		// scalastyle:off println
 		println("Working with m")
@@ -66,7 +66,7 @@ class TSUnitValuePairTest extends FlatSpec with Matchers {
 
 	it should "work with scalars" in {
 		// scalastyle:off magic.number
-		val s = TSUnitValuePair(10, new ScalarTSUnit(10))
+		val s = UnitValuePair(10, new ScalarUnit(10))
 		val s2 = s * s
 		s.getValue should be(100)
 		s2.getValue should be(100*100)
@@ -76,8 +76,8 @@ class TSUnitValuePairTest extends FlatSpec with Matchers {
 
 	it should "provide arithmetic operations to computable units" in {
 		// scalastyle:off magic.number
-		val m = TSUnitValuePair(10, "m".unit)
-		val s = TSUnitValuePair(10, "s".unit)
+		val m = UnitValuePair(10, "m".unit)
+		val s = UnitValuePair(10, "s".unit)
 		// scalastyle:on magic.number
 		val m_per_s = m /s
 		// scalastyle:off println
