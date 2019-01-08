@@ -101,20 +101,19 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
     shortcut
   }
 
-	/**
-      * Create a list of conversions that the code traveled to in order to create the end conversion
-      * @param  cameFrom  A map with keys of units and values of the unit they "came from" during the A* algorithm search
-      * @param  end      The ending unit form the search
-      * @return A list of conversion edges that when listed in order describe the path of conversion from start to end
-	  */
+  /**
+    * Create a list of conversions that the code traveled to in order to create the end conversion
+    * @param cameFrom A map with keys of units and values of the unit they "came from" during the A* algorithm search
+    * @param end The ending unit form the search
+    * @return A list of conversion edges that when listed in order describe the path of conversion from start to end
+    */
   private def reconstructConversionEdgePathList(cameFrom: Map[String, String], end: String): List[ConversionEdge[String, Double, Double]] = {
-  var list = List.empty[String]
-    var currentUnit = end
-    list = list.::(currentUnit)
-
-    if(cameFrom.get(currentUnit).isEmpty) {
-      return List(getConversion(end, end).get)
+    if (cameFrom.get(end).isEmpty) {
+      return List.empty
     }
+
+    var currentUnit = end
+    var list = List(currentUnit)
 
     while(cameFrom.get(currentUnit).isDefined) {
       currentUnit = cameFrom(currentUnit)
