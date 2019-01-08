@@ -90,8 +90,8 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
   def reconstructPath(cameFrom: Map[String, String], start: String, end: String): ConversionEdge[String, Double, Double] = {
     val path = reconstructConversionEdgePathList(cameFrom, end)
 
-    val conversionTo = path.map(ce => ce.conversion.to).foldLeft((a: Double) => a)((chain, func) => func.compose(chain))
-    val conversionFrom = path.map(ce => ce.conversion.from).foldLeft((a: Double) => a)((chain, func) => chain.compose(func))
+    val conversionTo = Function.chain(path.map(_.conversion.to))
+    val conversionFrom = Function.chain(path.reverseMap(_.conversion.from))
     val cost = path.map(ce => ce.cost).sum
     val conversion = Conversion(conversionTo, conversionFrom)
 
