@@ -108,23 +108,18 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
     * @return A list of conversion edges that when listed in order describe the path of conversion from start to end
     */
   private def reconstructConversionEdgePathList(cameFrom: Map[String, String], end: String): List[ConversionEdge[String, Double, Double]] = {
-    if (cameFrom.get(end).isEmpty) {
-      return List.empty
-    }
-
-    var currentUnit = end
-    var list = List(currentUnit)
-
-    while(cameFrom.get(currentUnit).isDefined) {
-      currentUnit = cameFrom(currentUnit)
-      list = list.::(currentUnit)
-    }
-
-    val conversions = list.sliding(2, 1).flatMap(path => {
-      getConversion(path.head, path(1))
-    }).toList
-
-    conversions
+    // build a reversed list of visited units
+    lazy val visited: Stream[String] =
+      end #:: visited
+        .map(s => cameFrom.get(s))
+        .takeWhile(_.isDefined)
+        .map(_.get)
+    // reverse to normal, then map to conversion edges
+    visited
+      .reverseIterator
+      .sliding(2)
+      .map(edge => getConversion(edge.head, edge.last).get)
+      .toList
   }
 
   /**
