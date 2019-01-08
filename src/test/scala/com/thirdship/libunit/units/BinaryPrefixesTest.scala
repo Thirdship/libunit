@@ -57,23 +57,23 @@ class BinaryPrefixesTest extends FlatSpec with Matchers {
 		val baseString = baseUnit.baseString
 
 		// scalastyle:off magic.number
-		data.aStar.getConversions(baseString, "YiB")  should be (Option(new ScalarConversionEdge[String](baseString, "YiB", Math.pow(2, -80), 1)))
-		data.aStar.getConversions(baseString, "ZiB")  should be (Option(new ScalarConversionEdge[String](baseString, "ZiB", Math.pow(2, -70), 1)))
-		data.aStar.getConversions(baseString, "EiB")  should be (Option(new ScalarConversionEdge[String](baseString, "EiB", Math.pow(2, -60), 1)))
-		data.aStar.getConversions(baseString, "PiB")  should be (Option(new ScalarConversionEdge[String](baseString, "PiB", Math.pow(2, -50), 1)))
-		data.aStar.getConversions(baseString, "TiB")  should be (Option(new ScalarConversionEdge[String](baseString, "TiB", Math.pow(2, -40), 1)))
-		data.aStar.getConversions(baseString, "GiB")  should be (Option(new ScalarConversionEdge[String](baseString, "GiB", Math.pow(2, -30), 1)))
-		data.aStar.getConversions(baseString, "MiB")  should be (Option(new ScalarConversionEdge[String](baseString, "MiB", Math.pow(2, -20), 1)))
-		data.aStar.getConversions(baseString, "KiB")  should be (Option(new ScalarConversionEdge[String](baseString, "KiB", Math.pow(2, -10), 1)))
+		data.aStar.getConversion(baseString, "YiB") should be (Option(new ScalarConversionEdge[String](baseString, "YiB", Math.pow(2, -80), 1)))
+		data.aStar.getConversion(baseString, "ZiB") should be (Option(new ScalarConversionEdge[String](baseString, "ZiB", Math.pow(2, -70), 1)))
+		data.aStar.getConversion(baseString, "EiB") should be (Option(new ScalarConversionEdge[String](baseString, "EiB", Math.pow(2, -60), 1)))
+		data.aStar.getConversion(baseString, "PiB") should be (Option(new ScalarConversionEdge[String](baseString, "PiB", Math.pow(2, -50), 1)))
+		data.aStar.getConversion(baseString, "TiB") should be (Option(new ScalarConversionEdge[String](baseString, "TiB", Math.pow(2, -40), 1)))
+		data.aStar.getConversion(baseString, "GiB") should be (Option(new ScalarConversionEdge[String](baseString, "GiB", Math.pow(2, -30), 1)))
+		data.aStar.getConversion(baseString, "MiB") should be (Option(new ScalarConversionEdge[String](baseString, "MiB", Math.pow(2, -20), 1)))
+		data.aStar.getConversion(baseString, "KiB") should be (Option(new ScalarConversionEdge[String](baseString, "KiB", Math.pow(2, -10), 1)))
 
-		data.aStar.getConversions("b", "Yib")  should be (Option(new ScalarConversionEdge[String]("b", "Yib", Math.pow(2, -80), 1)))
-		data.aStar.getConversions("b", "Zib")  should be (Option(new ScalarConversionEdge[String]("b", "Zib", Math.pow(2, -70), 1)))
-		data.aStar.getConversions("b", "Eib")  should be (Option(new ScalarConversionEdge[String]("b", "Eib", Math.pow(2, -60), 1)))
-		data.aStar.getConversions("b", "Pib")  should be (Option(new ScalarConversionEdge[String]("b", "Pib", Math.pow(2, -50), 1)))
-		data.aStar.getConversions("b", "Tib")  should be (Option(new ScalarConversionEdge[String]("b", "Tib", Math.pow(2, -40), 1)))
-		data.aStar.getConversions("b", "Gib")  should be (Option(new ScalarConversionEdge[String]("b", "Gib", Math.pow(2, -30), 1)))
-		data.aStar.getConversions("b", "Mib")  should be (Option(new ScalarConversionEdge[String]("b", "Mib", Math.pow(2, -20), 1)))
-		data.aStar.getConversions("b", "Kib")  should be (Option(new ScalarConversionEdge[String]("b", "Kib", Math.pow(2, -10), 1)))
+		data.aStar.getConversion("b", "Yib") should be (Option(new ScalarConversionEdge[String]("b", "Yib", Math.pow(2, -80), 1)))
+		data.aStar.getConversion("b", "Zib") should be (Option(new ScalarConversionEdge[String]("b", "Zib", Math.pow(2, -70), 1)))
+		data.aStar.getConversion("b", "Eib") should be (Option(new ScalarConversionEdge[String]("b", "Eib", Math.pow(2, -60), 1)))
+		data.aStar.getConversion("b", "Pib") should be (Option(new ScalarConversionEdge[String]("b", "Pib", Math.pow(2, -50), 1)))
+		data.aStar.getConversion("b", "Tib") should be (Option(new ScalarConversionEdge[String]("b", "Tib", Math.pow(2, -40), 1)))
+		data.aStar.getConversion("b", "Gib") should be (Option(new ScalarConversionEdge[String]("b", "Gib", Math.pow(2, -30), 1)))
+		data.aStar.getConversion("b", "Mib") should be (Option(new ScalarConversionEdge[String]("b", "Mib", Math.pow(2, -20), 1)))
+		data.aStar.getConversion("b", "Kib") should be (Option(new ScalarConversionEdge[String]("b", "Kib", Math.pow(2, -10), 1)))
 	} // scalastyle:on magic.number
 
 	it should "convert between binary and non-binary units" in {

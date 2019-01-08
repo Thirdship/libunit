@@ -55,9 +55,9 @@ class UnitConversionTest extends FlatSpec with Matchers {
     val edgeC = new ScalarConversionEdge(gamma, delta, factor3, cost3)
     val solver = AStarSolver(allUnits, List(edgeA, edgeB, edgeC))
 
-    solver.getConversions(beta, alpha) shouldBe Some(edgeA)
-    solver.getConversions(gamma, alpha) shouldBe Some(edgeB)
-    solver.getConversions(gamma, delta) shouldBe Some(edgeC)
+    solver.getConversion(beta, alpha) shouldBe Some(edgeA)
+    solver.getConversion(gamma, alpha) shouldBe Some(edgeB)
+    solver.getConversion(gamma, delta) shouldBe Some(edgeC)
   }
 
   it should "find a reflexive edge" in {
@@ -67,7 +67,7 @@ class UnitConversionTest extends FlatSpec with Matchers {
     val solver = AStarSolver(allUnits, List(edgeA, edgeB, edgeC))
 
     List(alpha, beta, gamma, delta, epsilon).foreach(u => {
-      solver.getConversions(u, u).get.conversion.to(1) shouldBe 1
+      solver.getConversion(u, u).get.conversion.to(1) shouldBe 1
     })
   }
 
@@ -78,17 +78,17 @@ class UnitConversionTest extends FlatSpec with Matchers {
     val solver = AStarSolver(allUnits, List(edgeA, edgeB, edgeC))
 
     // alpha -> beta
-    val ab = solver.getConversions(alpha, beta).get
+    val ab = solver.getConversion(alpha, beta).get
     ab.conversion.to(1) shouldBe 1/ factor1
     ab.cost shouldBe cost1 + 1
 
     // alpha -> gamma
-    val ag = solver.getConversions(alpha, gamma).get
+    val ag = solver.getConversion(alpha, gamma).get
     ag.conversion.to(1) shouldBe 1/ factor2
     ag.cost shouldBe cost2 + 1
 
     // delta -> gamma
-    val dg = solver.getConversions(delta, gamma).get
+    val dg = solver.getConversion(delta, gamma).get
     dg.conversion.to(1) shouldBe 1/ factor3
     dg.cost shouldBe cost3 + 1
   }

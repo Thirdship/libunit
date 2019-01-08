@@ -26,7 +26,7 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
     *           otherwise, returns a null conversion
     */
 
-  def getConversions(start: String, end: String): Option[ConversionEdge[String, Double, Double]] = {
+  def getConversion(start: String, end: String): Option[ConversionEdge[String, Double, Double]] = {
     if (start == end) {
       return Some(new ScalarConversionEdge(start, start, 1)) // Reflexive edge
     }
@@ -52,7 +52,7 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
   def getNeighbors(center: String): List[String] = {
     var neighbors = List.empty[String]
     allUnits.foreach(maybeNeighbor => {
-      if (getConversions(center, maybeNeighbor).isDefined && center != maybeNeighbor) {
+      if (getConversion(center, maybeNeighbor).isDefined && center != maybeNeighbor) {
         neighbors :+= maybeNeighbor
       }
     })
@@ -68,7 +68,7 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
     * @return a value that is at most the actual cost converting form current to goal
     */
   def heuristic(start: String, end: String): Double = {
-    val piece = getConversions(start, end)
+    val piece = getConversion(start, end)
     if (piece.isDefined) {
       piece.get.cost // returns cost if already calculated
     } else {
@@ -108,12 +108,12 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
       * @return A list of conversion edges that when listed in order describe the path of conversion from start to end
 	  */
   private def reconstructConversionEdgePathList(cameFrom: Map[String, String], end: String): List[ConversionEdge[String, Double, Double]] = {
-    var list = List.empty[String]
+  var list = List.empty[String]
     var currentUnit = end
     list = list.::(currentUnit)
 
     if(cameFrom.get(currentUnit).isEmpty) {
-      return List(getConversions(end, end).get)
+      return List(getConversion(end, end).get)
     }
 
     while(cameFrom.get(currentUnit).isDefined) {
@@ -122,7 +122,7 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
     }
 
     val conversions = list.sliding(2, 1).flatMap(path => {
-      getConversions(path.head, path(1))
+      getConversion(path.head, path(1))
     }).toList
 
     conversions
@@ -138,16 +138,14 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
     * @return the consistent cost of converting from current to goal
     */
   def heuristicPM(start: String, end: String): Double = {
-    var neighborCost = List.empty[Double]
-    var conversion: Option[ConversionEdge[String, Double, Double]] = None
-    neighborCost :+= heuristic(start, end)
-    allUnits.foreach(unit => {
-      conversion = getConversions(start, unit)
-      if(conversion.isDefined && unit != start) {
-        neighborCost :+= heuristic(unit, end) - conversion.get.cost
-      }
-    })
-    neighborCost.max
+    (heuristic(start, end) +:
+      allUnits
+        .withFilter(_ != start)
+        .flatMap(unit =>
+          getConversion(start, unit)
+            .map(conversion => heuristic(unit, end) - conversion.cost)
+        )
+    ).max
   }
 
   /**
@@ -196,7 +194,7 @@ case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEd
       closedSet :+= current // current is not end, therefore remove from openSet and add to closedSet
       val neighbors = getNeighbors(current).filterNot(neighbor => closedSet.contains(neighbor)) // Units adjacent to current
       neighbors.foreach(neighbor => {
-        val maybeGScore = gScore(current) + getConversions(current, neighbor).get.cost // Possible g-score for neighbor
+        val maybeGScore = gScore(current) + getConversion(current, neighbor).get.cost // Possible g-score for neighbor
         var notBetterPath = false
         if (! openSet.contains(neighbor)) {
           openSet :+= neighbor // Add neighbor to openSet. Due to neighbors definition, cannot contain units from the closedSet
