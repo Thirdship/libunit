@@ -7,7 +7,13 @@ package com.thirdship.libunit
   *       Each conversion also has a cost associated with the conversion, referring to the loss of precision when doing the conversion.
   *
   */
-case class AStarSolver(var allUnits: List[String], var allConversions: List[ConversionEdge[String, Double, Double]]) {
+case class AStarSolver(allUnits: List[String], allConversions: List[ConversionEdge[String, Double, Double]]) {
+  /** A fast lookup table for conversion edges. */
+  var allConversionsMap: Map[(String, String), ConversionEdge[String, Double, Double]] = {
+    allConversions
+      .map(c => (c.start, c.end) -> c)
+      .toMap
+  }
 
   /**
     * Returns a conversion, if it exists, between the given units.
@@ -24,11 +30,11 @@ case class AStarSolver(var allUnits: List[String], var allConversions: List[Conv
     if (start == end) {
       return Some(new ScalarConversionEdge(start, start, 1)) // Reflexive edge
     }
-    val equiv = allConversions.filter(a => (a.start == start) && (a.end == end))
+    val equiv = allConversionsMap.get(start, end)
     if (equiv.nonEmpty) {
-      return equiv.headOption // Cached edge
+      return equiv // Cached edge
     }
-    val invert = allConversions.filter(a => (a.end == start) && (a.start == end))
+    val invert = allConversionsMap.get(end, start)
     if (invert.nonEmpty) {
       return Some(invert.head.inverted)  // Commutative edge
     }
@@ -91,7 +97,7 @@ case class AStarSolver(var allUnits: List[String], var allConversions: List[Conv
 
     // Save result
     val shortcut = ConversionEdge(start, end, conversion, cost)
-    allConversions :+= shortcut
+    allConversionsMap += (start, end) -> shortcut
     shortcut
   }
 

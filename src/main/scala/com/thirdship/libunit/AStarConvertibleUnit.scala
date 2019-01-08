@@ -20,7 +20,7 @@ class AStarConvertibleUnitData(val baseUnit: ExactString, val humanReadableName:
   lazy val parseMap: Map[ExactString, String] = generateParseMap(compressedParseMap)
 
   // Store outside the object, that way state is preserved.
-  lazy val  aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
+  lazy val aStar: AStarSolver = AStarSolver(parseMap.values.toList, conversionEdges)
 
   def createMetricUnits(units: List[ExactString]): AStarConvertibleUnitData = {
 	val newStuff = units.map(unitSuffix => {
